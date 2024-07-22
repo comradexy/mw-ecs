@@ -1,6 +1,8 @@
 package cn.comradexy.middleware.sdk.domain;
 
 /**
+ * 定时任务管理服务
+ *
  * @Author: ComradeXY
  * @CreateTime: 2024-07-22
  * @Description: 定时任务管理服务
