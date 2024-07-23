@@ -1,5 +1,11 @@
 package cn.comradexy.middleware.sdk.domain;
 
+import cn.comradexy.middleware.sdk.domain.model.entity.Result;
+import cn.comradexy.middleware.sdk.domain.model.entity.ScheduledTaskVO;
+import cn.comradexy.middleware.sdk.domain.model.valobj.ServiceResponseStatus;
+
+import java.util.List;
+
 /**
  * 定时任务管理服务
  *
@@ -9,20 +15,19 @@ package cn.comradexy.middleware.sdk.domain;
  */
 public interface IScheduledTaskMgrService {
     /**
-     * 启动任务
+     * 创建并启动任务
      *
-     * @param taskId      任务ID
      * @param cronExpr    cron表达式
      * @param taskHandler 任务处理器
      */
-    void startTask(String taskId, String cronExpr, Runnable taskHandler);
+    Result<String> createTask(String cronExpr, Runnable taskHandler);
 
     /**
      * 停止任务
      *
      * @param taskId 任务ID
      */
-    void stopTask(String taskId);
+    Result<String> cancelTask(String taskId);
 
     /**
      * 更新任务
@@ -31,31 +36,31 @@ public interface IScheduledTaskMgrService {
      * @param cronExpr    cron表达式
      * @param taskHandler 任务处理器
      */
-    void updateTask(String taskId, String cronExpr, Runnable taskHandler);
+    ServiceResponseStatus updateTask(String taskId, String cronExpr, Runnable taskHandler);
 
     /**
      * 暂停任务
      *
      * @param taskId 任务ID
      */
-    void pauseTask(String taskId);
+    ServiceResponseStatus pauseTask(String taskId);
 
     /**
      * 恢复任务
      *
      * @param taskId 任务ID
      */
-    void resumeTask(String taskId);
+    ServiceResponseStatus resumeTask(String taskId);
 
     /**
      * 列出所有任务
      */
-    void listTasks();
+    List<ScheduledTaskVO> listTasks();
 
     /**
      * 获取任务
      *
      * @param taskId 任务ID
      */
-    void getTask(String taskId);
+    ScheduledTaskVO getTask(String taskId);
 }
