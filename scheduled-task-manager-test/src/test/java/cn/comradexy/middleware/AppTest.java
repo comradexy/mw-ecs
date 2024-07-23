@@ -1,38 +1,50 @@
 package cn.comradexy.middleware;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import cn.comradexy.middleware.sdk.domain.ScheduledTaskMgrService;
+import cn.comradexy.middleware.sdk.domain.model.entity.Result;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import javax.annotation.Resource;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
- * Unit test for simple App.
+ * 测试用例
+ *
+ * @Author: ComradeXY
+ * @CreateTime: 2024-07-23
+ * @Description: 测试用例
  */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
-    }
+@SpringBootTest
+public class AppTest {
+    @Resource
+    private ScheduledTaskMgrService scheduledTaskMgrService;
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
+    @Test
+    public void test() {
+        // 创建一个每隔2秒执行一次的任务
+        Result<String> createRes = scheduledTaskMgrService.createTask("0/2 * * * * ?", () -> {
+            // 打印当前时间+任务执行
+            System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")) +
+                    " 任务执行");
+        });
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+        // 等待10秒
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // 删除任务
+        Result<String> cancelRes = scheduledTaskMgrService.cancelTask(createRes.getData());
+        if (cancelRes.isSuccess()) {
+            System.out.println("任务删除成功");
+        } else {
+            System.out.println("任务删除失败");
+        }
+
+
     }
 }
