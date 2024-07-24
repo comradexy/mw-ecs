@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.scheduling.support.CronTrigger;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -89,19 +88,20 @@ public class ScheduledTaskMgrService implements IScheduledTaskMgrService {
     }
 
     @Override
-    public ServiceResponseStatus updateTask(String taskId, String cronExpr, Runnable taskHandler) {
-
-        return null;
-    }
-
-    @Override
     public ServiceResponseStatus pauseTask(String taskId) {
-
+        // TODO: 方案一：使用持久化存储保存任务状态，暂停逻辑为：
+        //  先持久化任务，再取消任务，任务恢复时，根据任务状态恢复任务
         return null;
     }
 
     @Override
     public ServiceResponseStatus resumeTask(String taskId) {
+
+        return null;
+    }
+
+    @Override
+    public ServiceResponseStatus updateTask(String taskId, String cronExpr, Runnable taskHandler) {
 
         return null;
     }
