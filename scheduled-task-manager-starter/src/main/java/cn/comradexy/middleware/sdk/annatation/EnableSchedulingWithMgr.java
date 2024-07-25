@@ -15,7 +15,7 @@ import java.lang.annotation.*;
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Import({SchedulingWithMgrConfiguration.class})
+//@Import(SchedulingWithMgrConfiguration.class)
 @Documented
 public @interface EnableSchedulingWithMgr {
 

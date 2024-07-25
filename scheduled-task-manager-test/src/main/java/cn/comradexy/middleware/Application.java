@@ -1,5 +1,6 @@
 package cn.comradexy.middleware;
 
+import cn.comradexy.middleware.sdk.annatation.EnableSchedulingWithMgr;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -11,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @Description: 定时任务管理器Demo
  */
 @SpringBootApplication
+//@EnableSchedulingWithMgr
 public class Application {
 
     public static void main(String[] args) {
