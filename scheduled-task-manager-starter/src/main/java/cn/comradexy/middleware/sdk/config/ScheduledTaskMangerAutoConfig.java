@@ -15,14 +15,14 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
  */
 @Configuration
 public class ScheduledTaskMangerAutoConfig {
-    @Bean("scheduledTaskMgrService")
+    @Bean(SchedulingWithMgrConfiguration.DEFAULT_SCHEDULED_TASK_MGR_SERVICE_BEAN_NAME)
     public ScheduledTaskMgrService scheduledTaskMgrService() {
         // TODO:
 
         return new ScheduledTaskMgrService();
     }
 
-    @Bean("taskScheduler")
+    @Bean(SchedulingWithMgrConfiguration.DEFAULT_TASK_SCHEDULER_BEAN_NAME)
     public TaskScheduler taskScheduler() {
         // 创建定时任务调度器
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
