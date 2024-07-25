@@ -2,7 +2,7 @@ package cn.comradexy.middleware.sdk.domain;
 
 import cn.comradexy.middleware.sdk.domain.model.entity.Result;
 import cn.comradexy.middleware.sdk.domain.model.entity.ScheduledTaskVO;
-import cn.comradexy.middleware.sdk.domain.model.valobj.ServiceResponseStatus;
+import cn.comradexy.middleware.sdk.domain.model.valobj.ServiceResponseStatusVO;
 
 import java.util.List;
 
@@ -36,21 +36,21 @@ public interface IScheduledTaskMgrService {
      * @param cronExpr    cron表达式
      * @param taskHandler 任务处理器
      */
-    ServiceResponseStatus updateTask(String taskId, String cronExpr, Runnable taskHandler);
+    ServiceResponseStatusVO updateTask(String taskId, String cronExpr, Runnable taskHandler);
 
     /**
      * 暂停任务
      *
      * @param taskId 任务ID
      */
-    ServiceResponseStatus pauseTask(String taskId);
+    ServiceResponseStatusVO pauseTask(String taskId);
 
     /**
      * 恢复任务
      *
      * @param taskId 任务ID
      */
-    ServiceResponseStatus resumeTask(String taskId);
+    ServiceResponseStatusVO resumeTask(String taskId);
 
     /**
      * 列出所有任务

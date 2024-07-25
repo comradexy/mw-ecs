@@ -2,7 +2,7 @@ package cn.comradexy.middleware.sdk.domain;
 
 import cn.comradexy.middleware.sdk.domain.model.entity.Result;
 import cn.comradexy.middleware.sdk.domain.model.entity.ScheduledTaskVO;
-import cn.comradexy.middleware.sdk.domain.model.valobj.ServiceResponseStatus;
+import cn.comradexy.middleware.sdk.domain.model.valobj.ServiceResponseStatusVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -10,7 +10,6 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.scheduling.support.CronTrigger;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -48,7 +47,7 @@ public class ScheduledTaskMgrService implements IScheduledTaskMgrService, Dispos
             // 校验cron表达式合法性
             if (!CronExpression.isValidExpression(cronExpr)) {
                 logger.error("cron表达式[{}]不合法", cronExpr);
-                return Result.failed(ServiceResponseStatus.CRON_INVALID);
+                return Result.failed(ServiceResponseStatusVO.CRON_INVALID);
             }
 
             // 生成任务ID
@@ -65,7 +64,7 @@ public class ScheduledTaskMgrService implements IScheduledTaskMgrService, Dispos
             return Result.success(taskId);
         } catch (Exception e) {
             logger.error("启动任务失败", e);
-            return Result.failed(ServiceResponseStatus.FAILED, e.getMessage());
+            return Result.failed(ServiceResponseStatusVO.FAILED, e.getMessage());
         }
     }
 
@@ -80,29 +79,29 @@ public class ScheduledTaskMgrService implements IScheduledTaskMgrService, Dispos
                 return Result.success();
             } else {
                 logger.warn("任务[{}]不存在", taskId);
-                return Result.failed(ServiceResponseStatus.NOT_FOUND);
+                return Result.failed(ServiceResponseStatusVO.NOT_FOUND);
             }
         } catch (Exception e) {
             logger.error("停止任务[{}]失败", taskId, e);
-            return Result.failed(ServiceResponseStatus.FAILED, e.getMessage());
+            return Result.failed(ServiceResponseStatusVO.FAILED, e.getMessage());
         }
     }
 
     @Override
-    public ServiceResponseStatus pauseTask(String taskId) {
+    public ServiceResponseStatusVO pauseTask(String taskId) {
         // TODO: 方案一：使用持久化存储保存任务状态，暂停逻辑为：
         //  先持久化任务，再取消任务，任务恢复时，根据任务状态恢复任务
         return null;
     }
 
     @Override
-    public ServiceResponseStatus resumeTask(String taskId) {
+    public ServiceResponseStatusVO resumeTask(String taskId) {
 
         return null;
     }
 
     @Override
-    public ServiceResponseStatus updateTask(String taskId, String cronExpr, Runnable taskHandler) {
+    public ServiceResponseStatusVO updateTask(String taskId, String cronExpr, Runnable taskHandler) {
 
         return null;
     }

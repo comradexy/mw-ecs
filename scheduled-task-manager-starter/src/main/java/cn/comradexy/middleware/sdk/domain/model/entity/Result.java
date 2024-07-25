@@ -1,6 +1,6 @@
 package cn.comradexy.middleware.sdk.domain.model.entity;
 
-import cn.comradexy.middleware.sdk.domain.model.valobj.ServiceResponseStatus;
+import cn.comradexy.middleware.sdk.domain.model.valobj.ServiceResponseStatusVO;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class Result<T> {
      * 状态
      */
     @NonNull
-    private ServiceResponseStatus status;
+    private ServiceResponseStatusVO status;
 
     /**
      * 具体数据
@@ -32,7 +32,7 @@ public class Result<T> {
      * 成功
      */
     public static <T> Result<T> success() {
-        return new Result<>(ServiceResponseStatus.SUCCESS);
+        return new Result<>(ServiceResponseStatusVO.SUCCESS);
     }
 
     /**
@@ -41,7 +41,7 @@ public class Result<T> {
      * @param data 数据
      */
     public static <T> Result<T> success(T data) {
-        Result<T> result = new Result<>(ServiceResponseStatus.SUCCESS);
+        Result<T> result = new Result<>(ServiceResponseStatusVO.SUCCESS);
         result.setData(data);
         return result;
     }
@@ -51,7 +51,7 @@ public class Result<T> {
      *
      * @param status 状态
      */
-    public static <T> Result<T> failed(ServiceResponseStatus status) {
+    public static <T> Result<T> failed(ServiceResponseStatusVO status) {
         return new Result<>(status);
     }
 
@@ -61,7 +61,7 @@ public class Result<T> {
      * @param status 状态
      * @param data   数据
      */
-    public static <T> Result<T> failed(ServiceResponseStatus status, T data) {
+    public static <T> Result<T> failed(ServiceResponseStatusVO status, T data) {
         Result<T> result = new Result<>(status);
         result.setData(data);
         return result;
@@ -71,6 +71,6 @@ public class Result<T> {
      * 是否成功
      */
     public boolean isSuccess() {
-        return ServiceResponseStatus.SUCCESS.equals(status);
+        return ServiceResponseStatusVO.SUCCESS.equals(status);
     }
 }

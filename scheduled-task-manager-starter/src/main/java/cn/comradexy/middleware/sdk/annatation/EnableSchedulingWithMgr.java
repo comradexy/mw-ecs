@@ -1,8 +1,5 @@
 package cn.comradexy.middleware.sdk.annatation;
 
-import cn.comradexy.middleware.sdk.config.SchedulingWithMgrConfiguration;
-import org.springframework.context.annotation.Import;
-
 import java.lang.annotation.*;
 
 

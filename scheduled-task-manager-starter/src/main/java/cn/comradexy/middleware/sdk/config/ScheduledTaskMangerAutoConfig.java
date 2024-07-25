@@ -1,6 +1,7 @@
 package cn.comradexy.middleware.sdk.config;
 
 import cn.comradexy.middleware.sdk.domain.ScheduledTaskMgrService;
+import cn.comradexy.middleware.sdk.domain.model.valobj.ScheduledTaskMgrEnumVO;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
@@ -15,14 +16,14 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
  */
 @Configuration
 public class ScheduledTaskMangerAutoConfig {
-    @Bean(SchedulingWithMgrConfiguration.DEFAULT_SCHEDULED_TASK_MGR_SERVICE_BEAN_NAME)
-    public ScheduledTaskMgrService scheduledTaskMgrService() {
+    @Bean(ScheduledTaskMgrEnumVO.DEFAULT_SCHEDULED_TASK_MGR_SERVICE_BEAN_NAME)
+    public ScheduledTaskMgrService scheduledTaskMgrService(TaskScheduler taskScheduler) {
         // TODO:
 
-        return new ScheduledTaskMgrService();
+        return new ScheduledTaskMgrService(taskScheduler);
     }
 
-    @Bean(SchedulingWithMgrConfiguration.DEFAULT_TASK_SCHEDULER_BEAN_NAME)
+    @Bean(ScheduledTaskMgrEnumVO.DEFAULT_TASK_SCHEDULER_BEAN_NAME)
     public TaskScheduler taskScheduler() {
         // 创建定时任务调度器
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();

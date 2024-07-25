@@ -7,7 +7,7 @@ package cn.comradexy.middleware.sdk.domain.model.valobj;
  * @CreateTime: 2024-07-23
  * @Description: 服务响应状态
  */
-public enum ServiceResponseStatus {
+public enum ServiceResponseStatusVO {
     /**
      * 执行成功
      */
