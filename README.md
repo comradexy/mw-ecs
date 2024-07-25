@@ -35,6 +35,7 @@ Schedule是计划执行任务的通用术语。Quartz是Java任务调度框架�
 ## Note
 
 - `@Scheduled` 默认以单线程模式执行，若需要并发执行定时任务，可以通过 `@Async` 和 `@EnableAsync` 注解实现（方法上加 `@Async` ，启动类上添加 `@EnableAsync` 注解）。
+- `@PostConstrut` 在Bean实例化后就会立即执行，参考[spring探秘:通过BeanPostProcessor、@PostConstruct、InitializingBean在启动前执行方法](https://www.cnblogs.com/feng-gamer/p/12001205.html)
 
  
 
