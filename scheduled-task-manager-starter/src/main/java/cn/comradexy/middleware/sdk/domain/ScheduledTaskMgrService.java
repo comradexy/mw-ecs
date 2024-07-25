@@ -5,6 +5,7 @@ import cn.comradexy.middleware.sdk.domain.model.entity.ScheduledTaskVO;
 import cn.comradexy.middleware.sdk.domain.model.valobj.ServiceResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.scheduling.support.CronTrigger;
@@ -23,7 +24,7 @@ import java.util.concurrent.ScheduledFuture;
  * @CreateTime: 2024-07-22
  * @Description: 定时任务管理服务
  */
-public class ScheduledTaskMgrService implements IScheduledTaskMgrService {
+public class ScheduledTaskMgrService implements IScheduledTaskMgrService, DisposableBean {
     /**
      * 定时任务调度器
      */
@@ -136,5 +137,14 @@ public class ScheduledTaskMgrService implements IScheduledTaskMgrService {
         // 3. 查询相似任务，返回相似任务ID列表
 
         return null;
+    }
+
+    @Override
+    public void destroy(){
+        // 销毁时，停止所有任务
+        scheduledTasks.forEach((taskId, scheduledFuture) -> {
+            scheduledFuture.cancel(true);
+            logger.info("任务[{}]已停止", taskId);
+        });
     }
 }
