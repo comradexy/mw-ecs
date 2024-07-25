@@ -24,7 +24,11 @@ Schedule是计划执行任务的通用术语。Quartz是Java任务调度框架�
   - 触发器恢复策略：支持多种触发器恢复策略，如“立即恢复”和“下次触发时恢复”。这些策略允许在故障恢复后根据具体情况选择如何重新调度任务。
 
 
-- 相似任务提醒
+- 相似任务提醒，任务相似度计算方案设计
+- 实现类似 `@Schedules` 的注解，允许同时指定多个 `@Scheduled` 注解的配置
+- 目前使用的是 `ThreadPoolTaskScheduler` ，后续考虑需不需要使用 `ConcurrentTaskScheduler`
+
+
 
 
 
