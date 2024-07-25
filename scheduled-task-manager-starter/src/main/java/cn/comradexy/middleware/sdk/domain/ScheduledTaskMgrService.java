@@ -28,8 +28,7 @@ public class ScheduledTaskMgrService implements IScheduledTaskMgrService, Dispos
     /**
      * 定时任务调度器
      */
-    @Resource
-    private TaskScheduler taskScheduler;
+    private final TaskScheduler taskScheduler;
 
     /**
      * 定时任务列表
@@ -38,8 +37,9 @@ public class ScheduledTaskMgrService implements IScheduledTaskMgrService, Dispos
 
     private final Logger logger = LoggerFactory.getLogger(ScheduledTaskMgrService.class);
 
-    public ScheduledTaskMgrService() {
+    public ScheduledTaskMgrService(TaskScheduler taskScheduler) {
         this.scheduledTasks = new ConcurrentHashMap<>();
+        this.taskScheduler = taskScheduler;
     }
 
     @Override
@@ -140,7 +140,7 @@ public class ScheduledTaskMgrService implements IScheduledTaskMgrService, Dispos
     }
 
     @Override
-    public void destroy(){
+    public void destroy() {
         // 销毁时，停止所有任务
         scheduledTasks.forEach((taskId, scheduledFuture) -> {
             scheduledFuture.cancel(true);
