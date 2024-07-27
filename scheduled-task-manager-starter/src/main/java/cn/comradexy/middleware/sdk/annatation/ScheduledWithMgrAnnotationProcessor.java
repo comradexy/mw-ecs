@@ -1,34 +1,26 @@
 package cn.comradexy.middleware.sdk.annatation;
 
-import cn.comradexy.middleware.sdk.domain.ScheduledTaskMgrService;
+import cn.comradexy.middleware.sdk.domain.ScheduledTaskMgr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.framework.AopInfrastructureBean;
-import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.core.MethodIntrospector;
-import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.lang.Nullable;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.ScheduledMethodRunnable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Bean后置处理器
@@ -41,16 +33,20 @@ import java.util.concurrent.ScheduledExecutorService;
 @ConditionalOnBean(annotation = EnableSchedulingWithMgr.class) // 没有使用@EnableSchedulingWithMgr注解，就不加载这个类
 public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, ApplicationContextAware,
         SmartInitializingSingleton, ApplicationListener<ContextRefreshedEvent> {
+
+
+    @Nullable
+    private BeanFactory beanFactory;
     @Nullable
     private ApplicationContext applicationContext;
-    @Nullable
-    private ScheduledTaskMgrService scheduledTaskMgrService;
+
+    private ScheduledTaskMgr scheduledTaskMgr;
 
     private final Set<Class<?>> nonAnnotatedClasses = Collections.newSetFromMap(new ConcurrentHashMap<>(64));
     private final Logger logger = LoggerFactory.getLogger(ScheduledWithMgrAnnotationProcessor.class);
 
-    public void setScheduledTaskMgrService(ScheduledTaskMgrService scheduledTaskMgrService) {
-        this.scheduledTaskMgrService = scheduledTaskMgrService;
+    public void setScheduledTaskMgrService(ScheduledTaskMgr scheduledTaskMgr) {
+        this.scheduledTaskMgr = scheduledTaskMgr;
     }
 
     @Override
@@ -107,8 +103,7 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, A
      * 处理scheduledWithMgr注解
      */
     public void processScheduledWithMgr(ScheduledWithMgr scheduledWithMgr, Method method, Object bean) {
-        // TODO: 调用ScheduledTaskMgrService的createTask方法创建定时任务
-        // 需要现在用TaskScheduler创建定时任务，然后在afterSingletonsInstantiated方法中注册定时任务（分配任务ID等）
+        // TODO: 封装任务，并存放到ScheduledTaskMgr的unresolvedTasks中
         try {
             Runnable runnable = this.createRunnable(bean, method);
 
@@ -120,19 +115,30 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, A
     }
 
     /**
-     * 在所有单例实例化完成后执行
+     * 当ApplicationContext无法获取时调用
      */
     @Override
     public void afterSingletonsInstantiated() {
-        // TODO: 注册定时任务
-        // 清空非注解类集合
         this.nonAnnotatedClasses.clear();
         if (this.applicationContext == null) {
-            // 与onApplicationEvent方法互斥，即两个方法中只有一个会执行
-            // this.applicationContext为空时，执行afterSingletonsInstantiated
-            // this.applicationContext不为空时，执行onApplicationEvent
-            logger.info("执行afterSingletonsInstantiated");
+            this.finishRegistration();
         }
+    }
+
+    /**
+     * 当ApplicationContext初始化或刷新时调用
+     */
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        if (event.getApplicationContext() == this.applicationContext) {
+            this.finishRegistration();
+        }
+    }
+
+    /**
+     * 完成最终注册，通过ScheduledTaskMgr调度任务
+     */
+    private void finishRegistration() {
 
     }
 
@@ -143,18 +149,5 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, A
         Assert.isTrue(method.getParameterCount() == 0, "Only no-arg methods may be annotated with @ScheduledWithMgr");
         Method invocableMethod = AopUtils.selectInvocableMethod(method, target.getClass());
         return new ScheduledMethodRunnable(target, invocableMethod);
-    }
-
-
-    /**
-     * 容器刷新事件
-     */
-    @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
-        // TODO: 容器刷新事件
-        if (event.getApplicationContext() == this.applicationContext) {
-            logger.info("容器刷新事件");
-        }
-
     }
 }

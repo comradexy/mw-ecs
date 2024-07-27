@@ -1,6 +1,6 @@
 package cn.comradexy.middleware;
 
-import cn.comradexy.middleware.sdk.domain.ScheduledTaskMgrService;
+import cn.comradexy.middleware.sdk.domain.ScheduledTaskMgr;
 import cn.comradexy.middleware.sdk.domain.model.entity.Result;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,12 +19,12 @@ import java.time.format.DateTimeFormatter;
 @SpringBootTest
 public class AppTest {
     @Resource
-    private ScheduledTaskMgrService scheduledTaskMgrService;
+    private ScheduledTaskMgr scheduledTaskMgr;
 
     @Test
     public void test() {
         // 创建一个每隔2秒执行一次的任务
-        Result<String> createRes = scheduledTaskMgrService.createTask("0/2 * * * * ?", () -> {
+        Result<String> createRes = scheduledTaskMgr.createTask("0/2 * * * * ?", () -> {
             // 打印当前时间+任务执行
             System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")) +
                     " 任务执行");
@@ -38,7 +38,7 @@ public class AppTest {
         }
 
         // 删除任务
-        Result<String> cancelRes = scheduledTaskMgrService.cancelTask(createRes.getData());
+        Result<String> cancelRes = scheduledTaskMgr.cancelTask(createRes.getData());
         if (cancelRes.isSuccess()) {
             System.out.println("任务删除成功");
         } else {

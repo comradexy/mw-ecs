@@ -7,8 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.config.ScheduledTask;
+import org.springframework.scheduling.config.Task;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.scheduling.support.CronTrigger;
+import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Map;
@@ -23,7 +26,7 @@ import java.util.concurrent.ScheduledFuture;
  * @CreateTime: 2024-07-22
  * @Description: 定时任务管理服务
  */
-public class ScheduledTaskMgrService implements IScheduledTaskMgrService, DisposableBean {
+public class ScheduledTaskMgr implements IScheduledTaskMgr, DisposableBean {
     /**
      * 定时任务调度器
      */
@@ -34,11 +37,19 @@ public class ScheduledTaskMgrService implements IScheduledTaskMgrService, Dispos
      */
     private final Map<String, ScheduledFuture<?>> scheduledTasks;
 
-    private final Logger logger = LoggerFactory.getLogger(ScheduledTaskMgrService.class);
+    /**
+     * 未解析的任务列表
+     */
+    private final Map<Task, ScheduledTask> unresolvedTasks;
 
-    public ScheduledTaskMgrService(TaskScheduler taskScheduler) {
-        this.scheduledTasks = new ConcurrentHashMap<>();
+    private final Logger logger = LoggerFactory.getLogger(ScheduledTaskMgr.class);
+
+    public ScheduledTaskMgr(TaskScheduler taskScheduler) {
+        Assert.notNull(taskScheduler, "TaskScheduler must not be null");
         this.taskScheduler = taskScheduler;
+
+        this.scheduledTasks = new ConcurrentHashMap<>();
+        this.unresolvedTasks = new ConcurrentHashMap<>();
     }
 
     @Override

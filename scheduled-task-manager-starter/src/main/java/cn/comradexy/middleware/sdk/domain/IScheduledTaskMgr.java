@@ -13,7 +13,7 @@ import java.util.List;
  * @CreateTime: 2024-07-22
  * @Description: 定时任务管理服务
  */
-public interface IScheduledTaskMgrService {
+public interface IScheduledTaskMgr {
     /**
      * 创建并启动任务
      *
