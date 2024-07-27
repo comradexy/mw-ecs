@@ -26,9 +26,7 @@ Schedule是计划执行任务的通用术语。Quartz是Java任务调度框架�
 
 - 相似任务提醒，任务相似度计算方案设计
 - 实现类似 `@Schedules` 的注解，允许同时指定多个 `@Scheduled` 注解的配置
-- 目前使用的是 `ThreadPoolTaskScheduler` ，后续考虑需不需要使用 `ConcurrentTaskScheduler`
-
-
+- 目前使用的是 `ThreadPoolTaskScheduler` （和 `ConcurrentTaskScheduler` 有什么区别？），`ThreadPoolTaskScheduler` 使用 `ScheduledTreadPoolExecutor` 作为底层实现，而 `ScheduledTreadPoolExecutor` 使用的**无界的延迟阻塞队列 `DelayedWorkQueue` **，任务队列**最大长度为 `Integer.MAX_VALUE`** ，<u>（如果一直创建定时任务）可能堆积大量的请求，从而导致 OOM</u>，**需要为 `ScheduledTaskMgr` 设计最大任务数和拒绝策略**，以免发生OOM。
 
 
 
