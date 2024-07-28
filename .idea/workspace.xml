@@ -4,12 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="049e3f93-820f-4a52-be0e-d216d856b868" name="Changes" comment="feat: 整理后置处理器与管理器的关系">
-      <change afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/annatation/SchedulesWithMgr.java" afterDir="false" />
+    <list default="true" id="049e3f93-820f-4a52-be0e-d216d856b868" name="Changes" comment="feat: 修改README">
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/annatation/ScheduledWithMgr.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/annatation/ScheduledWithMgr.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/annatation/ScheduledWithMgrAnnotationProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/annatation/ScheduledWithMgrAnnotationProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/domain/ScheduledTaskMgr.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/domain/ScheduledTaskMgr.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,6 +48,7 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "master",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
@@ -82,7 +82,7 @@
       <workItem from="1722068935751" duration="3524000" />
       <workItem from="1722073669885" duration="124000" />
       <workItem from="1722073813322" duration="9118000" />
-      <workItem from="1722149927348" duration="8157000" />
+      <workItem from="1722149927348" duration="9839000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 整理后置处理器与管理器的关系">
       <option name="closed" value="true" />
@@ -92,7 +92,23 @@
       <option name="project" value="LOCAL" />
       <updated>1722083608550</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="feat: 完善postProcessAfterInitialization；增加SchedulesWithMgr注解">
+      <option name="closed" value="true" />
+      <created>1722169769005</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1722169769005</updated>
+    </task>
+    <task id="LOCAL-00003" summary="feat: 修改README">
+      <option name="closed" value="true" />
+      <created>1722171277747</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1722171277747</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -111,7 +127,9 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat: 整理后置处理器与管理器的关系" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 整理后置处理器与管理器的关系" />
+    <MESSAGE value="feat: 完善postProcessAfterInitialization；增加SchedulesWithMgr注解" />
+    <MESSAGE value="feat: 修改README" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 修改README" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
