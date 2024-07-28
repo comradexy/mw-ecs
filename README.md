@@ -25,12 +25,13 @@ Schedule是计划执行任务的通用术语。Quartz是Java任务调度框架�
 - 相似任务提醒，任务相似度计算方案设计
 - 目前使用的是 `ThreadPoolTaskScheduler` （和 `ConcurrentTaskScheduler` 有什么区别？），`ThreadPoolTaskScheduler` 使用 `ScheduledTreadPoolExecutor` 作为底层实现，而 `ScheduledTreadPoolExecutor` 使用的**无界的延迟阻塞队列 `DelayedWorkQueue` **，任务队列**最大长度为 `Integer.MAX_VALUE`** ，<u>（如果一直创建定时任务）可能堆积大量的请求，从而导致 OOM</u>，**需要为 `ScheduledTaskMgr` 设计最大任务数和拒绝策略**，以免发生OOM。
 - 配置 `StringValueResolver` ，解析字符串中的占位符和 SpEL 表达式。
+- 如果要考虑分布式并发场景（防止任务重复执行），可以使用分布式锁（例如Redisson），配合任务唯一标识符进行分布式管理。
 
 
 
 ## Note
 
-- `@Scheduled` 默认以**单线程模式**执行（如果没有配置 `TaskScheduler` ，Spring会给 `ScheduledTaskRegister#TaskScheduler` 配置一个 `ConcurrentTaskScheduler` ），若需要并发执行定时任务，可以通过 `@Async` 和 `@EnableAsync` 注解实现（方法上加 `@Async` ，启动类上添加 `@EnableAsync` 注解）。
+- `@Scheduled` 默认以**单线程模式**执行（如果没有配置 `TaskScheduler` ，Spring会给 `ScheduledTaskRegister#TaskScheduler` 配置一个底层实现为 `SingleThreadScheduledExecutor` 的 `ConcurrentTaskScheduler` ），若需要并发执行定时任务，可以通过 `@Async` 和 `@EnableAsync` 注解实现（方法上加 `@Async` ，启动类上添加 `@EnableAsync` 注解）。
 - `@PostConstrut` 在Bean实例化后就会立即执行，参考[spring探秘:通过BeanPostProcessor、@PostConstruct、InitializingBean在启动前执行方法](https://www.cnblogs.com/feng-gamer/p/12001205.html)
 
  
