@@ -9,11 +9,10 @@ import java.lang.annotation.*;
  * @CreateTime: 2024-07-24
  * @Description: 定时方法--使用管理中心托管
  */
-@Target({ElementType.METHOD})
+@Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-//@Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
-//@Repeatable(SchedulesWithMgr.class)
+@Repeatable(SchedulesWithMgr.class)
 public @interface ScheduledWithMgr {
     String cron() default "";
 }
