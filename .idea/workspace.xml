@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="049e3f93-820f-4a52-be0e-d216d856b868" name="Changes" comment="feat: 修改README">
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+    <list default="true" id="049e3f93-820f-4a52-be0e-d216d856b868" name="Changes" comment="feat: 更新.idea">
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/domain/ScheduledTaskMgr.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/domain/ScheduledTaskMgr.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -82,7 +80,7 @@
       <workItem from="1722068935751" duration="3524000" />
       <workItem from="1722073669885" duration="124000" />
       <workItem from="1722073813322" duration="9118000" />
-      <workItem from="1722149927348" duration="9839000" />
+      <workItem from="1722149927348" duration="9968000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 整理后置处理器与管理器的关系">
       <option name="closed" value="true" />
@@ -108,7 +106,23 @@
       <option name="project" value="LOCAL" />
       <updated>1722171277747</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="feat: 更新.gitignore">
+      <option name="closed" value="true" />
+      <created>1722171345032</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1722171345032</updated>
+    </task>
+    <task id="LOCAL-00005" summary="feat: 更新.idea">
+      <option name="closed" value="true" />
+      <created>1722171427454</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1722171427455</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -129,7 +143,9 @@
     <MESSAGE value="feat: 整理后置处理器与管理器的关系" />
     <MESSAGE value="feat: 完善postProcessAfterInitialization；增加SchedulesWithMgr注解" />
     <MESSAGE value="feat: 修改README" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 修改README" />
+    <MESSAGE value="feat: 更新.gitignore" />
+    <MESSAGE value="feat: 更新.idea" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 更新.idea" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
