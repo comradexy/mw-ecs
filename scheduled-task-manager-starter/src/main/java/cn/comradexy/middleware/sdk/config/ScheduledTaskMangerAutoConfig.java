@@ -20,7 +20,7 @@ public class ScheduledTaskMangerAutoConfig {
     public ScheduledTaskMgr scheduledTaskMgrService(TaskScheduler taskScheduler) {
         // TODO:
 
-        return new ScheduledTaskMgr(taskScheduler);
+        return new ScheduledTaskMgr();
     }
 
     @Bean(ScheduledTaskMgrEnumVO.DEFAULT_TASK_SCHEDULER_BEAN_NAME)

@@ -14,5 +14,9 @@ import java.lang.annotation.*;
 @Documented
 @Repeatable(SchedulesWithMgr.class)
 public @interface ScheduledWithMgr {
+    String CRON_DISABLED = "-";
+
     String cron() default "";
+
+    String zone() default "";
 }

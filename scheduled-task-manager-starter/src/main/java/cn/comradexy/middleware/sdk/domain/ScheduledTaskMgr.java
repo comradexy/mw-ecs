@@ -6,6 +6,7 @@ import cn.comradexy.middleware.sdk.domain.model.valobj.ServiceResponseStatusVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.config.ScheduledTask;
 import org.springframework.scheduling.config.Task;
@@ -30,26 +31,23 @@ public class ScheduledTaskMgr implements IScheduledTaskMgr, DisposableBean {
     /**
      * 定时任务调度器
      */
-    private final TaskScheduler taskScheduler;
+    private TaskScheduler taskScheduler;
 
     /**
-     * 定时任务列表
+     * 定时任务列表(缓存)
      */
     private final Map<String, ScheduledFuture<?>> scheduledTasks;
 
-    /**
-     * 未解析的任务列表
-     */
-    private final Map<Task, ScheduledTask> unresolvedTasks;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final Logger logger = LoggerFactory.getLogger(ScheduledTaskMgr.class);
+    public ScheduledTaskMgr() {
+        this.scheduledTasks = new ConcurrentHashMap<>(64);
+    }
 
-    public ScheduledTaskMgr(TaskScheduler taskScheduler) {
+    @Autowired
+    public void setTaskScheduler(TaskScheduler taskScheduler) {
         Assert.notNull(taskScheduler, "TaskScheduler must not be null");
         this.taskScheduler = taskScheduler;
-
-        this.scheduledTasks = new ConcurrentHashMap<>();
-        this.unresolvedTasks = new ConcurrentHashMap<>();
     }
 
     @Override
