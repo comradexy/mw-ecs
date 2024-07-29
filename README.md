@@ -12,7 +12,18 @@ Schedule是计划执行任务的通用术语。Quartz是Java任务调度框架�
 
 
 
+主要需求：
+
+- 任务唯一标识；
+- 定时任务动态管理（增删改查）；
+- 任务持久化；
+- 声明式任务（@ScheduledWithMgr）；
+
+
+
 ## TODO
+
+开发：
 
 - 完善 `pauseTask` 和 `resumeTask` 方法，需要先完成任务持久化的实现（[参考Quartz的任务持久化原理](#Quartz任务持久化)），持久化任务恢复后正确执行应当考虑：
   - 幂等性：要求任务逻辑本身具有幂等性，即多次执行同一任务应该产生相同的结果。这有助于避免在故障恢复后由于重复执行任务而导致的问题。
@@ -26,6 +37,13 @@ Schedule是计划执行任务的通用术语。Quartz是Java任务调度框架�
 - 目前使用的是 `ThreadPoolTaskScheduler` （和 `ConcurrentTaskScheduler` 有什么区别？），`ThreadPoolTaskScheduler` 使用 `ScheduledTreadPoolExecutor` 作为底层实现，而 `ScheduledTreadPoolExecutor` 使用的**无界的延迟阻塞队列 `DelayedWorkQueue` **，任务队列**最大长度为 `Integer.MAX_VALUE`** ，<u>（如果一直创建定时任务）可能堆积大量的请求，从而导致 OOM</u>，**需要为 `ScheduledTaskMgr` 设计最大任务数和拒绝策略**，以免发生OOM。
 - 配置 `StringValueResolver` ，解析字符串中的占位符和 SpEL 表达式。
 - 如果要考虑分布式并发场景（防止任务重复执行），可以使用分布式锁（例如Redisson），配合任务唯一标识符进行分布式管理。
+
+
+
+测试：
+
+- 不配置 TaskScheduler 的 Bean ，应该由 SchuledWithMgrPostBeanProcessor 报错；
+- TaskScheduler 的加载流程并没有按照预想的流程进行，需要进一步测试
 
 
 

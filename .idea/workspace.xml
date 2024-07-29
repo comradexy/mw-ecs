@@ -4,17 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="049e3f93-820f-4a52-be0e-d216d856b868" name="Changes" comment="feat: 完成finishRegistration">
-      <change afterPath="$PROJECT_DIR$/scheduled-task-manager-test/src/main/java/cn/comradexy/middleware/job/ScheduledJob.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scheduled-task-manager-test/src/main/resources/application-dev.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scheduled-task-manager-test/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="049e3f93-820f-4a52-be0e-d216d856b868" name="Changes" comment="feat: 初测声明式定时任务功能">
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/annatation/ScheduledWithMgrAnnotationProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/annatation/ScheduledWithMgrAnnotationProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/config/ScheduledTaskMangerAutoConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/config/ScheduledTaskMangerAutoConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/domain/ScheduledTaskMgr.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/domain/ScheduledTaskMgr.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/domain/model/valobj/ScheduledTaskMgrEnumVO.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/domain/model/valobj/ScheduledTaskMgrEnumVO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-test/src/main/java/cn/comradexy/middleware/config/ScheduledTaskMgrConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-test/src/main/java/cn/comradexy/middleware/config/ScheduledTaskMgrConfig.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,7 +105,7 @@
       <workItem from="1722068935751" duration="3524000" />
       <workItem from="1722073669885" duration="124000" />
       <workItem from="1722073813322" duration="9118000" />
-      <workItem from="1722149927348" duration="29042000" />
+      <workItem from="1722149927348" duration="29239000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 整理后置处理器与管理器的关系">
       <option name="closed" value="true" />
@@ -188,7 +179,15 @@
       <option name="project" value="LOCAL" />
       <updated>1722258562190</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="feat: 初测声明式定时任务功能">
+      <option name="closed" value="true" />
+      <created>1722260716355</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1722260716355</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -214,7 +213,8 @@
     <MESSAGE value="feat: 更新README" />
     <MESSAGE value="feat: 完成processScheduledWithMgr" />
     <MESSAGE value="feat: 完成finishRegistration" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 完成finishRegistration" />
+    <MESSAGE value="feat: 初测声明式定时任务功能" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 初测声明式定时任务功能" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
