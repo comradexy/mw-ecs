@@ -7,10 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.BeanNameAware;
-import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.beans.factory.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -27,8 +25,6 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.config.CronTask;
-import org.springframework.scheduling.config.ScheduledTask;
-import org.springframework.scheduling.config.Task;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.scheduling.support.ScheduledMethodRunnable;
 import org.springframework.stereotype.Component;
@@ -57,6 +53,8 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, B
     private BeanFactory beanFactory;
     @Nullable
     private ApplicationContext applicationContext;
+    @Nullable
+    private TaskScheduler taskScheduler;
 
     /**
      * 定时任务管理器
@@ -102,6 +100,11 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, B
         if (beanFactory == null) {
             beanFactory = applicationContext;
         }
+    }
+
+    @Autowired
+    public void setTaskScheduler(TaskScheduler taskScheduler) {
+        this.taskScheduler = taskScheduler;
     }
 
     @Override
@@ -188,8 +191,7 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, B
                     unresolvedCronTasks.add(new CronTask(runnable, new CronTrigger(cron, timeZone)));
                 }
             }
-        } catch (
-                IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             throw new IllegalStateException("Encountered invalid @ScheduledWithMgr method '" + method.getName() +
                     "':" + " " + ex.getMessage());
         }
@@ -229,7 +231,34 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, B
      * 完成最终注册，通过ScheduledTaskMgr调度任务
      */
     private void finishRegistration() {
-        // TODO: 通过ScheduledTaskMgr调度任务
+        // 如果持有的taskScheduler对象不为null，则设置到ScheduledTaskMgr中
+        if (taskScheduler != null) {
+            scheduledTaskMgr.setTaskScheduler(taskScheduler);
+        }
+
+        // 为了从BeanFactory取出任务调度器实例，包括尝试通过类型或者名字获取，获取成功后设置到ScheduledTaskMgr中
+        if (!unresolvedCronTasks.isEmpty() && !scheduledTaskMgr.hasTaskScheduler()) {
+            Assert.state(beanFactory != null, "BeanFactory must be set to find scheduler by type");
+            try {
+                // 按照名称查找
+                scheduledTaskMgr.setTaskScheduler(resolveSchedulerBean(beanFactory, TaskScheduler.class, false));
+            } catch (NoUniqueBeanDefinitionException ex) {
+                logger.trace("Could not find unique TaskScheduler bean", ex);
+                try {
+                    // 按照类型查找
+                    scheduledTaskMgr.setTaskScheduler(resolveSchedulerBean(beanFactory, TaskScheduler.class, true));
+                } catch (NoSuchBeanDefinitionException ex2) {
+                    logger.trace("Could not find default TaskScheduler bean", ex2);
+                    logger.info("No TaskScheduler bean found for scheduled processing");
+                }
+            } catch (NoSuchBeanDefinitionException ex) {
+                logger.trace("Could not find default TaskScheduler bean", ex);
+                logger.info("No TaskScheduler bean found for scheduled processing");
+            }
+        }
+
+        // 调度所有已登记的任务
+        scheduleTasks();
     }
 
     /**
@@ -237,23 +266,39 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, B
      */
     private <T> T resolveSchedulerBean(BeanFactory beanFactory, Class<T> schedulerType, boolean byName) {
         if (byName) {
-            T scheduler = beanFactory.getBean(ScheduledTaskMgrEnumVO.DEFAULT_SCHEDULED_TASK_MGR_SERVICE_BEAN_NAME,
-                    schedulerType);
+            // 按名称获取调度器Bean
+            T scheduler = beanFactory.getBean(ScheduledTaskMgrEnumVO.DEFAULT_TASK_SCHEDULER_BEAN_NAME, schedulerType);
             if (beanName != null && beanFactory instanceof ConfigurableBeanFactory) {
-                ((ConfigurableBeanFactory) beanFactory).registerDependentBean("taskScheduler", beanName);
+                ((ConfigurableBeanFactory) beanFactory).registerDependentBean(ScheduledTaskMgrEnumVO.DEFAULT_TASK_SCHEDULER_BEAN_NAME, beanName);
             }
-
             return scheduler;
         } else if (beanFactory instanceof AutowireCapableBeanFactory) {
+            // 通过类型解析被命名的调度器Bean
             NamedBeanHolder<T> holder = ((AutowireCapableBeanFactory) beanFactory).resolveNamedBean(schedulerType);
             if (beanName != null && beanFactory instanceof ConfigurableBeanFactory) {
                 ((ConfigurableBeanFactory) beanFactory).registerDependentBean(holder.getBeanName(), beanName);
             }
-
             return holder.getBeanInstance();
         } else {
+            // 通过类型获取调度器Bean
             return beanFactory.getBean(schedulerType);
         }
     }
 
+    private void scheduleTasks() {
+        /*if (this.taskScheduler == null) {
+            // 如果找不到任务调度器实例，那么会用单个线程调度所有任务
+            this.taskScheduler = new ConcurrentTaskScheduler(Executors.newSingleThreadScheduledExecutor());
+        }*/
+        // 要求显式设置TaskScheduler
+        Assert.state(scheduledTaskMgr.hasTaskScheduler(), "No TaskScheduler set");
+
+        // 调度所有装载完毕的CronTask
+        if (!unresolvedCronTasks.isEmpty()) {
+            for (CronTask cronTask : unresolvedCronTasks) {
+                // 通过scheduledTaskMgr托管
+                scheduledTaskMgr.createTask(cronTask.getExpression(), cronTask.getRunnable());
+            }
+        }
+    }
 }

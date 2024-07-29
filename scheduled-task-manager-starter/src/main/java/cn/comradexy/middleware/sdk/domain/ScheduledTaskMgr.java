@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.config.ScheduledTask;
-import org.springframework.scheduling.config.Task;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.util.Assert;
@@ -48,6 +46,10 @@ public class ScheduledTaskMgr implements IScheduledTaskMgr, DisposableBean {
     public void setTaskScheduler(TaskScheduler taskScheduler) {
         Assert.notNull(taskScheduler, "TaskScheduler must not be null");
         this.taskScheduler = taskScheduler;
+    }
+
+    public boolean hasTaskScheduler() {
+        return taskScheduler != null;
     }
 
     @Override
