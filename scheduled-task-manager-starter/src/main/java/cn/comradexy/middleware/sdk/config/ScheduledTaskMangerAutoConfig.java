@@ -30,7 +30,7 @@ public class ScheduledTaskMangerAutoConfig {
         // 设置线程池容量
         taskScheduler.setPoolSize(10);
         // 设置线程名前缀
-        taskScheduler.setThreadNamePrefix("task-scheduler-");
+        taskScheduler.setThreadNamePrefix("ts-thread-");
         // 等待任务在关机时完成--表明等待所有线程执行完
         taskScheduler.setWaitForTasksToCompleteOnShutdown(true);
         // 等待时长

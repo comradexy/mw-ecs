@@ -1,5 +1,7 @@
 package cn.comradexy.middleware.config;
 
+import cn.comradexy.middleware.job.ScheduledJob;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -11,4 +13,8 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class ScheduledTaskMgrConfig {
+    @Bean
+    public ScheduledJob scheduledJob() {
+        return new ScheduledJob();
+    }
 }

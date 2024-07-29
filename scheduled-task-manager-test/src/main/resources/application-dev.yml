@@ -1,0 +1,7 @@
+server:
+  port: 8091
+
+# 设置日志级别
+logging:
+  level:
+    root: info

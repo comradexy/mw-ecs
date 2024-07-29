@@ -4,11 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="049e3f93-820f-4a52-be0e-d216d856b868" name="Changes" comment="feat: 完成processScheduledWithMgr">
+    <list default="true" id="049e3f93-820f-4a52-be0e-d216d856b868" name="Changes" comment="feat: 完成finishRegistration">
+      <change afterPath="$PROJECT_DIR$/scheduled-task-manager-test/src/main/java/cn/comradexy/middleware/job/ScheduledJob.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scheduled-task-manager-test/src/main/resources/application-dev.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scheduled-task-manager-test/src/main/resources/application.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/annatation/ScheduledWithMgrAnnotationProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/annatation/ScheduledWithMgrAnnotationProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/config/ScheduledTaskMangerAutoConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/config/ScheduledTaskMangerAutoConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/domain/ScheduledTaskMgr.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/domain/ScheduledTaskMgr.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/domain/model/valobj/ScheduledTaskMgrEnumVO.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/domain/model/valobj/ScheduledTaskMgrEnumVO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-test/src/main/java/cn/comradexy/middleware/config/ScheduledTaskMgrConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-test/src/main/java/cn/comradexy/middleware/config/ScheduledTaskMgrConfig.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,6 +25,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="AnnotationType" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -46,9 +53,14 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Spring Boot.Application.executor": "Run",
     "git-widget-placeholder": "master",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
@@ -63,6 +75,26 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RunManager">
+    <configuration name="Application" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <module name="scheduled-task-manager-test" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="cn.comradexy.middleware.Application" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="cn.comradexy.middleware.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Spring Boot.Application" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -82,7 +114,7 @@
       <workItem from="1722068935751" duration="3524000" />
       <workItem from="1722073669885" duration="124000" />
       <workItem from="1722073813322" duration="9118000" />
-      <workItem from="1722149927348" duration="26555000" />
+      <workItem from="1722149927348" duration="29042000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 整理后置处理器与管理器的关系">
       <option name="closed" value="true" />
@@ -148,7 +180,15 @@
       <option name="project" value="LOCAL" />
       <updated>1722252991117</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="feat: 完成finishRegistration">
+      <option name="closed" value="true" />
+      <created>1722258562190</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1722258562190</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -173,7 +213,15 @@
     <MESSAGE value="feat: 更新.gitignore" />
     <MESSAGE value="feat: 更新README" />
     <MESSAGE value="feat: 完成processScheduledWithMgr" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 完成processScheduledWithMgr" />
+    <MESSAGE value="feat: 完成finishRegistration" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 完成finishRegistration" />
+  </component>
+  <component name="XDebuggerManager">
+    <watches-manager>
+      <configuration name="SpringBootApplicationConfigurationType">
+        <watch expression="((ScheduledWithMgrAnnotationProcessor)this).scheduledTaskMgr" custom="cn.comradexy.middleware.sdk.annatation.ScheduledWithMgrAnnotationProcessor" />
+      </configuration>
+    </watches-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

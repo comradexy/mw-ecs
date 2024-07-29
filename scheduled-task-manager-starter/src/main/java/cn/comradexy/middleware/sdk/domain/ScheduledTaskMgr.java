@@ -42,7 +42,6 @@ public class ScheduledTaskMgr implements IScheduledTaskMgr, DisposableBean {
         this.scheduledTasks = new ConcurrentHashMap<>(64);
     }
 
-    @Autowired
     public void setTaskScheduler(TaskScheduler taskScheduler) {
         Assert.notNull(taskScheduler, "TaskScheduler must not be null");
         this.taskScheduler = taskScheduler;

@@ -119,15 +119,15 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, B
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) {
         // 排除AopInfrastructureBean、TaskScheduler、ScheduledExecutorService，防止循环依赖
-        if ((bean instanceof AopInfrastructureBean) || (bean instanceof TaskScheduler) || (bean instanceof ScheduledExecutorService)) {
+        if ((bean instanceof AopInfrastructureBean) || (bean instanceof TaskScheduler)) {
             return bean;
         }
 
-        // 判断类是否有ScheduledWithMgr注解
         // 获取Bean的用户态类型，例如Bean有可能被CGLIB增强，这个时候要取其父类
         Class<?> targetClass = AopProxyUtils.ultimateTargetClass(bean);
+        // 判断类是否有ScheduledWithMgr注解
         // nonAnnotatedClasses存放着不存在@ScheduledWithMgr注解的类型，缓存起来避免重复判断它是否携带@ScheduledWithMgr注解的方法
-        if (!nonAnnotatedClasses.contains(targetClass) && AnnotationUtils.isCandidateClass(targetClass,
+        if (nonAnnotatedClasses.contains(targetClass) || !AnnotationUtils.isCandidateClass(targetClass,
                 Arrays.asList(ScheduledWithMgr.class, SchedulesWithMgr.class))) {
             return bean;
         }

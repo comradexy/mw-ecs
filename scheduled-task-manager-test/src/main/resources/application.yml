@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: scheduled-task-manager-test
+  profiles:
+    active: dev

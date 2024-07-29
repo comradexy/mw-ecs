@@ -14,5 +14,5 @@ import lombok.Getter;
 public class ScheduledTaskMgrEnumVO {
     public static final String DEFAULT_TASK_SCHEDULER_BEAN_NAME = "taskScheduler";
 
-    public static final String DEFAULT_SCHEDULED_TASK_MGR_SERVICE_BEAN_NAME = "scheduledTaskMgrService";
+    public static final String DEFAULT_SCHEDULED_TASK_MGR_SERVICE_BEAN_NAME = "scheduledTaskMgr";
 }
