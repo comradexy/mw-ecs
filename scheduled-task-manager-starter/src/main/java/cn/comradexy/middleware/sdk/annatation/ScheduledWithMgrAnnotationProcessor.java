@@ -13,6 +13,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.Ordered;
@@ -65,6 +66,7 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, A
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    @Lazy
     public void setScheduledTaskMgr(ScheduledTaskMgr scheduledTaskMgr) {
         Assert.notNull(scheduledTaskMgr, "ScheduledTaskMgr must not be null");
         this.scheduledTaskMgr = scheduledTaskMgr;
@@ -192,6 +194,27 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, A
      * 完成最终注册，通过ScheduledTaskMgr调度任务
      */
     private void finishRegistration() {
+//        if (null == scheduledTaskMgr) {
+//            // 通过ApplicationContext获取所有ScheduledTaskMgr实例
+//            // 先根据类型获取，再根据名称获取
+//            try {
+//                setScheduledTaskMgr(applicationContext.getBean(ScheduledTaskMgr.class));
+//            } catch (NoUniqueBeanDefinitionException ex) {
+//                logger.trace("Could not find unique ScheduledTaskMgr bean", ex);
+//                try {
+//                    setScheduledTaskMgr(applicationContext.getBean(ScheduledTaskMgr.class, "scheduledTaskMgr"));
+//                } catch (NoSuchBeanDefinitionException ex2) {
+//                    logger.info("More than one ScheduledTaskMgr bean exists within the context, and " +
+//                            "none is named 'scheduledTaskMgr'. Mark one of them as primary or name it " +
+//                            "'scheduledTaskMgr'.");
+//                }
+//            } catch (NoSuchBeanDefinitionException ex) {
+//                logger.trace("Could not find ScheduledTaskMgr bean", ex);
+//                logger.info("No ScheduledTaskMgr bean found within the context. " +
+//                        "Consider defining a bean of type ScheduledTaskMgr, or mark one of them as primary.");
+//            }
+//        }
+
         if (!scheduledTaskMgr.hasTaskScheduler()) {
             // 通过ApplicationContext获取所有TaskScheduler实例
             // 先根据类型获取，再根据名称获取
