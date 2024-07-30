@@ -1,5 +1,8 @@
 package cn.comradexy.middleware.sdk.annatation;
 
+import cn.comradexy.middleware.sdk.config.ScheduledTaskMangerConfig;
+import org.springframework.context.annotation.Import;
+
 import java.lang.annotation.*;
 
 
@@ -12,8 +15,10 @@ import java.lang.annotation.*;
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-//@Import(SchedulingWithMgrConfiguration.class)
+@Import({
+        ScheduledWithMgrAnnotationProcessor.class,
+        ScheduledTaskMangerConfig.class
+})
 @Documented
 public @interface EnableSchedulingWithMgr {
-
 }

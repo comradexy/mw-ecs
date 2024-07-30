@@ -6,7 +6,9 @@ import cn.comradexy.middleware.sdk.domain.model.valobj.ServiceResponseStatusVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.scheduling.support.CronTrigger;
@@ -19,28 +21,25 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 
 /**
- * 定时任务管理服务
+ * 定时任务管理器
  *
  * @Author: ComradeXY
  * @CreateTime: 2024-07-22
- * @Description: 定时任务管理服务
+ * @Description: 定时任务管理器
  */
 public class ScheduledTaskMgr implements IScheduledTaskMgr, DisposableBean {
     /**
      * 定时任务调度器
      */
+    @Nullable
     private TaskScheduler taskScheduler;
 
     /**
      * 定时任务列表(缓存)
      */
-    private final Map<String, ScheduledFuture<?>> scheduledTasks;
+    private final Map<String, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>(64);
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    public ScheduledTaskMgr() {
-        this.scheduledTasks = new ConcurrentHashMap<>(64);
-    }
 
     public void setTaskScheduler(TaskScheduler taskScheduler) {
         Assert.notNull(taskScheduler, "TaskScheduler must not be null");
