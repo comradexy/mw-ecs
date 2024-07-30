@@ -36,7 +36,6 @@ Schedule是计划执行任务的通用术语。Quartz是Java任务调度框架�
 - 相似任务提醒，任务相似度计算方案设计
 - 目前使用的是 `ThreadPoolTaskScheduler` （和 `ConcurrentTaskScheduler` 有什么区别？），`ThreadPoolTaskScheduler` 使用 `ScheduledTreadPoolExecutor` 作为底层实现，而 `ScheduledTreadPoolExecutor` 使用的**无界的延迟阻塞队列 `DelayedWorkQueue` **，任务队列**最大长度为 `Integer.MAX_VALUE`** ，<u>（如果一直创建定时任务）可能堆积大量的请求，从而导致 OOM</u>，**需要为 `ScheduledTaskMgr` 设计最大任务数和拒绝策略**，以免发生OOM。
 - 配置 `StringValueResolver` ，解析字符串中的占位符和 SpEL 表达式。
-- 如果要考虑分布式并发场景（防止任务重复执行），可以使用分布式锁（例如Redisson），配合任务唯一标识符进行分布式管理。
 
 
 
@@ -51,6 +50,7 @@ Schedule是计划执行任务的通用术语。Quartz是Java任务调度框架�
 
 - `@Scheduled` 默认以**单线程模式**执行（如果没有配置 `TaskScheduler` ，Spring会给 `ScheduledTaskRegister#TaskScheduler` 配置一个底层实现为 `SingleThreadScheduledExecutor` 的 `ConcurrentTaskScheduler` ），若需要并发执行定时任务，可以通过 `@Async` 和 `@EnableAsync` 注解实现（方法上加 `@Async` ，启动类上添加 `@EnableAsync` 注解）。
 - `@PostConstrut` 在Bean实例化后就会立即执行，参考[spring探秘:通过BeanPostProcessor、@PostConstruct、InitializingBean在启动前执行方法](https://www.cnblogs.com/feng-gamer/p/12001205.html)
+- [单元测试、集成测试、冒烟测试、系统测试、回归测试、验收测试](https://blog.csdn.net/tyw15/article/details/108123562)
 
  
 
@@ -60,9 +60,10 @@ Schedule是计划执行任务的通用术语。Quartz是Java任务调度框架�
 
 - [通过源码理解Spring中@Scheduled的实现原理并且实现调度任务动态装载](https://www.cnblogs.com/throwable/p/12616945.html)
 
-<span id="Quartz任务持久化"></span>
+<span id="Quartz"></span>
 
 - [Quartz如何处理任务的持久化？](https://blog.csdn.net/u012680662/article/details/136927337#:~:text=Quartz%E9%80%9A%E8%BF%87%E9%9B%86%E6%88%90%E6%95%B0%E6%8D%AE%E5%BA%93%E6%94%AF%E6%8C%81%E6%9D%A5%E5%AE%9E%E7%8E%B0%E4%BB%BB%E5%8A%A1%E7%9A%84%E6%8C%81%E4%B9%85%E5%8C%96%E3%80%82,%E5%85%B7%E4%BD%93%E6%9D%A5%E8%AF%B4%EF%BC%8CQuartz%E4%BD%BF%E7%94%A8JobStore%E6%9D%A5%E5%AD%98%E5%82%A8%E5%92%8C%E7%AE%A1%E7%90%86%E4%BB%BB%E5%8A%A1%E7%9A%84%E7%9B%B8%E5%85%B3%E4%BF%A1%E6%81%AF%EF%BC%8C%E5%8C%85%E6%8B%AC%E4%BB%BB%E5%8A%A1%E7%9A%84%E5%AE%9A%E4%B9%89%E3%80%81%E7%8A%B6%E6%80%81%E3%80%81%E8%A7%A6%E5%8F%91%E5%99%A8%E7%9A%84%E8%AE%BE%E7%BD%AE%E7%AD%89%E3%80%82%20%E9%80%9A%E8%BF%87%E5%B0%86%E8%BF%99%E4%BA%9B%E4%BF%A1%E6%81%AF%E5%AD%98%E5%82%A8%E5%9C%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%AD%EF%BC%8CQuartz%E8%83%BD%E5%A4%9F%E5%9C%A8%E7%B3%BB%E7%BB%9F%E9%87%8D%E5%90%AF%E6%88%96%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D%E5%90%8E%E9%87%8D%E6%96%B0%E5%8A%A0%E8%BD%BD%E4%BB%BB%E5%8A%A1%EF%BC%8C%E5%B9%B6%E7%A1%AE%E4%BF%9D%E4%BB%BB%E5%8A%A1%E8%83%BD%E5%A4%9F%E6%AD%A3%E7%A1%AE%E6%89%A7%E8%A1%8C%E3%80%82)
+- [定时任务框架Quartz](https://cloud.tencent.com/developer/article/1947192)
 
 <span id="理解@Order注解"></span>
 
