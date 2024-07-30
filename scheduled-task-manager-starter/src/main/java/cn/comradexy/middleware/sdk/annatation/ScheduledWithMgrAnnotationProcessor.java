@@ -82,10 +82,6 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, A
         return Integer.MAX_VALUE;
     }
 
-    public void init() {
-        logger.info("init执行");
-    }
-
     /**
      * Bean初始化之后调用，解析ScheduledWithMgr注解
      */
