@@ -4,16 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="049e3f93-820f-4a52-be0e-d216d856b868" name="Changes" comment="feat: 更新README">
-      <change afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/config/ScheduledTaskMangerConfig.java" afterDir="false" />
+    <list default="true" id="049e3f93-820f-4a52-be0e-d216d856b868" name="Changes" comment="feat: 删除多余的init方法">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/annatation/EnableSchedulingWithMgr.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/annatation/EnableSchedulingWithMgr.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/annatation/ScheduledWithMgrAnnotationProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/annatation/ScheduledWithMgrAnnotationProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/config/ScheduledTaskMangerAutoConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/config/ScheduledTaskMangerConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/config/ScheduledTaskMangerConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/domain/ScheduledTaskMgr.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/domain/ScheduledTaskMgr.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/domain/model/valobj/ScheduledTaskMgrEnumVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/resources/META-INF/spring.factories" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/resources/META-INF/spring.factories" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,7 +110,7 @@
       <workItem from="1722073669885" duration="124000" />
       <workItem from="1722073813322" duration="9118000" />
       <workItem from="1722149927348" duration="30277000" />
-      <workItem from="1722321428755" duration="11965000" />
+      <workItem from="1722321428755" duration="14670000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 整理后置处理器与管理器的关系">
       <option name="closed" value="true" />
@@ -204,7 +200,23 @@
       <option name="project" value="LOCAL" />
       <updated>1722261024748</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="feat: 删除BeanFactoryAware接口实现和自动装配，使用@EnableSchedulingWithMgr管理组件的引入">
+      <option name="closed" value="true" />
+      <created>1722338260691</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1722338260691</updated>
+    </task>
+    <task id="LOCAL-00013" summary="feat: 删除多余的init方法">
+      <option name="closed" value="true" />
+      <created>1722338304781</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1722338304781</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -231,7 +243,9 @@
     <MESSAGE value="feat: 完成finishRegistration" />
     <MESSAGE value="feat: 初测声明式定时任务功能" />
     <MESSAGE value="feat: 更新README" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 更新README" />
+    <MESSAGE value="feat: 删除BeanFactoryAware接口实现和自动装配，使用@EnableSchedulingWithMgr管理组件的引入" />
+    <MESSAGE value="feat: 删除多余的init方法" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 删除多余的init方法" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

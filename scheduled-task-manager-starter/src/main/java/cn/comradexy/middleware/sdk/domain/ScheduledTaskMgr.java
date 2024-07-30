@@ -31,7 +31,6 @@ public class ScheduledTaskMgr implements IScheduledTaskMgr, DisposableBean {
     /**
      * 定时任务调度器
      */
-    @Nullable
     private TaskScheduler taskScheduler;
 
     /**
@@ -42,7 +41,16 @@ public class ScheduledTaskMgr implements IScheduledTaskMgr, DisposableBean {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public void setTaskScheduler(TaskScheduler taskScheduler) {
+        // 允许自定义TaskScheduler并注入
+        // 也可以声明TaskScheduler为Bean，ScheduledWithMgrAnnotationProcessor中会识别并将其注入
         Assert.notNull(taskScheduler, "TaskScheduler must not be null");
+
+        // 检查scheduledTasks是否为空，如果不为空，说明已经有任务在运行，不允许更换TaskScheduler
+        if (!scheduledTasks.isEmpty()) {
+            logger.warn("已有任务在运行，不允许更换TaskScheduler");
+            return;
+        }
+
         this.taskScheduler = taskScheduler;
     }
 

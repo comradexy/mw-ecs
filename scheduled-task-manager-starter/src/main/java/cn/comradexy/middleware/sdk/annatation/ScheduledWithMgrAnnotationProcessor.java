@@ -6,8 +6,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.beans.factory.config.NamedBeanHolder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
@@ -190,9 +196,29 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, A
      * 完成最终注册，通过ScheduledTaskMgr调度任务
      */
     private void finishRegistration() {
-        // 如果scheduledTaskMgr还没有装配TaskScheduler实例，说明没有配置TaskScheduler Bean
-        // 那么会使用默认的单线程调度器
         if (!scheduledTaskMgr.hasTaskScheduler()) {
+            // 通过ApplicationContext获取所有TaskScheduler实例
+            // 先根据类型获取，再根据名称获取
+            try {
+                scheduledTaskMgr.setTaskScheduler(applicationContext.getBean(TaskScheduler.class));
+            } catch (NoUniqueBeanDefinitionException ex) {
+                logger.trace("Could not find unique TaskScheduler bean", ex);
+                try {
+                    scheduledTaskMgr.setTaskScheduler(applicationContext.getBean(TaskScheduler.class, "taskScheduler"));
+                } catch (NoSuchBeanDefinitionException ex2) {
+                    logger.info("More than one TaskScheduler bean exists within the context, and " +
+                            "none is named 'taskScheduler'. Mark one of them as primary or name it 'taskScheduler'.");
+                }
+            } catch (NoSuchBeanDefinitionException ex) {
+                logger.trace("Could not find TaskScheduler bean", ex);
+                logger.info("No TaskScheduler bean found within the context. " +
+                        "Consider defining a bean of type TaskScheduler, or mark one of them as primary.");
+            }
+        }
+
+        // 如果scheduledTaskMgr还有装配TaskScheduler实例，说明没有配置TaskScheduler Bean
+        if (!scheduledTaskMgr.hasTaskScheduler()) {
+            // 默认使用单线程调度器
             scheduledTaskMgr.setTaskScheduler(new ConcurrentTaskScheduler(Executors.newSingleThreadScheduledExecutor()));
         }
 
