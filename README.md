@@ -69,3 +69,6 @@ Schedule是计划执行任务的通用术语。Quartz是Java任务调度框架�
 
 - [深入理解Spring的@Order注解和Ordered接口](https://blog.csdn.net/zkc7441976/article/details/112548075)
 
+<span id="Spring IOC容器启动流程"></span>
+
+- [Spring IOC容器启动流程 AbstractApplicationContext#refresh()方法源码分析（一）](https://cloud.tencent.com/developer/article/1497793?from_column=20421&from=20421)

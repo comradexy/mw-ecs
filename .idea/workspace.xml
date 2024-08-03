@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="049e3f93-820f-4a52-be0e-d216d856b868" name="Changes" comment="feat: 删除多余的依赖包">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/annatation/EnableSchedulingWithMgr.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/annatation/EnableSchedulingWithMgr.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/annatation/ScheduledWithMgrAnnotationProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/annatation/ScheduledWithMgrAnnotationProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/config/ScheduledTaskMangerConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/scheduled-task-manager-starter/src/main/java/cn/comradexy/middleware/sdk/config/ScheduledTaskMangerConfig.java" afterDir="false" />
-    </list>
+    <list default="true" id="049e3f93-820f-4a52-be0e-d216d856b868" name="Changes" comment="feat: 更新README" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -111,7 +105,7 @@
       <workItem from="1722073813322" duration="9118000" />
       <workItem from="1722149927348" duration="30277000" />
       <workItem from="1722321428755" duration="16155000" />
-      <workItem from="1722356766255" duration="1435000" />
+      <workItem from="1722356766255" duration="1811000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 整理后置处理器与管理器的关系">
       <option name="closed" value="true" />
@@ -233,7 +227,23 @@
       <option name="project" value="LOCAL" />
       <updated>1722341379905</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="feat: 修复 &quot;*** is not eligible for getting processed by all BeanPostProcessors&quot; 的bug">
+      <option name="closed" value="true" />
+      <created>1722359838020</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1722359838020</updated>
+    </task>
+    <task id="LOCAL-00017" summary="feat: 更新README">
+      <option name="closed" value="true" />
+      <created>1722359852220</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1722359852220</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -259,12 +269,13 @@
     <MESSAGE value="feat: 完成processScheduledWithMgr" />
     <MESSAGE value="feat: 完成finishRegistration" />
     <MESSAGE value="feat: 初测声明式定时任务功能" />
-    <MESSAGE value="feat: 更新README" />
     <MESSAGE value="feat: 删除BeanFactoryAware接口实现和自动装配，使用@EnableSchedulingWithMgr管理组件的引入" />
     <MESSAGE value="feat: 删除多余的init方法" />
     <MESSAGE value="feat: 手动将TaskScheduler Bean注入ScheduledTaskMgr" />
     <MESSAGE value="feat: 删除多余的依赖包" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 删除多余的依赖包" />
+    <MESSAGE value="feat: 修复 &quot;*** is not eligible for getting processed by all BeanPostProcessors&quot; 的bug" />
+    <MESSAGE value="feat: 更新README" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 更新README" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
