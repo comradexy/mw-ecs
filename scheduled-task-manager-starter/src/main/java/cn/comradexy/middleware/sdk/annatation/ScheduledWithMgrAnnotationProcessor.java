@@ -1,9 +1,8 @@
 package cn.comradexy.middleware.sdk.annatation;
 
-import cn.comradexy.middleware.sdk.domain.ScheduledTaskMgr;
+import cn.comradexy.middleware.sdk.service.TaskManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -46,7 +45,7 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, A
     /**
      * 定时任务管理器
      */
-    private ScheduledTaskMgr scheduledTaskMgr;
+    private TaskManagerService scheduledTaskMgr;
 
     /**
      * 存放没有@ScheduledWithMgr注解的类
@@ -67,7 +66,7 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, A
 
     @Autowired
     @Lazy
-    public void setScheduledTaskMgr(ScheduledTaskMgr scheduledTaskMgr) {
+    public void setScheduledTaskMgr(TaskManagerService scheduledTaskMgr) {
         Assert.notNull(scheduledTaskMgr, "ScheduledTaskMgr must not be null");
         this.scheduledTaskMgr = scheduledTaskMgr;
     }
@@ -92,7 +91,7 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, A
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) {
         // 防止循环依赖
-        if ((bean instanceof TaskScheduler) || (bean instanceof ScheduledTaskMgr)) {
+        if ((bean instanceof TaskScheduler) || (bean instanceof TaskManagerService)) {
             return bean;
         }
 

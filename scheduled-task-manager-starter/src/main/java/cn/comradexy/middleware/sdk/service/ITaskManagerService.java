@@ -1,8 +1,8 @@
-package cn.comradexy.middleware.sdk.domain;
+package cn.comradexy.middleware.sdk.service;
 
-import cn.comradexy.middleware.sdk.domain.model.entity.Result;
-import cn.comradexy.middleware.sdk.domain.model.entity.ScheduledTaskVO;
-import cn.comradexy.middleware.sdk.domain.model.valobj.ServiceResponseStatusVO;
+import cn.comradexy.middleware.sdk.domain.Result;
+import cn.comradexy.middleware.sdk.domain.ScheduledTaskVO;
+import cn.comradexy.middleware.sdk.constants.ServiceResponseStatusVO;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ import java.util.List;
  * @CreateTime: 2024-07-22
  * @Description: 定时任务管理服务
  */
-public interface IScheduledTaskMgr {
+public interface ITaskManagerService {
     /**
      * 创建并启动任务
      *

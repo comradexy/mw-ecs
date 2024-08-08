@@ -1,8 +1,8 @@
-package cn.comradexy.middleware.sdk.domain;
+package cn.comradexy.middleware.sdk.service;
 
-import cn.comradexy.middleware.sdk.domain.model.entity.Result;
-import cn.comradexy.middleware.sdk.domain.model.entity.ScheduledTaskVO;
-import cn.comradexy.middleware.sdk.domain.model.valobj.ServiceResponseStatusVO;
+import cn.comradexy.middleware.sdk.domain.Result;
+import cn.comradexy.middleware.sdk.domain.ScheduledTaskVO;
+import cn.comradexy.middleware.sdk.constants.ServiceResponseStatusVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -18,13 +18,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 
 /**
- * 定时任务管理器
+ * 定时任务管理器服务
  *
  * @Author: ComradeXY
  * @CreateTime: 2024-07-22
- * @Description: 定时任务管理器
+ * @Description: 定时任务管理服务
  */
-public class ScheduledTaskMgr implements IScheduledTaskMgr, DisposableBean {
+public class TaskManagerService implements ITaskManagerService, DisposableBean {
     /**
      * 定时任务调度器
      */

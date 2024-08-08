@@ -1,6 +1,6 @@
 package cn.comradexy.middleware.sdk.config;
 
-import cn.comradexy.middleware.sdk.domain.ScheduledTaskMgr;
+import cn.comradexy.middleware.sdk.service.TaskManagerService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
@@ -16,8 +16,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @Configuration
 public class ScheduledTaskMangerConfig {
     @Bean
-    public ScheduledTaskMgr scheduledTaskMgr() {
-        return new ScheduledTaskMgr();
+    public TaskManagerService scheduledTaskMgr() {
+        return new TaskManagerService();
     }
 
     @Bean

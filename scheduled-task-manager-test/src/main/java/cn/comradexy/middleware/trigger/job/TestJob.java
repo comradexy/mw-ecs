@@ -1,6 +1,6 @@
 package cn.comradexy.middleware.trigger.job;
 
-import cn.comradexy.middleware.sdk.domain.ScheduledTaskMgr;
+import cn.comradexy.middleware.sdk.service.TaskManagerService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -15,7 +15,7 @@ import javax.annotation.Resource;
 @Component
 public class TestJob {
     @Resource
-    private ScheduledTaskMgr scheduledTaskMgr;
+    private TaskManagerService scheduledTaskMgr;
 
     public void test() {
         // 创建一个每隔2秒执行一次的任务

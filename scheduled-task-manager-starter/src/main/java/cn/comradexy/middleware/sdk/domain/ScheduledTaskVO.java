@@ -1,4 +1,4 @@
-package cn.comradexy.middleware.sdk.domain.model.entity;
+package cn.comradexy.middleware.sdk.domain;
 
 /**
  * 定时任务实体对象

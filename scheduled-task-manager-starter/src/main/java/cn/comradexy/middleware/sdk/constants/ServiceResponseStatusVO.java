@@ -1,4 +1,4 @@
-package cn.comradexy.middleware.sdk.domain.model.valobj;
+package cn.comradexy.middleware.sdk.constants;
 
 /**
  * 服务响应状态
