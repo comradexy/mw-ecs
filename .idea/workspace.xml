@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="049e3f93-820f-4a52-be0e-d216d856b868" name="Changes" comment="feat: 更新README" />
+    <list default="true" id="049e3f93-820f-4a52-be0e-d216d856b868" name="Changes" comment="feat: 删除废弃代码">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -62,7 +64,7 @@
     "project.structure.last.edited": "SDKs",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.sourceCode.Java",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -109,6 +111,8 @@
       <workItem from="1722321428755" duration="16155000" />
       <workItem from="1722356766255" duration="1811000" />
       <workItem from="1722761598063" duration="48000" />
+      <workItem from="1722761818827" duration="194000" />
+      <workItem from="1723010774798" duration="5200000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 整理后置处理器与管理器的关系">
       <option name="closed" value="true" />
@@ -246,7 +250,15 @@
       <option name="project" value="LOCAL" />
       <updated>1722359852220</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="feat: 删除废弃代码">
+      <option name="closed" value="true" />
+      <created>1722761984581</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1722761984581</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -257,7 +269,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="master" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
@@ -278,7 +302,8 @@
     <MESSAGE value="feat: 删除多余的依赖包" />
     <MESSAGE value="feat: 修复 &quot;*** is not eligible for getting processed by all BeanPostProcessors&quot; 的bug" />
     <MESSAGE value="feat: 更新README" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 更新README" />
+    <MESSAGE value="feat: 删除废弃代码" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 删除废弃代码" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
