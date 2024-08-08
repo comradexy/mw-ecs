@@ -91,8 +91,8 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, A
      */
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) {
-        // 排除AopInfrastructureBean、TaskScheduler、ScheduledExecutorService，防止循环依赖
-        if ((bean instanceof AopInfrastructureBean) || (bean instanceof TaskScheduler) || (bean instanceof ScheduledTaskMgr)) {
+        // 防止循环依赖
+        if ((bean instanceof TaskScheduler) || (bean instanceof ScheduledTaskMgr)) {
             return bean;
         }
 
