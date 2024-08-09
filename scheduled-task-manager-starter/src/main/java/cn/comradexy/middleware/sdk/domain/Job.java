@@ -1,5 +1,8 @@
 package cn.comradexy.middleware.sdk.domain;
 
+import lombok.Builder;
+import lombok.Data;
+
 /**
  * 任务实体
  *
@@ -7,15 +10,26 @@ package cn.comradexy.middleware.sdk.domain;
  * @CreateTime: 2024-08-09
  * @Description: 任务实体
  */
+@Builder
+@Data
 public class Job {
-    private String key; // appName + beanName + methodName
+    private String key; // TODO: appName + beanName + methodName
+
     private String desc;
-    private Class<?> beanClass;
+
+    /**
+     * 任务宿主类 - 全限定名
+     */
+    private String beanClass;
+
+    /**
+     * 任务宿主类 - Spring Bean 名称
+     */
     private String beanName;
+
+    /**
+     * 任务方法名
+     */
     private String methodName;
-    private boolean durable;
-    private boolean shouldRecover;
-
-
 
 }

@@ -1,5 +1,9 @@
 package cn.comradexy.middleware.sdk.domain;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+
 import java.util.Date;
 
 /**
@@ -12,15 +16,27 @@ import java.util.Date;
  * @CreateTime: 2024-08-09
  * @Description: 执行细节实体
  */
+@Builder
+@Data
 public class ExecDetail {
     private String key;
-    private String desc;
-    private Date startTime = new Date();
-    private Date endTime = new Date(Long.MAX_VALUE);
-    private String cronExpr;
-    private String jobKey;
-    private ExecState state = ExecState.INIT;
 
+    private String desc;
+
+    @Builder.Default
+    private Date startTime = new Date();
+
+    @Builder.Default
+    private Date endTime = new Date(Long.MAX_VALUE);
+
+    private String cronExpr;
+
+    private String jobKey;
+
+    @Builder.Default
+    private Integer state = ExecState.INIT.getKey();
+
+    @Getter
     public enum ExecState {
         INIT(0, "初始化"),
         RUNNING(1, "运行中"),
@@ -29,8 +45,8 @@ public class ExecDetail {
         ERROR(4, "错误"),
         BLOCKED(5, "阻塞");
 
-        private int key;
-        private String desc;
+        private final int key;
+        private final String desc;
 
         ExecState(int key, String desc) {
             this.key = key;
