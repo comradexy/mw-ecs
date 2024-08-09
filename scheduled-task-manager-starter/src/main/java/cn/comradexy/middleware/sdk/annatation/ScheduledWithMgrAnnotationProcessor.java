@@ -1,6 +1,6 @@
 package cn.comradexy.middleware.sdk.annatation;
 
-import cn.comradexy.middleware.sdk.task.TaskManager;
+import cn.comradexy.middleware.sdk.task.Scheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopProxyUtils;
@@ -45,7 +45,7 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, A
     /**
      * 定时任务管理器
      */
-    private TaskManager scheduledTaskMgr;
+    private Scheduler scheduledTaskMgr;
 
     /**
      * 存放没有@ScheduledWithMgr注解的类
@@ -66,7 +66,7 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, A
 
     @Autowired
     @Lazy
-    public void setScheduledTaskMgr(TaskManager scheduledTaskMgr) {
+    public void setScheduledTaskMgr(Scheduler scheduledTaskMgr) {
         Assert.notNull(scheduledTaskMgr, "ScheduledTaskMgr must not be null");
         this.scheduledTaskMgr = scheduledTaskMgr;
     }
@@ -91,7 +91,7 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, A
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) {
         // 防止循环依赖
-        if ((bean instanceof TaskScheduler) || (bean instanceof TaskManager)) {
+        if ((bean instanceof TaskScheduler) || (bean instanceof Scheduler)) {
             return bean;
         }
 

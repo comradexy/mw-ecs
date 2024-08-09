@@ -1,9 +1,7 @@
 package cn.comradexy.middleware.sdk.service;
 
-import cn.comradexy.middleware.sdk.task.SchedulingRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.config.ScheduledTask;
@@ -23,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Description: 定时任务注册器
  */
 @Component
-public class ScheduleService implements DisposableBean {
+public class ScheduleService{
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final TaskScheduler taskScheduler;
     private final Map<String, ScheduledTask> scheduledTasks = new ConcurrentHashMap<>(64);
@@ -41,7 +39,7 @@ public class ScheduleService implements DisposableBean {
      * 添加定时任务
      *
      */
-    public void addCronTask(SchedulingRunnable task, String cronExpr) {
+    public void addCronTask(Runnable task, String cronExpr) {
         // TODO:
 
     }
@@ -51,12 +49,6 @@ public class ScheduleService implements DisposableBean {
      *
      */
     public void removeCronTask(String taskId) {
-        // TODO:
-
-    }
-
-    @Override
-    public void destroy() {
         // TODO:
 
     }

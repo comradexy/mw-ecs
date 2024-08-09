@@ -1,11 +1,12 @@
 package cn.comradexy.middleware.sdk.task;
 
-import cn.comradexy.middleware.sdk.constants.ServiceResponseStatusVO;
+import cn.comradexy.middleware.sdk.common.ServiceResponseStatusVO;
 import cn.comradexy.middleware.sdk.domain.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.config.CronTask;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.util.Assert;
@@ -13,27 +14,28 @@ import org.springframework.util.Assert;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledFuture;
 
 /**
- * 定时任务管理器服务
+ * 定时任务调度器
  *
  * @Author: ComradeXY
  * @CreateTime: 2024-07-22
- * @Description: 定时任务管理服务
+ * @Description: 定时任务调度器
  */
-public class TaskManager implements ITaskManager, DisposableBean {
-    /**
-     * 定时任务调度器
-     */
+public class Scheduler implements IScheduler, DisposableBean {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private TaskScheduler taskScheduler;
 
     /**
-     * 定时任务列表(缓存)
+     * 待执行的任务
      */
-    private final Map<String, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>(64);
+    private final Map<String, CronTask> pendingTasks = new ConcurrentHashMap<>(64);
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    /**
+     * 已被调度的任务
+     */
+    private final Map<String, ScheduledTask> scheduledTasks = new ConcurrentHashMap<>(64);
 
     public void setTaskScheduler(TaskScheduler taskScheduler) {
         // 允许自定义TaskScheduler并注入
@@ -67,10 +69,11 @@ public class TaskManager implements ITaskManager, DisposableBean {
             String taskId = UUID.randomUUID().toString();
 
             // 创建定时任务
-            ScheduledFuture<?> scheduledFuture = taskScheduler.schedule(taskHandler, new CronTrigger(cronExpr));
+            ScheduledTask scheduledTask = new ScheduledTask();
+            scheduledTask.future = taskScheduler.schedule(taskHandler, new CronTrigger(cronExpr));
 
             // 保存定时任务
-            scheduledTasks.put(taskId, scheduledFuture);
+            scheduledTasks.put(taskId, scheduledTask);
 
             logger.info("任务[{}]已启动", taskId);
             return Result.success(taskId);
@@ -83,9 +86,9 @@ public class TaskManager implements ITaskManager, DisposableBean {
     @Override
     public Result<String> cancelTask(String taskId) {
         try {
-            ScheduledFuture<?> scheduledFuture = scheduledTasks.get(taskId);
-            if (null != scheduledFuture) {
-                scheduledFuture.cancel(true); // 取消定时任务
+            ScheduledTask scheduledTask = scheduledTasks.get(taskId);
+            if (null != scheduledTask) {
+                scheduledTask.cancel(true); // 取消定时任务
                 scheduledTasks.remove(taskId); // 从任务列表中移除
                 logger.info("任务[{}]已停止", taskId);
                 return Result.success();

@@ -1,6 +1,6 @@
 package cn.comradexy.middleware.sdk.domain;
 
-import cn.comradexy.middleware.sdk.constants.ServiceResponseStatusVO;
+import cn.comradexy.middleware.sdk.common.ServiceResponseStatusVO;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

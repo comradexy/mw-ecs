@@ -3,13 +3,13 @@ package cn.comradexy.middleware.sdk.task;
 import cn.comradexy.middleware.sdk.domain.Result;
 
 /**
- * 定时任务管理服务
+ * 定时任务调度器
  *
  * @Author: ComradeXY
  * @CreateTime: 2024-07-22
- * @Description: 定时任务管理服务
+ * @Description: 定时任务调度器
  */
-public interface ITaskManager {
+public interface IScheduler {
     /**
      * 创建并启动任务
      *

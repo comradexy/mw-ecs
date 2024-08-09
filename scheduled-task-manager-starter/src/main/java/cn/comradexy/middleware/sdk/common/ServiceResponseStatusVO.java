@@ -1,4 +1,4 @@
-package cn.comradexy.middleware.sdk.constants;
+package cn.comradexy.middleware.sdk.common;
 
 /**
  * 服务响应状态
