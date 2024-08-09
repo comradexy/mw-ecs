@@ -1,6 +1,6 @@
 package cn.comradexy.middleware;
 
-import cn.comradexy.middleware.sdk.service.TaskManagerService;
+import cn.comradexy.middleware.sdk.task.TaskManager;
 import cn.comradexy.middleware.sdk.domain.Result;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 @SpringBootTest
 public class AppTest {
     @Resource
-    private TaskManagerService scheduledTaskMgr;
+    private TaskManager scheduledTaskMgr;
 
     @Test
     public void test() {

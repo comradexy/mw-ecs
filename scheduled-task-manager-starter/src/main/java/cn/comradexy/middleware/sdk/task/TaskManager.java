@@ -1,8 +1,7 @@
-package cn.comradexy.middleware.sdk.service;
+package cn.comradexy.middleware.sdk.task;
 
-import cn.comradexy.middleware.sdk.domain.Result;
-import cn.comradexy.middleware.sdk.domain.ScheduledTaskVO;
 import cn.comradexy.middleware.sdk.constants.ServiceResponseStatusVO;
+import cn.comradexy.middleware.sdk.domain.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -11,7 +10,6 @@ import org.springframework.scheduling.support.CronExpression;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.util.Assert;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,7 +22,7 @@ import java.util.concurrent.ScheduledFuture;
  * @CreateTime: 2024-07-22
  * @Description: 定时任务管理服务
  */
-public class TaskManagerService implements ITaskManagerService, DisposableBean {
+public class TaskManager implements ITaskManager, DisposableBean {
     /**
      * 定时任务调度器
      */
@@ -101,56 +99,6 @@ public class TaskManagerService implements ITaskManagerService, DisposableBean {
         }
     }
 
-    @Override
-    public ServiceResponseStatusVO pauseTask(String taskId) {
-        // TODO: 方案一：使用持久化存储保存任务状态，暂停逻辑为：
-        //  先持久化任务，再取消任务，任务恢复时，根据任务状态恢复任务
-        return null;
-    }
-
-    @Override
-    public ServiceResponseStatusVO resumeTask(String taskId) {
-
-        return null;
-    }
-
-    @Override
-    public ServiceResponseStatusVO updateTask(String taskId, String cronExpr, Runnable taskHandler) {
-
-        return null;
-    }
-
-    @Override
-    public List<ScheduledTaskVO> listTasks() {
-        try {
-
-            return null;
-        } catch (Exception e) {
-
-            return null;
-        }
-    }
-
-    @Override
-    public ScheduledTaskVO getTask(String taskId) {
-
-        return null;
-    }
-
-    /**
-     * 任务相似性检测
-     *
-     * @param taskId 任务ID
-     * @return 相似任务列表
-     */
-    private List<String> similarTaskDetection(String taskId) {
-        // TODO: 任务相似性检测
-        // 1. cron表达式相似度计算
-        // 2. 任务处理器相似度计算
-        // 3. 查询相似任务，返回相似任务ID列表
-
-        return null;
-    }
 
     @Override
     public void destroy() {
