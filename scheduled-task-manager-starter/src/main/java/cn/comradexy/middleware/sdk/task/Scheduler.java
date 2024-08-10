@@ -64,6 +64,8 @@ public class Scheduler implements IScheduler, DisposableBean {
 
     @Override
     public void scheduleTask(String cronExpr, Runnable taskHandler) {
+        // TODO：更新为从JobStore中获取任务信息(Job和ExecDetail)
+
         try {
             // 校验cron表达式合法性
             if (!CronExpression.isValidExpression(cronExpr)) {
@@ -88,24 +90,24 @@ public class Scheduler implements IScheduler, DisposableBean {
 
     @Override
     public void cancelTask(String taskId) {
-        try {
-            ScheduledTask scheduledTask = scheduledTasks.get(taskId);
-            if (null != scheduledTask) {
-                scheduledTask.cancel(); // 取消定时任务
-                scheduledTasks.remove(taskId); // 从任务列表中移除
-                logger.info("任务[{}]已停止", taskId);
-            } else {
-                logger.warn("任务[{}]不存在", taskId);
-            }
-        } catch (Exception e) {
-            logger.error("停止任务[{}]失败", taskId, e);
+        // 1.终止任务
+        ScheduledTask scheduledTask = scheduledTasks.remove(taskId);
+        if (null != scheduledTask) {
+            scheduledTask.cancel();
         }
+        // 2.更新任务状态为已完成
+        JobStore.setComplete(taskId);
     }
 
     @Override
     public void pauseTask(String taskId) {
-        // TODO: 实现任务暂停
-
+        // 1.终止任务
+        ScheduledTask scheduledTask = scheduledTasks.remove(taskId);
+        if (null != scheduledTask) {
+            scheduledTask.cancel();
+        }
+        // 2.更新任务状态为暂停
+        JobStore.setPaused(taskId);
     }
 
     @Override
@@ -132,7 +134,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         scheduledTasks.keySet().forEach(this::pauseTask);
         // 1.3.停止结束时间监控任务
         expireMonitors.forEach((key, task) -> task.cancel());
-        // 2. 存储任务及执行细节
+        // 2.存储任务及执行细节
         JobStore.save();
     }
 }
