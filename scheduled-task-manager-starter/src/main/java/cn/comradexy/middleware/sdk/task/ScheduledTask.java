@@ -1,7 +1,5 @@
 package cn.comradexy.middleware.sdk.task;
 
-import org.springframework.scheduling.config.CronTask;
-
 import java.util.concurrent.ScheduledFuture;
 
 /**
