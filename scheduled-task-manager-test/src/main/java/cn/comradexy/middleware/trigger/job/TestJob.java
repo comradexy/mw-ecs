@@ -19,7 +19,7 @@ public class TestJob {
 
     public void test() {
         // 创建一个每隔2秒执行一次的任务
-        scheduledTaskMgr.createTask("0/2 * * * * ?", () -> {
+        scheduledTaskMgr.scheduleTask("0/2 * * * * ?", () -> {
             System.out.println("Hello, World!");
         });
     }

@@ -1,5 +1,7 @@
-package cn.comradexy.middleware.sdk.annatation;
+package cn.comradexy.middleware.sdk.config;
 
+import cn.comradexy.middleware.sdk.annatation.ScheduledWithMgr;
+import cn.comradexy.middleware.sdk.annatation.SchedulesWithMgr;
 import cn.comradexy.middleware.sdk.task.Scheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -227,7 +229,7 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, A
         if (!unresolvedCronTasks.isEmpty()) {
             for (CronTask cronTask : unresolvedCronTasks) {
                 // 通过scheduledTaskMgr托管
-                scheduledTaskMgr.createTask(cronTask.getExpression(), cronTask.getRunnable());
+                scheduledTaskMgr.scheduleTask(cronTask.getExpression(), cronTask.getRunnable());
             }
         }
     }

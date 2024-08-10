@@ -1,7 +1,5 @@
 package cn.comradexy.middleware.sdk.task;
 
-import cn.comradexy.middleware.sdk.domain.Result;
-
 /**
  * 定时任务调度器
  *
@@ -16,13 +14,27 @@ public interface IScheduler {
      * @param cronExpr    cron表达式
      * @param taskHandler 任务处理器
      */
-    Result<String> createTask(String cronExpr, Runnable taskHandler);
+    void scheduleTask(String cronExpr, Runnable taskHandler);
 
     /**
      * 停止任务
      *
      * @param taskId 任务ID
      */
-    Result<String> cancelTask(String taskId);
+    void cancelTask(String taskId);
+
+    /**
+     * 暂停任务
+     *
+     * @param taskId 任务ID
+     */
+    void pauseTask(String taskId);
+
+    /**
+     * 重启任务
+     *
+     * @param taskId 任务ID
+     */
+    void resumeTask(String taskId);
 
 }

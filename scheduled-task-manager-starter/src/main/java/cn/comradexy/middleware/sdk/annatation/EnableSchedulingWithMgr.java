@@ -1,6 +1,7 @@
 package cn.comradexy.middleware.sdk.annatation;
 
 import cn.comradexy.middleware.sdk.config.ScheduledTaskMangerConfig;
+import cn.comradexy.middleware.sdk.config.ScheduledWithMgrAnnotationProcessor;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
