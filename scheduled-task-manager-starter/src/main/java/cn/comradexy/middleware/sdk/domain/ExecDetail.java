@@ -23,14 +23,21 @@ public class ExecDetail {
 
     private String desc;
 
+    private String cronExpr;
+
+    private String jobKey;
+
     @Builder.Default
     private Date startTime = new Date();
 
     private Date endTime;
 
-    private String cronExpr;
+    private Date lastExecTime;
 
-    private String jobKey;
+    private Date nextExecTime;
+
+    @Builder.Default
+    private Long execCount = 0L;
 
     @Builder.Default
     private Integer state = ExecState.INIT.getKey();
