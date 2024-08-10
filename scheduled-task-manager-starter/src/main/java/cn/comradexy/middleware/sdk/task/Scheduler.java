@@ -1,5 +1,6 @@
 package cn.comradexy.middleware.sdk.task;
 
+import cn.comradexy.middleware.sdk.domain.ExecDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -25,12 +26,17 @@ public class Scheduler implements IScheduler, DisposableBean {
     private TaskScheduler taskScheduler;
 
     /**
+     * 系统任务
+     */
+    private final Map<String, ScheduledTask> systemTasks = new ConcurrentHashMap<>(4);
+
+    /**
      * 已被调度的任务
      */
     private final Map<String, ScheduledTask> scheduledTasks = new ConcurrentHashMap<>(64);
 
     /**
-     * 任务结束时间监控
+     * 结束时间监控任务
      */
     private final Map<String, ScheduledTask> endTimeMonitors = new ConcurrentHashMap<>(64);
 
@@ -106,13 +112,24 @@ public class Scheduler implements IScheduler, DisposableBean {
 
     @Override
     public void destroy() {
-        // 销毁时，停止所有任务
-        scheduledTasks.forEach((taskId, scheduledTask) -> {
-            scheduledTask.cancel();
-            if(scheduledTask.isCancelled()){
-                // TODO: 若开启持久化支持，更新任务状态为暂停
+        // 1.停止所有任务
+        // 1.1.停止系统任务
+        systemTasks.forEach((key, task) -> task.cancel());
 
+        // 1.2.停止已被调度的任务，同时更新任务状态
+        scheduledTasks.forEach((key, task) -> {
+            task.cancel();
+            // 更新任务状态为暂停
+            if(task.isCancelled()){
+                JobStore.EXEC_DETAIL_MAP.get(key).setState(ExecDetail.ExecState.PAUSED.getKey());
             }
         });
+
+        // 1.3.停止结束时间监控任务
+        endTimeMonitors.forEach((key, task) -> task.cancel());
+
+        // 2. 存储任务及执行细节
+        JobStore.save();
+
     }
 }

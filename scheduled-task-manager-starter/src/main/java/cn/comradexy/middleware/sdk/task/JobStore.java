@@ -17,5 +17,12 @@ public class JobStore {
     public static final Map<String, Job> JOB_MAP = new ConcurrentHashMap<>(64);
     public static final Map<String, ExecDetail> EXEC_DETAIL_MAP = new ConcurrentHashMap<>(64);
 
+    /**
+     * 保存任务及执行细节: JDBC/Redis
+     */
+    public static void save() {
+        // TODO: 调用JDBC或者Redis服务保存任务及执行细节
+
+    }
 
 }

@@ -8,5 +8,8 @@ package cn.comradexy.middleware.sdk.common;
  * @Description: 定时任务上下文信息
  */
 public class ScheduleContext {
+    public static String SYS_TASK_PREFIX = "SYS_TASK_";
+
+
 
 }
