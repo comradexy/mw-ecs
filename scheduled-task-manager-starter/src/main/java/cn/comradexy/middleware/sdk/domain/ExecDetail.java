@@ -26,8 +26,7 @@ public class ExecDetail {
     @Builder.Default
     private Date startTime = new Date();
 
-    @Builder.Default
-    private Date endTime = new Date(Long.MAX_VALUE);
+    private Date endTime;
 
     private String cronExpr;
 
