@@ -5,11 +5,11 @@ import org.springframework.scheduling.config.CronTask;
 import java.util.concurrent.ScheduledFuture;
 
 /**
- * 已被调度的任务
+ * 替换Spring的ScheduledTask
  *
  * @Author: ComradeXY
  * @CreateTime: 2024-08-09
- * @Description: 已被调度的任务
+ * @Description: 替换Spring的ScheduledTask
  */
 public class ScheduledTask {
 

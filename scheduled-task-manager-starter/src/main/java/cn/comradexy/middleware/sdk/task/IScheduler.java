@@ -1,5 +1,7 @@
 package cn.comradexy.middleware.sdk.task;
 
+import java.util.Date;
+
 /**
  * 定时任务调度器
  *
@@ -37,4 +39,9 @@ public interface IScheduler {
      */
     void resumeTask(String taskId);
 
+    /**
+     * 设置任务过期监控
+     *
+     */
+    void setExpireMonitor(String taskId, Date endTime);
 }

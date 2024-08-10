@@ -1,9 +1,10 @@
 package cn.comradexy.middleware.test;
 
-import cn.comradexy.middleware.sdk.domain.ExecDetail;
-import cn.comradexy.middleware.sdk.domain.Job;
-import com.alibaba.fastjson.JSON;
 import org.junit.jupiter.api.Test;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+
+import java.util.Date;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * 单元测试
@@ -14,26 +15,18 @@ import org.junit.jupiter.api.Test;
  */
 public class UnitTest {
     @Test
-    public void test() {
-        Job job = Job.builder()
-                .key("key")
-                .desc("desc")
-                .beanClass(ExecDetail.class.getName())
-                .beanName("beanName")
-                .methodName("methodName")
-                .build();
+    public void test() throws InterruptedException {
+        ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+        taskScheduler.setPoolSize(8);
+        taskScheduler.initialize();
 
-        String json = JSON.toJSONString(job);
-        System.out.println(json);
+        // 设置一个5s后执行的任务
+        Date startTime = new Date();
+        System.out.println("Start time: " + startTime);
+        taskScheduler.schedule(() -> {
+            System.out.println("Execute time: " + new Date());
+        }, new Date(startTime.getTime() + 5000));
 
-        job = JSON.parseObject(json, Job.class);
-        System.out.println(job);
-
-        try {
-            Class<?> clazz = Class.forName(job.getBeanClass());
-            System.out.println(ExecDetail.class.equals(clazz));
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        new CountDownLatch(1).await();
     }
 }

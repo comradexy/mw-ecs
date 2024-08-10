@@ -1,17 +1,21 @@
 package cn.comradexy.middleware.sdk.task;
 
+import cn.comradexy.middleware.sdk.common.ScheduleContext;
 import cn.comradexy.middleware.sdk.domain.ExecDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.config.Task;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.util.Assert;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
 
 /**
  * 定时任务调度器
@@ -26,9 +30,9 @@ public class Scheduler implements IScheduler, DisposableBean {
     private TaskScheduler taskScheduler;
 
     /**
-     * 系统任务
+     * 系统任务: 任务状态监控、任务定期存储/清理等
      */
-    private final Map<String, ScheduledTask> systemTasks = new ConcurrentHashMap<>(4);
+    private final Map<String, ScheduledTask> systemTasks = new ConcurrentHashMap<>(8);
 
     /**
      * 已被调度的任务
@@ -38,7 +42,7 @@ public class Scheduler implements IScheduler, DisposableBean {
     /**
      * 结束时间监控任务
      */
-    private final Map<String, ScheduledTask> endTimeMonitors = new ConcurrentHashMap<>(64);
+    private final Map<String, ScheduledTask> expireMonitors = new ConcurrentHashMap<>(64);
 
     public void setTaskScheduler(TaskScheduler taskScheduler) {
         // 允许自定义TaskScheduler并注入
@@ -111,25 +115,24 @@ public class Scheduler implements IScheduler, DisposableBean {
     }
 
     @Override
+    public void setExpireMonitor(String taskId, Date endTime) {
+        // 在endTime时间点之后，结束任务
+        ScheduledTask expireMonitor = new ScheduledTask();
+        expireMonitor.future = taskScheduler.schedule(() -> cancelTask(taskId), endTime);
+        // 保存监控任务
+        expireMonitors.put(ScheduleContext.MONITOR_TASK_PREFIX + taskId, expireMonitor);
+    }
+
+    @Override
     public void destroy() {
         // 1.停止所有任务
         // 1.1.停止系统任务
         systemTasks.forEach((key, task) -> task.cancel());
-
-        // 1.2.停止已被调度的任务，同时更新任务状态
-        scheduledTasks.forEach((key, task) -> {
-            task.cancel();
-            // 更新任务状态为暂停
-            if(task.isCancelled()){
-                JobStore.EXEC_DETAIL_MAP.get(key).setState(ExecDetail.ExecState.PAUSED.getKey());
-            }
-        });
-
+        // 1.2.停止已被调度的任务，更新任务状态为暂停
+        scheduledTasks.keySet().forEach(this::pauseTask);
         // 1.3.停止结束时间监控任务
-        endTimeMonitors.forEach((key, task) -> task.cancel());
-
+        expireMonitors.forEach((key, task) -> task.cancel());
         // 2. 存储任务及执行细节
         JobStore.save();
-
     }
 }
