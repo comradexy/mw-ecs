@@ -1,21 +1,32 @@
 package cn.comradexy.middleware.sdk.task;
 
+import org.springframework.scheduling.config.Task;
+
 import java.util.concurrent.ScheduledFuture;
 
 /**
- * 替换Spring的ScheduledTask
+ * 被调度的任务
+ * <p>
+ * 原Spring的ScheduledTask类的构造函数是包访问权限，无法直接使用，所以这里重新定义了一个ScheduledTask类
+ * </p>
  *
  * @Author: ComradeXY
  * @CreateTime: 2024-08-09
  * @Description: 替换Spring的ScheduledTask
  */
 public class ScheduledTask {
+    private final Task task;
 
     volatile ScheduledFuture<?> future;
 
-    /**
-     * 取消定时任务
-     */
+    ScheduledTask(Task task) {
+        this.task = task;
+    }
+
+    public Task getTask() {
+        return task;
+    }
+
     public void cancel() {
         this.cancel(true);
     }
@@ -31,6 +42,10 @@ public class ScheduledTask {
         ScheduledFuture<?> future = this.future;
         if (future == null) return true;
         return future.isCancelled();
+    }
+
+    public String toString() {
+        return this.task.toString();
     }
 
 }

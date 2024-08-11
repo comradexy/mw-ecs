@@ -1,12 +1,11 @@
 package cn.comradexy.middleware.sdk.task;
 
 import cn.comradexy.middleware.sdk.common.ScheduleContext;
-import cn.comradexy.middleware.sdk.domain.ExecDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.config.Task;
+import org.springframework.scheduling.config.CronTask;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.util.Assert;
@@ -15,7 +14,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledFuture;
 
 /**
  * 定时任务调度器
@@ -76,7 +74,8 @@ public class Scheduler implements IScheduler, DisposableBean {
             String taskId = UUID.randomUUID().toString();
 
             // 创建定时任务
-            ScheduledTask scheduledTask = new ScheduledTask();
+            CronTask cronTask = new CronTask(taskHandler, cronExpr);
+            ScheduledTask scheduledTask = new ScheduledTask(cronTask);
             scheduledTask.future = taskScheduler.schedule(taskHandler, new CronTrigger(cronExpr));
 
             // 保存定时任务
@@ -90,23 +89,29 @@ public class Scheduler implements IScheduler, DisposableBean {
 
     @Override
     public void cancelTask(String taskId) {
-        // 1.终止任务
+        // 1.删除缓存中的任务
         ScheduledTask scheduledTask = scheduledTasks.remove(taskId);
+
+        // 2.停止正在执行任务
         if (null != scheduledTask) {
             scheduledTask.cancel();
         }
-        // 2.更新任务状态为已完成
+
+        // 3.更新任务状态为已完成
         JobStore.setComplete(taskId);
     }
 
     @Override
     public void pauseTask(String taskId) {
-        // 1.终止任务
+        // 1.删除缓存中的任务
         ScheduledTask scheduledTask = scheduledTasks.remove(taskId);
+
+        // 2.停止正在执行任务
         if (null != scheduledTask) {
             scheduledTask.cancel();
         }
-        // 2.更新任务状态为暂停
+
+        // 3.更新任务状态为暂停
         JobStore.setPaused(taskId);
     }
 
@@ -119,8 +124,10 @@ public class Scheduler implements IScheduler, DisposableBean {
     @Override
     public void setExpireMonitor(String taskId, Date endTime) {
         // 在endTime时间点之后，结束任务
-        ScheduledTask expireMonitor = new ScheduledTask();
-        expireMonitor.future = taskScheduler.schedule(() -> cancelTask(taskId), endTime);
+        FixedTimeTask fixedTimeTask = new FixedTimeTask(() -> cancelTask(taskId), endTime);
+        ScheduledTask expireMonitor = new ScheduledTask(fixedTimeTask);
+        expireMonitor.future = taskScheduler.schedule(fixedTimeTask.getRunnable(), fixedTimeTask.getExecTime());
+
         // 保存监控任务
         expireMonitors.put(ScheduleContext.MONITOR_TASK_PREFIX + taskId, expireMonitor);
     }
@@ -134,6 +141,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         scheduledTasks.keySet().forEach(this::pauseTask);
         // 1.3.停止结束时间监控任务
         expireMonitors.forEach((key, task) -> task.cancel());
+
         // 2.存储任务及执行细节
         JobStore.save();
     }
