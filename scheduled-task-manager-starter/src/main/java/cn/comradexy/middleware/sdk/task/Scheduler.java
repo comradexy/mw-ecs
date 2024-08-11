@@ -85,7 +85,7 @@ public class Scheduler implements IScheduler, ApplicationContextAware, Disposabl
             }
         });
 
-        // JobStore中获取任务信息(Job和ExecDetail)
+        // 从JobStore中获取任务信息(Job和ExecDetail)
         ExecDetail execDetail = JobStore.getExecDetail(taskKey);
         Job job = JobStore.getJob(execDetail.getJobKey());
 
@@ -101,6 +101,9 @@ public class Scheduler implements IScheduler, ApplicationContextAware, Disposabl
 
         // 保存定时任务
         scheduledTasks.put(taskKey, scheduledTask);
+
+        // 更新任务状态为运行中
+        JobStore.setRunning(taskKey);
     }
 
     public Object getBean(String beanName, String beanClassName) {
