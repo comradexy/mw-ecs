@@ -44,23 +44,23 @@ public class JobStore {
     }
 
     public static void setPaused(String execDetailKey) {
-        EXEC_DETAIL_MAP.get(execDetailKey).setState(ExecDetail.ExecState.PAUSED.getKey());
+        EXEC_DETAIL_MAP.get(execDetailKey).setState(ExecDetail.ExecState.PAUSED);
     }
 
     public static void setRunning(String execDetailKey) {
-        EXEC_DETAIL_MAP.get(execDetailKey).setState(ExecDetail.ExecState.RUNNING.getKey());
+        EXEC_DETAIL_MAP.get(execDetailKey).setState(ExecDetail.ExecState.RUNNING);
     }
 
     public static void setComplete(String execDetailKey) {
-        EXEC_DETAIL_MAP.get(execDetailKey).setState(ExecDetail.ExecState.COMPLETE.getKey());
+        EXEC_DETAIL_MAP.get(execDetailKey).setState(ExecDetail.ExecState.COMPLETE);
     }
 
     public static void setError(String execDetailKey) {
-        EXEC_DETAIL_MAP.get(execDetailKey).setState(ExecDetail.ExecState.ERROR.getKey());
+        EXEC_DETAIL_MAP.get(execDetailKey).setState(ExecDetail.ExecState.ERROR);
     }
 
     public static void setBlocked(String execDetailKey) {
-        EXEC_DETAIL_MAP.get(execDetailKey).setState(ExecDetail.ExecState.BLOCKED.getKey());
+        EXEC_DETAIL_MAP.get(execDetailKey).setState(ExecDetail.ExecState.BLOCKED);
     }
 
     /**

@@ -229,7 +229,7 @@ public class ScheduledWithMgrAnnotationProcessor implements BeanPostProcessor, A
         if (!unresolvedCronTasks.isEmpty()) {
             for (CronTask cronTask : unresolvedCronTasks) {
                 // 通过scheduledTaskMgr托管
-                scheduledTaskMgr.scheduleTask(cronTask.getExpression(), cronTask.getRunnable());
+//                scheduledTaskMgr.scheduleTask(cronTask.getExpression(), cronTask.getRunnable());
             }
         }
     }

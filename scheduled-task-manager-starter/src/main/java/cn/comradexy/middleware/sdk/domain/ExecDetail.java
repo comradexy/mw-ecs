@@ -28,34 +28,30 @@ public class ExecDetail {
     private String jobKey;
 
     @Builder.Default
-    private Date startTime = new Date();
+    private Date initTime = new Date();
 
     private Date endTime;
 
     private Date lastExecTime;
 
-    private Date nextExecTime;
-
     @Builder.Default
     private Long execCount = 0L;
 
     @Builder.Default
-    private Integer state = ExecState.INIT.getKey();
+    private ExecState state = ExecState.INIT;
 
     @Getter
     public enum ExecState {
-        INIT(0, "初始化"),
-        RUNNING(1, "运行中"),
-        PAUSED(2, "暂停"),
-        COMPLETE(3, "完成"),
-        ERROR(4, "错误"),
-        BLOCKED(5, "阻塞");
+        INIT("初始化"),
+        RUNNING("运行中"),
+        PAUSED("暂停"),
+        COMPLETE("完成"),
+        ERROR("错误"),
+        BLOCKED("阻塞");
 
-        private final int key;
         private final String desc;
 
-        ExecState(int key, String desc) {
-            this.key = key;
+        ExecState(String desc) {
             this.desc = desc;
         }
     }
