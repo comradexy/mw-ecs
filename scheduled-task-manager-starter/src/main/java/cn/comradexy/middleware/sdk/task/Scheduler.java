@@ -1,18 +1,26 @@
 package cn.comradexy.middleware.sdk.task;
 
 import cn.comradexy.middleware.sdk.common.ScheduleContext;
+import cn.comradexy.middleware.sdk.domain.ExecDetail;
+import cn.comradexy.middleware.sdk.domain.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.config.CronTask;
-import org.springframework.scheduling.support.CronExpression;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Date;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -22,8 +30,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * @CreateTime: 2024-07-22
  * @Description: 定时任务调度器
  */
-public class Scheduler implements IScheduler, DisposableBean {
+public class Scheduler implements IScheduler, ApplicationContextAware, DisposableBean {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private ApplicationContext applicationContext;
 
     private TaskScheduler taskScheduler;
 
@@ -61,36 +71,82 @@ public class Scheduler implements IScheduler, DisposableBean {
     }
 
     @Override
-    public void scheduleTask(String cronExpr, Runnable taskHandler) {
-        // TODO：更新为从JobStore中获取任务信息(Job和ExecDetail)
-
-        try {
-            // 校验cron表达式合法性
-            if (!CronExpression.isValidExpression(cronExpr)) {
-                logger.error("cron表达式[{}]不合法", cronExpr);
-            }
-
-            // 生成任务ID
-            String taskId = UUID.randomUUID().toString();
-
-            // 创建定时任务
-            CronTask cronTask = new CronTask(taskHandler, cronExpr);
-            ScheduledTask scheduledTask = new ScheduledTask(cronTask);
-            scheduledTask.future = taskScheduler.schedule(taskHandler, new CronTrigger(cronExpr));
-
-            // 保存定时任务
-            scheduledTasks.put(taskId, scheduledTask);
-
-            logger.info("任务[{}]已启动", taskId);
-        } catch (Exception e) {
-            logger.error("启动任务失败", e);
-        }
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
     @Override
-    public void cancelTask(String taskId) {
+    public void scheduleTask(String taskKey) {
+        // 清空缓存中失效的任务
+        scheduledTasks.forEach((key, value) -> {
+            if (ExecDetail.ExecState.RUNNING.getKey() != JobStore.getExecDetail(key).getState()) {
+                if (!value.isCancelled()) value.cancel();
+                scheduledTasks.remove(key);
+            }
+        });
+
+        // JobStore中获取任务信息(Job和ExecDetail)
+        ExecDetail execDetail = JobStore.getExecDetail(taskKey);
+        Job job = JobStore.getJob(execDetail.getJobKey());
+
+        // 组装任务
+        Object bean = getBean(job.getBeanName(), job.getBeanClassName());
+        Method method = ReflectionUtils.findMethod(bean.getClass(), job.getMethodName());
+        SchedulingRunnable runnable = new SchedulingRunnable(taskKey, createRunnable(bean, method));
+        CronTask cronTask = new CronTask(runnable, execDetail.getCronExpr());
+
+        // 创建定时任务
+        ScheduledTask scheduledTask = new ScheduledTask(cronTask);
+        scheduledTask.future = taskScheduler.schedule(cronTask.getRunnable(), cronTask.getTrigger());
+
+        // 保存定时任务
+        scheduledTasks.put(taskKey, scheduledTask);
+    }
+
+    public Object getBean(String beanName, String beanClassName) {
+        // 先根据类型获取，再根据名称获取
+        try {
+            Class<?> beanClass = Class.forName(beanClassName);
+            try {
+                return applicationContext.getBean(beanClass);
+            } catch (NoUniqueBeanDefinitionException ex) {
+                logger.trace("存在多个{}类型的Bean，尝试根据名称获取", beanClass.getName());
+                try {
+                    return applicationContext.getBean(beanClass, beanName);
+                } catch (NoSuchBeanDefinitionException ex2) {
+                    logger.error("未找到{}类型的Bean", beanClass.getName());
+                    return null;
+                }
+            } catch (NoSuchBeanDefinitionException ex) {
+                logger.error("未找到{}类型的Bean", beanClass.getName());
+                return null;
+            }
+        } catch (ClassNotFoundException ex) {
+            logger.error("未找到{}类型的Bean", beanClassName);
+            return null;
+        }
+    }
+
+    private Runnable createRunnable(Object bean, Method method) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ReflectionUtils.makeAccessible(method);
+                    method.invoke(bean);
+                } catch (InvocationTargetException ex) {
+                    ReflectionUtils.rethrowRuntimeException(ex.getTargetException());
+                } catch (IllegalAccessException ex) {
+                    throw new UndeclaredThrowableException(ex);
+                }
+            }
+        };
+    }
+
+    @Override
+    public void cancelTask(String taskKey) {
         // 1.删除缓存中的任务
-        ScheduledTask scheduledTask = scheduledTasks.remove(taskId);
+        ScheduledTask scheduledTask = scheduledTasks.remove(taskKey);
 
         // 2.停止正在执行任务
         if (null != scheduledTask) {
@@ -98,13 +154,13 @@ public class Scheduler implements IScheduler, DisposableBean {
         }
 
         // 3.更新任务状态为已完成
-        JobStore.setComplete(taskId);
+        JobStore.setComplete(taskKey);
     }
 
     @Override
-    public void pauseTask(String taskId) {
+    public void pauseTask(String taskKey) {
         // 1.删除缓存中的任务
-        ScheduledTask scheduledTask = scheduledTasks.remove(taskId);
+        ScheduledTask scheduledTask = scheduledTasks.remove(taskKey);
 
         // 2.停止正在执行任务
         if (null != scheduledTask) {
@@ -112,24 +168,24 @@ public class Scheduler implements IScheduler, DisposableBean {
         }
 
         // 3.更新任务状态为暂停
-        JobStore.setPaused(taskId);
+        JobStore.setPaused(taskKey);
     }
 
     @Override
-    public void resumeTask(String taskId) {
+    public void resumeTask(String taskKey) {
         // TODO: 实现任务重启
 
     }
 
     @Override
-    public void setExpireMonitor(String taskId, Date endTime) {
+    public void setExpireMonitor(String taskKey, Date endTime) {
         // 在endTime时间点之后，结束任务
-        FixedTimeTask fixedTimeTask = new FixedTimeTask(() -> cancelTask(taskId), endTime);
+        FixedTimeTask fixedTimeTask = new FixedTimeTask(() -> cancelTask(taskKey), endTime);
         ScheduledTask expireMonitor = new ScheduledTask(fixedTimeTask);
         expireMonitor.future = taskScheduler.schedule(fixedTimeTask.getRunnable(), fixedTimeTask.getExecTime());
 
         // 保存监控任务
-        expireMonitors.put(ScheduleContext.MONITOR_TASK_PREFIX + taskId, expireMonitor);
+        expireMonitors.put(ScheduleContext.MONITOR_TASK_PREFIX + taskKey, expireMonitor);
     }
 
     @Override

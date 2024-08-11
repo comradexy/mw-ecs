@@ -44,6 +44,7 @@ public class ScheduledTask {
         return future.isCancelled();
     }
 
+    @Override
     public String toString() {
         return this.task.toString();
     }

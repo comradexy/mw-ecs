@@ -20,7 +20,7 @@ public class Job {
     /**
      * 任务宿主类 - 全限定名
      */
-    private String beanClass;
+    private String beanClassName;
 
     /**
      * 任务宿主类 - Spring Bean 名称

@@ -35,6 +35,14 @@ public class JobStore {
         EXEC_DETAIL_MAP.entrySet().removeIf(entry -> entry.getValue().getJobKey().equals(job.getKey()));
     }
 
+    public static Job getJob(String jobKey) {
+        return JOB_MAP.get(jobKey);
+    }
+
+    public static ExecDetail getExecDetail(String execDetailKey) {
+        return EXEC_DETAIL_MAP.get(execDetailKey);
+    }
+
     public static void setPaused(String execDetailKey) {
         EXEC_DETAIL_MAP.get(execDetailKey).setState(ExecDetail.ExecState.PAUSED.getKey());
     }
