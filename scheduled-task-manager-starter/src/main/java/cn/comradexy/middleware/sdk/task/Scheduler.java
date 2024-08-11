@@ -128,17 +128,14 @@ public class Scheduler implements IScheduler, ApplicationContextAware, Disposabl
     }
 
     private Runnable createRunnable(Object bean, Method method) {
-        return new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    ReflectionUtils.makeAccessible(method);
-                    method.invoke(bean);
-                } catch (InvocationTargetException ex) {
-                    ReflectionUtils.rethrowRuntimeException(ex.getTargetException());
-                } catch (IllegalAccessException ex) {
-                    throw new UndeclaredThrowableException(ex);
-                }
+        return () -> {
+            try {
+                ReflectionUtils.makeAccessible(method);
+                method.invoke(bean);
+            } catch (InvocationTargetException ex) {
+                ReflectionUtils.rethrowRuntimeException(ex.getTargetException());
+            } catch (IllegalAccessException ex) {
+                throw new UndeclaredThrowableException(ex);
             }
         };
     }
