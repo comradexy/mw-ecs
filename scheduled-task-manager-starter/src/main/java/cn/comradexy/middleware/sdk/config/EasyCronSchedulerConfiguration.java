@@ -1,8 +1,8 @@
 package cn.comradexy.middleware.sdk.config;
 
+import cn.comradexy.middleware.sdk.common.ScheduleContext;
 import cn.comradexy.middleware.sdk.task.Scheduler;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
@@ -13,26 +13,20 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
  * @CreateTime: 2024-07-22
  * @Description: 定时任务管理中心自动配置
  */
-@Configuration
-public class ScheduledTaskMangerConfig {
+public class EasyCronSchedulerConfiguration {
     @Bean
-    public Scheduler scheduledTaskMgr() {
-        return new Scheduler();
-    }
-
-    @Bean
-    public TaskScheduler taskScheduler() {
+    public Scheduler scheduler() {
         // 创建定时任务调度器
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         // 设置线程池容量
-        taskScheduler.setPoolSize(8);
+        taskScheduler.setPoolSize(ScheduleContext.Global.schedulePoolSize);
         // 设置线程名前缀
-        taskScheduler.setThreadNamePrefix("ts-thread-");
+        taskScheduler.setThreadNamePrefix("scheduler-thread-");
         // 等待任务在关机时完成--表明等待所有线程执行完
         taskScheduler.setWaitForTasksToCompleteOnShutdown(true);
         // 等待时长
-        taskScheduler.setAwaitTerminationSeconds(60);
+        taskScheduler.setAwaitTerminationSeconds(30);
 
-        return taskScheduler;
+        return new Scheduler(taskScheduler);
     }
 }

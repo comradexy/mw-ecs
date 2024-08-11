@@ -1,5 +1,7 @@
 package cn.comradexy.middleware.sdk.common;
 
+import org.springframework.context.ApplicationContext;
+
 /**
  * 定时任务上下文信息
  *
@@ -11,4 +13,10 @@ public class ScheduleContext {
     public static String SYS_TASK_PREFIX = "SYSTEM_";
     public static String MONITOR_TASK_PREFIX = "MONITOR_";
 
+    public static class Global {
+        public static ApplicationContext applicationContext;
+        public static int schedulePoolSize = 8;     //定时任务执行线程池核心线程数
+        public static String schedulerServerId;     //任务服务ID
+        public static String schedulerServerName;   //任务服务名称
+    }
 }

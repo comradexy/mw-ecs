@@ -1,7 +1,7 @@
 package cn.comradexy.middleware.job;
 
-import cn.comradexy.middleware.sdk.annatation.ScheduledWithMgr;
-import cn.comradexy.middleware.sdk.annatation.SchedulesWithMgr;
+import cn.comradexy.middleware.sdk.annatation.EzScheduled;
+import cn.comradexy.middleware.sdk.annatation.EzSchedules;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,9 +18,9 @@ import java.time.format.DateTimeFormatter;
 public class ScheduledJob {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @SchedulesWithMgr({
-            @ScheduledWithMgr(cron = "0/3 * * * * ?"),
-            @ScheduledWithMgr(cron = "0/6 * * * * ?")
+    @EzSchedules({
+            @EzScheduled(cron = "0/3 * * * * ?"),
+            @EzScheduled(cron = "0/6 * * * * ?")
     })
     public void test() {
         String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));

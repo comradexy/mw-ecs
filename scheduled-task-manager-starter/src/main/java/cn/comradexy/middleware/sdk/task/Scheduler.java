@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.config.CronTask;
@@ -29,12 +27,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * @CreateTime: 2024-07-22
  * @Description: 定时任务调度器
  */
-public class Scheduler implements IScheduler, ApplicationContextAware, DisposableBean {
+public class Scheduler implements IScheduler, DisposableBean {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private ApplicationContext applicationContext;
-
-    private TaskScheduler taskScheduler;
+    private final TaskScheduler taskScheduler;
 
     /**
      * 系统任务: 任务状态监控、任务定期存储/清理等
@@ -51,27 +47,9 @@ public class Scheduler implements IScheduler, ApplicationContextAware, Disposabl
      */
     private final Map<String, ScheduledTask> expireMonitors = new ConcurrentHashMap<>(64);
 
-    public void setTaskScheduler(TaskScheduler taskScheduler) {
-        // 允许自定义TaskScheduler并注入
-        // 也可以声明TaskScheduler为Bean，ScheduledWithMgrAnnotationProcessor中会识别并将其注入
+    public Scheduler(TaskScheduler taskScheduler) {
         Assert.notNull(taskScheduler, "TaskScheduler must not be null");
-
-        // 检查scheduledTasks是否为空，如果不为空，说明已经有任务在运行，不允许更换TaskScheduler
-        if (!scheduledTasks.isEmpty()) {
-            logger.warn("已有任务在运行，不允许更换TaskScheduler");
-            return;
-        }
-
         this.taskScheduler = taskScheduler;
-    }
-
-    public boolean hasTaskScheduler() {
-        return taskScheduler != null;
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
     }
 
     @Override
@@ -229,11 +207,11 @@ public class Scheduler implements IScheduler, ApplicationContextAware, Disposabl
             Class<?> beanClass = Class.forName(beanClassName);
             // 先根据类型获取，再根据名称获取
             try {
-                return applicationContext.getBean(beanClass);
+                return ScheduleContext.Global.applicationContext.getBean(beanClass);
             } catch (NoUniqueBeanDefinitionException ex) {
                 logger.trace("存在多个{}类型的Bean，尝试根据名称获取", beanClass.getName());
                 try {
-                    return applicationContext.getBean(beanClass, beanName);
+                    return ScheduleContext.Global.applicationContext.getBean(beanClass, beanName);
                 } catch (NoSuchBeanDefinitionException ex2) {
                     logger.debug("未找到名为{}的{}类型的Bean", beanName, beanClass.getName());
                     return null;
