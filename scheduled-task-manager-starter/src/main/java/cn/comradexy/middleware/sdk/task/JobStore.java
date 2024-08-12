@@ -2,7 +2,10 @@ package cn.comradexy.middleware.sdk.task;
 
 import cn.comradexy.middleware.sdk.domain.ExecDetail;
 import cn.comradexy.middleware.sdk.domain.Job;
+import cn.comradexy.middleware.sdk.storage.IStorageService;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,7 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @CreateTime: 2024-08-10
  * @Description: 任务存储区
  */
+@Component
 public class JobStore {
+    @Resource
+    private IStorageService storageService;
+
     private static final Map<String, Job> JOB_MAP = new ConcurrentHashMap<>(64);
     private static final Map<String, ExecDetail> EXEC_DETAIL_MAP = new ConcurrentHashMap<>(64);
 
@@ -64,10 +71,18 @@ public class JobStore {
     }
 
     /**
-     * 保存任务及执行细节: JDBC/Redis
+     * 保存任务及执行细节
      */
     public static void save() {
-        // TODO: 调用JDBC或者Redis服务保存任务及执行细节
+        // TODO: 调用JDBC保存任务及执行细节
+
+    }
+
+    /**
+     * 加载任务及执行细节
+     */
+    public static void load() {
+        // TODO:
 
     }
 }
