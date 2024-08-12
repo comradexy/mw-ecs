@@ -15,7 +15,6 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.Ordered;
@@ -23,7 +22,6 @@ import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
 
-import javax.annotation.Resource;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -104,7 +102,7 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
         Task task = new Task();
         task.setCron(ezScheduled.cron());
         task.setDesc(ezScheduled.desc());
-        task.setBeanClassName(bean.getClass().toString());
+        task.setBeanClassName(bean.getClass().getName());
         task.setBeanName(beanName);
         task.setMethodName(method.getName());
         task.setEndTime(new Date(ezScheduled.endTime()));
@@ -213,7 +211,7 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
 
         String getExecDetailKey(String appName) {
             String key = getJobKey(appName) + "_" + cron + "_" + endTime.toString();
-            return UUID.fromString(key).toString();
+            return key; // TODO: 生成唯一key
         }
     }
 }

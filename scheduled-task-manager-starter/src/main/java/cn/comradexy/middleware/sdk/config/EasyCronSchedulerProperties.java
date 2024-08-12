@@ -1,6 +1,7 @@
 package cn.comradexy.middleware.sdk.config;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -12,6 +13,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties("comradexy.middleware.scheudle")
 @Getter
+@Setter
 public class EasyCronSchedulerProperties {
     public String schedulerServerId;
     public String schedulerServerName;

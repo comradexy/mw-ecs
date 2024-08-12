@@ -32,13 +32,15 @@ public class EasyCronSchedulerConfiguration {
         // 创建定时任务调度器
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         // 设置线程池容量
-        taskScheduler.setPoolSize(ScheduleContext.Global.schedulerPoolSize);
+        taskScheduler.setPoolSize(easyCronSchedulerProperties.schedulerPoolSize);
         // 设置线程名前缀
         taskScheduler.setThreadNamePrefix("scheduler-thread-");
         // 等待任务在关机时完成--表明等待所有线程执行完
         taskScheduler.setWaitForTasksToCompleteOnShutdown(true);
         // 等待时长
         taskScheduler.setAwaitTerminationSeconds(30);
+        // 初始化
+        taskScheduler.initialize();
 
         return new Scheduler(taskScheduler);
     }
