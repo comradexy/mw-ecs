@@ -11,7 +11,6 @@ import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopProxyUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -23,8 +22,8 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,24 +53,6 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
      * 待处理的任务
      */
     private final Set<Task> pendingTasks = Collections.newSetFromMap(new ConcurrentHashMap<>());
-
-    private StarterProperties starterProperties;
-
-    private Scheduler scheduler;
-
-    @Autowired
-    @Lazy
-    public void setStarterProperties(StarterProperties starterProperties) {
-        Assert.notNull(starterProperties, "StarterProperties 不能为null");
-        this.starterProperties = starterProperties;
-    }
-
-    @Autowired
-    @Lazy
-    public void setScheduler(Scheduler scheduler) {
-        Assert.notNull(scheduler, "Scheduler 不能为null");
-        this.scheduler = scheduler;
-    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
@@ -145,10 +126,14 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
      */
     private void init_config() {
         try {
-            ScheduleContext.Global.schedulerServerId = starterProperties.getSchedulerServerId();
-            ScheduleContext.Global.schedulerServerName = starterProperties.getSchedulerServerName();
-            ScheduleContext.Global.schedulerPoolSize = starterProperties.getSchedulerPoolSize();
-            ScheduleContext.Global.enableStorage = starterProperties.getEnableStorage();
+            String configBeanName = "comradexy-middleware-easy-cron-scheduler-configuration";
+            EasyCronSchedulerProperties properties = ScheduleContext.Global.applicationContext
+                    .getBean(configBeanName, EasyCronSchedulerConfiguration.class)
+                    .getEasyCronSchedulerProperties();
+            ScheduleContext.Global.schedulerServerId = properties.getSchedulerServerId();
+            ScheduleContext.Global.schedulerServerName = properties.getSchedulerServerName();
+            ScheduleContext.Global.schedulerPoolSize = properties.getSchedulerPoolSize();
+            ScheduleContext.Global.enableStorage = properties.getEnableStorage();
         } catch (Exception e) {
             logger.error("初始化配置异常", e);
             throw new RuntimeException(e);
@@ -206,6 +191,8 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
             }
 
             // 调度任务
+            String schedulerBeanName = "comradexy-middleware-easy-cron-scheduler";
+            Scheduler scheduler = ScheduleContext.Global.applicationContext.getBean(schedulerBeanName, Scheduler.class);
             scheduler.scheduleTask(execDetailKey);
         });
 

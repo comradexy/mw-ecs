@@ -2,6 +2,7 @@ package cn.comradexy.middleware.sdk.annatation;
 
 import cn.comradexy.middleware.sdk.config.EasyCronSchedulerConfiguration;
 import cn.comradexy.middleware.sdk.config.EasyCronSchedulerInitProcessor;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
@@ -16,10 +17,8 @@ import java.lang.annotation.*;
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Import({
-        EasyCronSchedulerInitProcessor.class,
-        EasyCronSchedulerConfiguration.class
-})
+@Import({EasyCronSchedulerInitProcessor.class})
+@ImportAutoConfiguration({EasyCronSchedulerConfiguration.class})
 @Documented
 public @interface EnableEzScheduling {
 }

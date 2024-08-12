@@ -12,7 +12,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties("comradexy.middleware.scheudle")
 @Getter
-public class StarterProperties {
+public class EasyCronSchedulerProperties {
     public String schedulerServerId;
     public String schedulerServerName;
     public int schedulerPoolSize = 8;
