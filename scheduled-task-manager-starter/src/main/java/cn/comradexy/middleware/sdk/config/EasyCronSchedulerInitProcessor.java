@@ -2,13 +2,15 @@ package cn.comradexy.middleware.sdk.config;
 
 import cn.comradexy.middleware.sdk.annatation.EzScheduled;
 import cn.comradexy.middleware.sdk.annatation.EzSchedules;
+import cn.comradexy.middleware.sdk.common.ScheduleContext;
+import cn.comradexy.middleware.sdk.domain.ExecDetail;
+import cn.comradexy.middleware.sdk.domain.Job;
+import cn.comradexy.middleware.sdk.task.JobStore;
 import cn.comradexy.middleware.sdk.task.Scheduler;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopProxyUtils;
-import org.springframework.aop.support.AopUtils;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
@@ -20,18 +22,12 @@ import org.springframework.core.MethodIntrospector;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
-import org.springframework.scheduling.config.CronTask;
-import org.springframework.scheduling.support.CronExpression;
-import org.springframework.scheduling.support.CronTrigger;
-import org.springframework.scheduling.support.ScheduledMethodRunnable;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 
 /**
  * Bean处理器
@@ -42,15 +38,10 @@ import java.util.concurrent.Executors;
  */
 public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, ApplicationContextAware,
         ApplicationListener<ContextRefreshedEvent>, Ordered {
-    private ApplicationContext applicationContext;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
-     * 定时任务管理器
-     */
-    private Scheduler scheduledTaskMgr;
-
-    /**
-     * 存放没有@EzScheduled注解的类
+     * 没有@EzScheduled注解的类
      * <p>
      * 考虑到Bean的初始化可能会被设置为并发初始化，
      * 即postProcessAfterInitialization方法可能会被多线程调用，
@@ -60,166 +51,182 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
     private final Set<Class<?>> nonAnnotatedClasses = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     /**
-     * 存放未解析的cron任务
+     * 待处理的任务
      */
-    private final Set<CronTask> unresolvedCronTasks = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Set<Task> pendingTasks = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private StarterProperties starterProperties;
+
+    private Scheduler scheduler;
 
     @Autowired
     @Lazy
-    public void setScheduledTaskMgr(Scheduler scheduledTaskMgr) {
-        Assert.notNull(scheduledTaskMgr, "ScheduledTaskMgr must not be null");
-        this.scheduledTaskMgr = scheduledTaskMgr;
+    public void setStarterProperties(StarterProperties starterProperties) {
+        Assert.notNull(starterProperties, "StarterProperties 不能为null");
+        this.starterProperties = starterProperties;
+    }
+
+    @Autowired
+    @Lazy
+    public void setScheduler(Scheduler scheduler) {
+        Assert.notNull(scheduler, "Scheduler 不能为null");
+        this.scheduler = scheduler;
     }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
-        Assert.notNull(applicationContext, "ApplicationContext must not be null");
-        this.applicationContext = applicationContext;
+        Assert.notNull(applicationContext, "ApplicationContext 不能为null");
+        ScheduleContext.Global.applicationContext = applicationContext;
     }
 
-    /**
-     * 改变执行顺序的优先级，数字越小，优先级越高
-     */
     @Override
     public int getOrder() {
+        // 改变执行顺序的优先级，数字越小，优先级越高
         return Integer.MAX_VALUE;
     }
 
-    /**
-     * Bean初始化之后调用，解析EzScheduled注解
-     */
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) {
-        // 防止循环依赖
-        if (bean instanceof Scheduler) {
-            return bean;
-        }
+        if (bean instanceof Scheduler) return bean;
 
-        // 获取Bean的用户态类型，例如Bean有可能被CGLIB增强，这个时候要取其父类
+        // Bean有可能被CGLIB增强，这个时候要取其父类
         Class<?> targetClass = AopProxyUtils.ultimateTargetClass(bean);
         // 判断类是否有EzScheduled注解
-        // nonAnnotatedClasses存放着不存在@EzScheduled注解的类型，缓存起来避免重复判断它是否携带@EzScheduled注解的方法
-        if (nonAnnotatedClasses.contains(targetClass) || !AnnotationUtils.isCandidateClass(targetClass,
+        if (this.nonAnnotatedClasses.contains(targetClass) || !AnnotationUtils.isCandidateClass(targetClass,
                 Arrays.asList(EzScheduled.class, EzSchedules.class))) {
             return bean;
         }
 
-        // 支持重复注解，获取具体类型中Method -> @EzScheduled的集合，最终会封装为多个Task
+        // 支持重复注解，获取具体类型中Method -> @EzScheduled的集合
         Map<Method, Set<EzScheduled>> annotatedMethods = MethodIntrospector.selectMethods(targetClass,
-                (MethodIntrospector.MetadataLookup<Set<EzScheduled>>) method -> {
-                    Set<EzScheduled> scheduledAnnotations =
-                            AnnotatedElementUtils.getMergedRepeatableAnnotations(method,
-                                    EzScheduled.class, EzSchedules.class);
-                    return !scheduledAnnotations.isEmpty() ? scheduledAnnotations : null;
+                (MethodIntrospector.MetadataLookup<Set<EzScheduled>>) metadataLookup -> {
+                    Set<EzScheduled> annotations = AnnotatedElementUtils.getMergedRepeatableAnnotations(
+                            metadataLookup, EzScheduled.class, EzSchedules.class);
+                    return annotations.isEmpty() ? null : annotations;
                 });
 
-        // 解析到类型中不存在@EzScheduled注解的方法添加到nonAnnotatedClasses缓存
         if (annotatedMethods.isEmpty()) {
-            nonAnnotatedClasses.add(targetClass);
-            if (logger.isTraceEnabled()) {
-                logger.trace("No @EzScheduled annotations found on bean class: " + targetClass);
-            }
+            this.nonAnnotatedClasses.add(targetClass);
         } else {
-            // 处理@EzScheduled注解的方法，调用processEzScheduled方法登记任务
-            annotatedMethods.forEach((method, scheduledAnnotations) -> {
-                scheduledAnnotations.forEach((scheduled) -> {
-                    processEzScheduled(scheduled, method, bean);
-                });
-            });
-            if (logger.isTraceEnabled()) {
-                logger.trace(annotatedMethods.size() + " @EzScheduled methods processed on bean '" + beanName +
-                        "': " + annotatedMethods);
-            }
+            annotatedMethods.forEach((method, annotations) -> annotations.forEach((scheduled) -> {
+                processEzScheduled(scheduled, method, bean, beanName);
+            }));
         }
 
         return bean;
     }
 
-    /**
-     * 登记被@EzScheduled注解修饰的方法
-     */
-    public void processEzScheduled(EzScheduled ezScheduled, Method method, Object bean) {
-        // TODO: 解析@EzScheduled注解的方法，转化为Job和ExecDetail，并存放到JobStore中
-        //  如果开启持久化支持，还需要从数据库中读取任务及执行细节
-
-        try {
-            // 通过方法宿主Bean和目标方法封装Runnable适配器ScheduledMethodRunnable实例
-            Runnable runnable = createRunnable(bean, method);
-
-            // 解析cron，装载为CronTask
-            String cron = ezScheduled.cron();
-            if (CronExpression.isValidExpression(cron)) {
-                // 由于ScheduledTaskMgr和TaskScheduler可能还未初始化，先把任务添加到缓存中
-                unresolvedCronTasks.add(new CronTask(runnable, new CronTrigger(cron)));
-            }
-        } catch (IllegalArgumentException ex) {
-            throw new IllegalStateException("Encountered invalid @EzScheduled method '" + method.getName() +
-                    "':" + " " + ex.getMessage());
-        }
+    public void processEzScheduled(EzScheduled ezScheduled, Method method, Object bean, String beanName) {
+        // 解析@EzScheduled修饰的方法
+        // 封装成Task，加入待处理任务集合
+        // 等配置初始化完成后，再为任务分配key，并调度任务
+        Task task = new Task();
+        task.setCron(ezScheduled.cron());
+        task.setDesc(ezScheduled.desc());
+        task.setBeanClassName(bean.getClass().toString());
+        task.setBeanName(beanName);
+        task.setMethodName(method.getName());
+        task.setEndTime(new Date(ezScheduled.endTime()));
+        pendingTasks.add(task);
     }
 
-    /**
-     * 将@EzScheduled注解的方法包装成ScheduledMethodRunnable
-     */
-    private Runnable createRunnable(Object target, Method method) {
-        Assert.isTrue(method.getParameterCount() == 0, "Only no-arg methods may be annotated with @EzScheduled");
-        Method invocableMethod = AopUtils.selectInvocableMethod(method, target.getClass());
-        return new ScheduledMethodRunnable(target, invocableMethod);
-    }
-
-    /**
-     * 当ApplicationContext初始化或刷新时调用
-     */
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        if (event.getApplicationContext() == applicationContext) {
-            finishRegistration();
+        if (event.getApplicationContext() == ScheduleContext.Global.applicationContext) {
+            init_config();
+            init_dcs();
+            init_storage();
+            init_tasks();
         }
     }
 
     /**
-     * 完成最终注册，通过ScheduledTaskMgr调度任务
+     * 初始化配置
      */
-    private void finishRegistration() {
-//        if (!scheduledTaskMgr.hasTaskScheduler()) {
-//            // 通过ApplicationContext获取所有TaskScheduler实例
-//            // 先根据类型获取，再根据名称获取
-//            try {
-//                scheduledTaskMgr.setTaskScheduler(applicationContext.getBean(TaskScheduler.class));
-//            } catch (NoUniqueBeanDefinitionException ex) {
-//                logger.trace("Could not find unique TaskScheduler bean", ex);
-//                try {
-//                    scheduledTaskMgr.setTaskScheduler(applicationContext.getBean(TaskScheduler.class, "taskScheduler"));
-//                } catch (NoSuchBeanDefinitionException ex2) {
-//                    logger.info("More than one TaskScheduler bean exists within the context, and " +
-//                            "none is named 'taskScheduler'. Mark one of them as primary or name it 'taskScheduler'.");
-//                }
-//            } catch (NoSuchBeanDefinitionException ex) {
-//                logger.trace("Could not find TaskScheduler bean", ex);
-//                logger.info("No TaskScheduler bean found within the context. " +
-//                        "Consider defining a bean of type TaskScheduler, or mark one of them as primary.");
-//            }
-//        }
-//
-//        // 如果scheduledTaskMgr还有装配TaskScheduler实例，说明没有配置TaskScheduler Bean
-//        if (!scheduledTaskMgr.hasTaskScheduler()) {
-//            // 默认使用单线程调度器
-//            scheduledTaskMgr.setTaskScheduler(new ConcurrentTaskScheduler(Executors.newSingleThreadScheduledExecutor()));
-//        }
-
-        // 调度所有已登记的任务
-        scheduleTasks();
+    private void init_config() {
+        try {
+            ScheduleContext.Global.schedulerServerId = starterProperties.getSchedulerServerId();
+            ScheduleContext.Global.schedulerServerName = starterProperties.getSchedulerServerName();
+            ScheduleContext.Global.schedulerPoolSize = starterProperties.getSchedulerPoolSize();
+            ScheduleContext.Global.enableStorage = starterProperties.getEnableStorage();
+        } catch (Exception e) {
+            logger.error("初始化配置异常", e);
+            throw new RuntimeException(e);
+        }
     }
 
-    private void scheduleTasks() {
-        // 调度所有装载完毕的CronTask
-        if (!unresolvedCronTasks.isEmpty()) {
-            for (CronTask cronTask : unresolvedCronTasks) {
-                // 通过scheduledTaskMgr托管
-//                scheduledTaskMgr.scheduleTask(cronTask.getExpression(), cronTask.getRunnable());
+    /**
+     * 初始化分布式服务
+     */
+    private void init_dcs() {
+
+    }
+
+    /**
+     * 初始化存储服务
+     */
+    private void init_storage() {
+        if (!ScheduleContext.Global.enableStorage) return;
+        // TODO: 如果开启持久化支持，还需要从数据库中读取任务及执行细节
+
+    }
+
+    /**
+     * 初始化任务
+     */
+    private void init_tasks() {
+        pendingTasks.forEach(task -> {
+            // 组装Job
+            String jobKey = task.getJobKey(ScheduleContext.Global.schedulerServerId);
+            if (null == JobStore.getJob(jobKey)) {
+                String jobDesc = "beanClass: " + task.getBeanClassName() +
+                        ", beanName: " + task.getBeanName() +
+                        ", methodName: " + task.getMethodName();
+                Job job = Job.builder()
+                        .key(task.getJobKey(ScheduleContext.Global.schedulerServerId))
+                        .desc(jobDesc)
+                        .beanClassName(task.getBeanClassName())
+                        .beanName(task.getBeanName())
+                        .methodName(task.getMethodName())
+                        .build();
+                JobStore.addJob(job);
             }
+
+            // 组装ExecDetail
+            String execDetailKey = task.getExecDetailKey(ScheduleContext.Global.schedulerServerId);
+            if (null == JobStore.getExecDetail(execDetailKey)) {
+                ExecDetail execDetail = ExecDetail.builder()
+                        .key(execDetailKey)
+                        .desc(task.getDesc())
+                        .cronExpr(task.getCron())
+                        .jobKey(jobKey)
+                        .endTime(task.getEndTime())
+                        .build();
+                JobStore.addExecDetail(execDetail);
+            }
+
+            // 调度任务
+            scheduler.scheduleTask(execDetailKey);
+        });
+
+    }
+
+    @Data
+    private static class Task {
+        private String cron;
+        private String desc;
+        private String beanClassName;
+        private String beanName;
+        private String methodName;
+        private Date endTime;
+
+        String getJobKey(String appName) {
+            return appName + "_" + beanClassName + "_" + beanName + "_" + methodName;
+        }
+
+        String getExecDetailKey(String appName) {
+            String key = getJobKey(appName) + "_" + cron + "_" + endTime.toString();
+            return UUID.fromString(key).toString();
         }
     }
 }

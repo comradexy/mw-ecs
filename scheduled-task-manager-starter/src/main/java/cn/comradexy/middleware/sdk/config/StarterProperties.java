@@ -1,5 +1,6 @@
 package cn.comradexy.middleware.sdk.config;
 
+import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -10,9 +11,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @Description: 配置参数
  */
 @ConfigurationProperties("comradexy.middleware.scheudle")
+@Getter
 public class StarterProperties {
-    public int schedulePoolSize = 8;
     public String schedulerServerId;
     public String schedulerServerName;
+    public int schedulerPoolSize = 8;
     public Boolean enableStorage = false;
 }

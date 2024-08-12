@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -37,9 +38,13 @@ public class JobStore {
     }
 
     public static void deleteJob(String jobKey) {
-        Job job =  JOB_MAP.remove(jobKey);
+        Job job = JOB_MAP.remove(jobKey);
         // 查询 EXEC_DETAIL_MAP 中所有 jobKey==job.key 的 ExecDetail，然后删除
         EXEC_DETAIL_MAP.entrySet().removeIf(entry -> entry.getValue().getJobKey().equals(job.getKey()));
+    }
+
+    public static Set<String> getAllExecDetailKeys() {
+        return EXEC_DETAIL_MAP.keySet();
     }
 
     public static Job getJob(String jobKey) {

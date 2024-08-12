@@ -2,6 +2,7 @@ package cn.comradexy.middleware.sdk.domain;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 任务实体
@@ -12,9 +13,19 @@ import lombok.Data;
  */
 @Builder
 @Data
+@EqualsAndHashCode(of = {"beanClassName", "beanName", "methodName"})
 public class Job {
-    private String key; // TODO: appName + beanName + methodName
+    /**
+     * 任务唯一标识
+     * <p>
+     * schedulerServerId + beanClassName + beanName + methodName
+     * </p>
+     */
+    private String key;
 
+    /**
+     * 任务描述
+     */
     private String desc;
 
     /**

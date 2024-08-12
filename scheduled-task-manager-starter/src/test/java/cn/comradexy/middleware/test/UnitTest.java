@@ -4,6 +4,8 @@ import cn.comradexy.middleware.sdk.domain.ExecDetail;
 import com.alibaba.fastjson.JSON;
 import org.junit.jupiter.api.Test;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.config.CronTask;
+import org.springframework.scheduling.config.Task;
 
 import java.util.Date;
 import java.util.Map;
@@ -51,4 +53,20 @@ public class UnitTest {
         eD.setExecCount(eD.getExecCount() + 1);
         System.out.println(JSON.toJSONString(map.get("key")));
     }
+
+    @Test
+    public void dateTest() {
+        Date date = new Date(0);
+        System.out.println(date);
+    }
+
+    @Test
+    public void classTest() {
+        Task task = new CronTask(() -> System.out.println("Hello"), "0/3 * * * * ?");
+        System.out.println(task.getClass());
+
+        Object obj = task;
+        System.out.println(obj.getClass());
+    }
+
 }

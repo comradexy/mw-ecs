@@ -37,10 +37,4 @@ public interface IScheduler {
      * @param taskKey 任务ID
      */
     void resumeTask(String taskKey);
-
-    /**
-     * 设置任务过期监控
-     *
-     */
-    void setExpireMonitor(String taskKey, Date endTime);
 }

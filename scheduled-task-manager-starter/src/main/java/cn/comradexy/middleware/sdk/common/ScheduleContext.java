@@ -15,8 +15,9 @@ public class ScheduleContext {
 
     public static class Global {
         public static ApplicationContext applicationContext;
-        public static int schedulePoolSize = 8;     //定时任务执行线程池核心线程数
         public static String schedulerServerId;     //任务服务ID
         public static String schedulerServerName;   //任务服务名称
+        public static int schedulerPoolSize;     //定时任务执行线程池核心线程数
+        public static Boolean enableStorage; //是否开启任务存储
     }
 }

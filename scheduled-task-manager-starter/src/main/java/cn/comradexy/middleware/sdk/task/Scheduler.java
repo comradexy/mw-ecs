@@ -121,17 +121,6 @@ public class Scheduler implements IScheduler, DisposableBean {
     }
 
     @Override
-    public void setExpireMonitor(String taskKey, Date endTime) {
-        // 在endTime时间点之后，结束任务
-        FixedTimeTask fixedTimeTask = new FixedTimeTask(() -> cancelTask(taskKey), endTime);
-        ScheduledTask expireMonitor = new ScheduledTask(fixedTimeTask);
-        expireMonitor.future = taskScheduler.schedule(fixedTimeTask.getRunnable(), fixedTimeTask.getExecTime());
-
-        // 保存监控任务
-        expireMonitors.put(ScheduleContext.MONITOR_TASK_PREFIX + taskKey, expireMonitor);
-    }
-
-    @Override
     public void destroy() {
         // 1.停止所有任务
         // 1.1.停止系统任务
@@ -157,6 +146,13 @@ public class Scheduler implements IScheduler, DisposableBean {
 
     private void runTask(Job job, ExecDetail execDetail) {
         String taskKey = execDetail.getKey();
+
+        // 设置过期监控
+        if (!setExpireMonitor(taskKey, execDetail.getEndTime())) {
+            logger.warn("任务[{}]已过期，无法启动该任务", taskKey);
+            JobStore.setComplete(taskKey);
+            return;
+        }
 
         // 组装任务
         Object bean = getBean(job.getBeanName(), job.getBeanClassName());
@@ -190,16 +186,26 @@ public class Scheduler implements IScheduler, DisposableBean {
             return;
         }
 
-        // 如果设置了过期时间，设置过期监控
-        if (null != execDetail.getEndTime() && execDetail.getEndTime().after(new Date())) {
-            setExpireMonitor(taskKey, execDetail.getEndTime());
-        }
-
         // 保存定时任务
         scheduledTasks.put(taskKey, scheduledTask);
 
         // 更新任务状态为运行中
         JobStore.setRunning(taskKey);
+    }
+
+    private boolean setExpireMonitor(String taskKey, Date endTime) {
+        if (null == endTime || endTime.equals(new Date(Long.MAX_VALUE))) return true; // 永久任务
+        if (endTime.before(new Date())) return false; // 已过期
+
+        // 在endTime时间点之后，结束任务
+        FixedTimeTask fixedTimeTask = new FixedTimeTask(() -> cancelTask(taskKey), endTime);
+        ScheduledTask expireMonitor = new ScheduledTask(fixedTimeTask);
+        expireMonitor.future = taskScheduler.schedule(fixedTimeTask.getRunnable(), fixedTimeTask.getExecTime());
+
+        // 保存监控任务
+        expireMonitors.put(ScheduleContext.MONITOR_TASK_PREFIX + taskKey, expireMonitor);
+
+        return true;
     }
 
     private Object getBean(String beanName, String beanClassName) {

@@ -16,4 +16,7 @@ import java.lang.annotation.*;
 public @interface EzScheduled {
     String cron() default "";
 
+    String desc() default "缺省";
+
+    long endTime() default Long.MAX_VALUE;
 }
