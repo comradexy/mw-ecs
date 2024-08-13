@@ -4,7 +4,6 @@ import cn.comradexy.middleware.sdk.admin.controller.AdminController;
 import cn.comradexy.middleware.sdk.admin.service.impl.ScheduleService;
 import cn.comradexy.middleware.sdk.annatation.EnableEzScheduling;
 import org.springframework.context.annotation.ImportSelector;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.AnnotationMetadata;
 
 import java.util.Map;

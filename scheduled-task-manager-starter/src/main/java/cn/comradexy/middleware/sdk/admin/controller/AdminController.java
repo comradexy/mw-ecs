@@ -1,8 +1,8 @@
 package cn.comradexy.middleware.sdk.admin.controller;
 
+import cn.comradexy.middleware.sdk.admin.service.IScheduleService;
 import cn.comradexy.middleware.sdk.domain.Request;
 import cn.comradexy.middleware.sdk.domain.Result;
-import cn.comradexy.middleware.sdk.admin.service.IScheduleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,7 @@ import javax.annotation.Resource;
  * @CreateTime: 2024-08-13
  * @Description: 管理端controller
  */
-@RestController
+@ResponseBody
 @RequestMapping("/schedule/api")
 public class AdminController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
