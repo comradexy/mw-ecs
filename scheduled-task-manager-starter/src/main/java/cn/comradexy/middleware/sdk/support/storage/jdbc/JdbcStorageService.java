@@ -1,6 +1,6 @@
-package cn.comradexy.middleware.sdk.storage.jdbc;
+package cn.comradexy.middleware.sdk.support.storage.jdbc;
 
-import cn.comradexy.middleware.sdk.storage.IStorageService;
+import cn.comradexy.middleware.sdk.support.storage.IStorageService;
 
 /**
  * JDBC存储服务

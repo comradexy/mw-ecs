@@ -1,4 +1,4 @@
-package cn.comradexy.middleware.sdk.service;
+package cn.comradexy.middleware.sdk.support.dcs;
 
 /**
  * 分布式服务接口

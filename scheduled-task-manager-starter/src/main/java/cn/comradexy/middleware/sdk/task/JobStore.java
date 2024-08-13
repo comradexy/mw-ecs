@@ -2,13 +2,8 @@ package cn.comradexy.middleware.sdk.task;
 
 import cn.comradexy.middleware.sdk.domain.ExecDetail;
 import cn.comradexy.middleware.sdk.domain.Job;
-import cn.comradexy.middleware.sdk.storage.IStorageService;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -23,8 +18,8 @@ public class JobStore {
 //    private IStorageService storageService;
 
     // TODO: 改成非静态
-    private static final Map<String, Job> JOB_MAP = new ConcurrentHashMap<>(64);
-    private static final Map<String, ExecDetail> EXEC_DETAIL_MAP = new ConcurrentHashMap<>(64);
+    public static final Map<String, Job> JOB_MAP = new ConcurrentHashMap<>(64);
+    public static final Map<String, ExecDetail> EXEC_DETAIL_MAP = new ConcurrentHashMap<>(64);
 
     public static void addJob(Job job) {
         JOB_MAP.put(job.getKey(), job);

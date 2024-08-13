@@ -12,7 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @Description: 定时任务管理器Demo
  */
 @SpringBootApplication
-@EnableEzScheduling
+@EnableEzScheduling(enableAdmin = true)
 public class Application {
 
     public static void main(String[] args) {

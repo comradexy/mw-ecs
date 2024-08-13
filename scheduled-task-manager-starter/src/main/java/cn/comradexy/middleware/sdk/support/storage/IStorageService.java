@@ -1,4 +1,4 @@
-package cn.comradexy.middleware.sdk.storage;
+package cn.comradexy.middleware.sdk.support.storage;
 
 /**
  * 存储服务接口

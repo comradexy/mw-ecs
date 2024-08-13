@@ -21,6 +21,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.DigestUtils;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -211,7 +212,7 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
 
         String getExecDetailKey(String appName) {
             String key = getJobKey(appName) + "_" + cron + "_" + endTime.toString();
-            return key; // TODO: 生成唯一key
+            return DigestUtils.md5DigestAsHex(key.getBytes());
         }
     }
 }
