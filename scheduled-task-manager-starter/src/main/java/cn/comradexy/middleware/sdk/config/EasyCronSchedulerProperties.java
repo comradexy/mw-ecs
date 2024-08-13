@@ -19,4 +19,5 @@ public class EasyCronSchedulerProperties {
     public String schedulerServerName;
     public int schedulerPoolSize = 8;
     public Boolean enableStorage = false;
+    public Boolean enableAdmin = false;
 }

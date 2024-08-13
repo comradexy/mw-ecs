@@ -1,5 +1,8 @@
 package cn.comradexy.middleware.sdk.config;
 
+import cn.comradexy.middleware.sdk.admin.controller.AdminController;
+import cn.comradexy.middleware.sdk.admin.service.IScheduleService;
+import cn.comradexy.middleware.sdk.admin.service.impl.ScheduleService;
 import cn.comradexy.middleware.sdk.common.ScheduleContext;
 import cn.comradexy.middleware.sdk.task.JobStore;
 import cn.comradexy.middleware.sdk.task.Scheduler;
@@ -7,15 +10,16 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 /**
- * 定时任务管理中心自动配置
+ * 定时任务配置
  *
  * @Author: ComradeXY
  * @CreateTime: 2024-07-22
- * @Description: 定时任务管理中心自动配置
+ * @Description: 定时任务配置
  */
 @Configuration("comradexy-middleware-easy-cron-scheduler-configuration")
 @EnableConfigurationProperties(EasyCronSchedulerProperties.class)
@@ -49,5 +53,17 @@ public class EasyCronSchedulerConfiguration {
         taskScheduler.initialize();
 
         return new Scheduler(taskScheduler);
+    }
+
+    @Bean
+    @Conditional(AdminImportCondition.class)
+    public AdminController adminController() {
+        return new AdminController();
+    }
+
+    @Bean
+    @Conditional(AdminImportCondition.class)
+    public IScheduleService scheduleService() {
+        return new ScheduleService();
     }
 }

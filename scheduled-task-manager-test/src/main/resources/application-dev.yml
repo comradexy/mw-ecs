@@ -13,3 +13,4 @@ comradexy:
       schedulerServerName: 简易定时任务调度服务01
       schedulerPoolSize: 8
       enableStorage: false
+      enableAdmin: true
