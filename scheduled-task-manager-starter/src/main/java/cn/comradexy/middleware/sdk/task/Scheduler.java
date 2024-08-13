@@ -83,7 +83,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         }
 
         // 3.更新任务状态为已完成
-        ScheduleContext.jobStore.setComplete(taskKey);
+        ScheduleContext.jobStore.updateState(taskKey, ExecDetail.ExecState.COMPLETE);
     }
 
     @Override
@@ -99,7 +99,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         }
 
         // 3.更新任务状态为暂停
-        ScheduleContext.jobStore.setPaused(taskKey);
+        ScheduleContext.jobStore.updateState(taskKey, ExecDetail.ExecState.PAUSED);
     }
 
     @Override
@@ -126,20 +126,6 @@ public class Scheduler implements IScheduler, DisposableBean {
         runTask(job, execDetail);
     }
 
-    @Override
-    public void destroy() {
-        // 1.停止所有任务
-        // 1.1.停止系统任务
-        systemTasks.forEach((key, task) -> task.cancel());
-        // 1.2.停止已被调度的任务，更新任务状态为暂停
-        scheduledTasks.keySet().forEach(this::pauseTask);
-        // 1.3.停止结束时间监控任务
-        expireMonitors.forEach((key, task) -> task.cancel());
-
-        // 2.存储任务及执行细节
-        JobStore.save();
-    }
-
     private void clearInvalidTasks() {
         // 清空缓存中失效的任务
         scheduledTasks.forEach((key, value) -> {
@@ -156,7 +142,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         // 设置过期监控
         if (!setExpireMonitor(taskKey, execDetail.getEndTime())) {
             logger.warn("任务[{}]已过期，无法启动该任务", taskKey);
-            ScheduleContext.jobStore.setComplete(taskKey);
+            ScheduleContext.jobStore.updateState(taskKey, ExecDetail.ExecState.COMPLETE);
             return;
         }
 
@@ -188,7 +174,7 @@ public class Scheduler implements IScheduler, DisposableBean {
             scheduledTask.future = taskScheduler.schedule(cronTask.getRunnable(), cronTask.getTrigger());
         } catch (TaskRejectedException ex) {
             logger.warn("任务[{}]启动失败：任务调度器拒绝任务", taskKey);
-            ScheduleContext.jobStore.setBlocked(taskKey);
+            ScheduleContext.jobStore.updateState(taskKey, ExecDetail.ExecState.BLOCKED);
             return;
         }
 
@@ -196,7 +182,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         scheduledTasks.put(taskKey, scheduledTask);
 
         // 更新任务状态为运行中
-        ScheduleContext.jobStore.setRunning(taskKey);
+        ScheduleContext.jobStore.updateState(taskKey, ExecDetail.ExecState.RUNNING);
     }
 
     private boolean setExpireMonitor(String taskKey, Date endTime) {
@@ -236,5 +222,19 @@ public class Scheduler implements IScheduler, DisposableBean {
             logger.debug("未找到{}类型的Class", beanClassName);
             return null;
         }
+    }
+
+    @Override
+    public void destroy() {
+        // 1.停止所有任务
+        // 1.1.停止系统任务
+        systemTasks.forEach((key, task) -> task.cancel());
+        // 1.2.停止已被调度的任务，更新任务状态为暂停
+        scheduledTasks.keySet().forEach(this::pauseTask);
+        // 1.3.停止结束时间监控任务
+        expireMonitors.forEach((key, task) -> task.cancel());
+
+        // 2.存储任务及执行细节
+        ScheduleContext.jobStore.save();
     }
 }

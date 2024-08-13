@@ -4,8 +4,6 @@ import cn.comradexy.middleware.sdk.admin.service.IScheduleService;
 import cn.comradexy.middleware.sdk.common.ScheduleContext;
 import cn.comradexy.middleware.sdk.domain.TaskDTO;
 import cn.comradexy.middleware.sdk.task.IScheduler;
-import cn.comradexy.middleware.sdk.task.JobStore;
-import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -24,13 +22,12 @@ public class ScheduleService implements IScheduleService {
 
     public List<TaskDTO> queryAllTasks() {
         List<TaskDTO> tasks = new ArrayList<>();
-//        ScheduleContext.jobStore.EXEC_DETAIL_MAP.values().forEach((execDetail) -> tasks.add(TaskDTO.createTaskDTO(execDetail)));
+        ScheduleContext.jobStore.getAllExecDetails().forEach((execDetail) -> tasks.add(TaskDTO.createTaskDTO(execDetail)));
         return tasks;
     }
 
     public TaskDTO queryTask(String key) {
-//        return TaskDTO.createTaskDTO(JobStore.EXEC_DETAIL_MAP.get(key));
-        return new TaskDTO();
+        return TaskDTO.createTaskDTO(ScheduleContext.jobStore.getExecDetail(key));
     }
 
     public void cancelTask(String taskKey) {

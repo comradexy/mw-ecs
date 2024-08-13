@@ -1,8 +1,9 @@
 package cn.comradexy.middleware.sdk.common;
 
 import cn.comradexy.middleware.sdk.config.EasyCronSchedulerProperties;
+import cn.comradexy.middleware.sdk.support.storage.IStorageService;
+import cn.comradexy.middleware.sdk.task.IJobStore;
 import cn.comradexy.middleware.sdk.task.IScheduler;
-import cn.comradexy.middleware.sdk.task.JobStore;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -17,7 +18,8 @@ public class ScheduleContext {
     public static String MONITOR_TASK_PREFIX = "MONITOR_";
 
     public static ApplicationContext applicationContext;
-    public static JobStore jobStore;
-    public static IScheduler scheduler;
     public static EasyCronSchedulerProperties properties;
+    public static IScheduler scheduler;
+    public static IJobStore jobStore;
+    public static IStorageService storageService;
 }

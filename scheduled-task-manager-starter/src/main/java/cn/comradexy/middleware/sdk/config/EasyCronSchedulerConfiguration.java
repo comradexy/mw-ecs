@@ -5,6 +5,8 @@ import cn.comradexy.middleware.sdk.admin.service.IScheduleService;
 import cn.comradexy.middleware.sdk.admin.service.impl.ScheduleService;
 import cn.comradexy.middleware.sdk.support.storage.IStorageService;
 import cn.comradexy.middleware.sdk.support.storage.jdbc.JdbcStorageService;
+import cn.comradexy.middleware.sdk.task.IJobStore;
+import cn.comradexy.middleware.sdk.task.IScheduler;
 import cn.comradexy.middleware.sdk.task.JobStore;
 import cn.comradexy.middleware.sdk.task.Scheduler;
 import lombok.Getter;
@@ -38,12 +40,12 @@ public class EasyCronSchedulerConfiguration {
     }
 
     @Bean("comradexy-middleware-job-store")
-    public JobStore jobStore() {
+    public IJobStore jobStore() {
         return new JobStore();
     }
 
     @Bean("comradexy-middleware-easy-cron-scheduler")
-    public Scheduler scheduler() {
+    public IScheduler scheduler() {
         // 创建定时任务调度器
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         // 设置线程池容量
@@ -72,16 +74,16 @@ public class EasyCronSchedulerConfiguration {
         return new ScheduleService();
     }
 
-    @Bean
+    @Bean("comradexy-middleware-storage-service")
     @Conditional(StorageImportCondition.class)
     public IStorageService storageService() {
         if (properties.getStorageType().equals(EasyCronSchedulerProperties.StorageType.JDBC.getValue())) {
             return new JdbcStorageService();
-        }else if(properties.getStorageType().equals(EasyCronSchedulerProperties.StorageType.REDIS.getValue())){
+        } else if (properties.getStorageType().equals(EasyCronSchedulerProperties.StorageType.REDIS.getValue())) {
             // TODO: Redis存储服务
             logger.warn("暂不支持的存储类型：{}", properties.getStorageType());
             return null;
-        }else{
+        } else {
             logger.warn("未知的存储类型：{}", properties.getStorageType());
             return null;
         }

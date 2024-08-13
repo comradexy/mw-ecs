@@ -38,7 +38,7 @@ public class SchedulingRunnable implements Runnable {
             // 1.记录异常日志
             logger.error("任务[{}]执行异常: ", taskKey, e);
             // 2.任务执行状态切换
-            ScheduleContext.jobStore.setError(taskKey);
+            ScheduleContext.jobStore.updateState(taskKey, ExecDetail.ExecState.ERROR);
         }
     }
 }

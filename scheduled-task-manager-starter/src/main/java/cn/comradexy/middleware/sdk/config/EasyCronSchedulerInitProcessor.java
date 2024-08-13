@@ -5,8 +5,9 @@ import cn.comradexy.middleware.sdk.annatation.EzSchedules;
 import cn.comradexy.middleware.sdk.common.ScheduleContext;
 import cn.comradexy.middleware.sdk.domain.ExecDetail;
 import cn.comradexy.middleware.sdk.domain.Job;
-import cn.comradexy.middleware.sdk.task.JobStore;
-import cn.comradexy.middleware.sdk.task.Scheduler;
+import cn.comradexy.middleware.sdk.support.storage.IStorageService;
+import cn.comradexy.middleware.sdk.task.IJobStore;
+import cn.comradexy.middleware.sdk.task.IScheduler;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,8 +68,6 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) {
-        if (bean instanceof Scheduler) return bean;
-
         // Bean有可能被CGLIB增强，这个时候要取其父类
         Class<?> targetClass = AopProxyUtils.ultimateTargetClass(bean);
         // 判断类是否有EzScheduled注解
@@ -125,14 +124,14 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
      */
     private void init_config() {
         try {
-            ScheduleContext.jobStore = ScheduleContext.applicationContext
-                    .getBean("comradexy-middleware-job-store", JobStore.class);
-            ScheduleContext.scheduler = ScheduleContext.applicationContext
-                    .getBean("comradexy-middleware-easy-cron-scheduler", Scheduler.class);
             ScheduleContext.properties = ScheduleContext.applicationContext
                     .getBean("comradexy-middleware-easy-cron-scheduler-configuration",
                             EasyCronSchedulerConfiguration.class)
                     .getProperties();
+            ScheduleContext.scheduler = ScheduleContext.applicationContext
+                    .getBean("comradexy-middleware-easy-cron-scheduler", IScheduler.class);
+            ScheduleContext.jobStore = ScheduleContext.applicationContext
+                    .getBean("comradexy-middleware-job-store", IJobStore.class);
         } catch (Exception e) {
             logger.error("初始化配置异常", e);
             throw new RuntimeException(e);
@@ -150,9 +149,10 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
      * 初始化存储服务
      */
     private void init_storage() {
-        if (!ScheduleContext.properties.getEnableStorage()) return;
         // TODO: 如果开启持久化支持，还需要从数据库中读取任务及执行细节
-
+        if (!ScheduleContext.properties.getEnableStorage()) return;
+        ScheduleContext.storageService = ScheduleContext.applicationContext
+                .getBean("comradexy-middleware-storage-service", IStorageService.class);
     }
 
     /**
