@@ -8,6 +8,8 @@ import cn.comradexy.middleware.sdk.support.storage.jdbc.JdbcStorageService;
 import cn.comradexy.middleware.sdk.task.JobStore;
 import cn.comradexy.middleware.sdk.task.Scheduler;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +28,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @EnableConfigurationProperties(EasyCronSchedulerProperties.class)
 @Getter
 public class EasyCronSchedulerConfiguration {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final EasyCronSchedulerProperties properties;
 
     @Autowired
@@ -71,6 +75,15 @@ public class EasyCronSchedulerConfiguration {
     @Bean
     @Conditional(StorageImportCondition.class)
     public IStorageService storageService() {
-        return new JdbcStorageService();
+        if (properties.getStorageType().equals(EasyCronSchedulerProperties.StorageType.JDBC.getValue())) {
+            return new JdbcStorageService();
+        }else if(properties.getStorageType().equals(EasyCronSchedulerProperties.StorageType.REDIS.getValue())){
+            // TODO: Redis存储服务
+            logger.warn("暂不支持的存储类型：{}", properties.getStorageType());
+            return null;
+        }else{
+            logger.warn("未知的存储类型：{}", properties.getStorageType());
+            return null;
+        }
     }
 }

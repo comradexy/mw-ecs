@@ -20,4 +20,17 @@ public class EasyCronSchedulerProperties {
     private Integer schedulerPoolSize = 8;
     private Boolean enableStorage = false;
     private Boolean enableAdmin = false;
+    private String storageType = StorageType.JDBC.getValue();
+
+    @Getter
+    public enum StorageType {
+        JDBC("jdbc"),  // JDBC
+        REDIS("redis"); // Redis
+
+        private final String value;
+
+        StorageType(String value) {
+            this.value = value;
+        }
+    }
 }
