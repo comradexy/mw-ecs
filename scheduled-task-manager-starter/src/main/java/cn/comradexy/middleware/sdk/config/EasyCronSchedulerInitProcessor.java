@@ -129,14 +129,10 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
                     .getBean("comradexy-middleware-job-store", JobStore.class);
             ScheduleContext.scheduler = ScheduleContext.applicationContext
                     .getBean("comradexy-middleware-easy-cron-scheduler", Scheduler.class);
-            EasyCronSchedulerProperties properties = ScheduleContext.applicationContext
+            ScheduleContext.properties = ScheduleContext.applicationContext
                     .getBean("comradexy-middleware-easy-cron-scheduler-configuration",
                             EasyCronSchedulerConfiguration.class)
-                    .getEasyCronSchedulerProperties();
-            ScheduleContext.schedulerServerId = properties.getSchedulerServerId();
-            ScheduleContext.schedulerServerName = properties.getSchedulerServerName();
-            ScheduleContext.schedulerPoolSize = properties.getSchedulerPoolSize();
-            ScheduleContext.enableStorage = properties.getEnableStorage();
+                    .getProperties();
         } catch (Exception e) {
             logger.error("初始化配置异常", e);
             throw new RuntimeException(e);
@@ -154,7 +150,7 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
      * 初始化存储服务
      */
     private void init_storage() {
-        if (!ScheduleContext.enableStorage) return;
+        if (!ScheduleContext.properties.getEnableStorage()) return;
         // TODO: 如果开启持久化支持，还需要从数据库中读取任务及执行细节
 
     }
@@ -165,13 +161,13 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
     private void init_tasks() {
         pendingTasks.forEach(task -> {
             // 组装Job
-            String jobKey = task.getJobKey(ScheduleContext.schedulerServerId);
+            String jobKey = task.getJobKey(ScheduleContext.properties.getSchedulerServerId());
             if (null == ScheduleContext.jobStore.getJob(jobKey)) {
                 String jobDesc = "beanClass: " + task.getBeanClassName() +
                         ", beanName: " + task.getBeanName() +
                         ", methodName: " + task.getMethodName();
                 Job job = Job.builder()
-                        .key(task.getJobKey(ScheduleContext.schedulerServerId))
+                        .key(task.getJobKey(ScheduleContext.properties.getSchedulerServerId()))
                         .desc(jobDesc)
                         .beanClassName(task.getBeanClassName())
                         .beanName(task.getBeanName())
@@ -181,7 +177,7 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
             }
 
             // 组装ExecDetail
-            String execDetailKey = task.getExecDetailKey(ScheduleContext.schedulerServerId);
+            String execDetailKey = task.getExecDetailKey(ScheduleContext.properties.getSchedulerServerId());
             if (null == ScheduleContext.jobStore.getExecDetail(execDetailKey)) {
                 ExecDetail execDetail = ExecDetail.builder()
                         .key(execDetailKey)

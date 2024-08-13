@@ -3,7 +3,8 @@ package cn.comradexy.middleware.sdk.config;
 import cn.comradexy.middleware.sdk.admin.controller.AdminController;
 import cn.comradexy.middleware.sdk.admin.service.IScheduleService;
 import cn.comradexy.middleware.sdk.admin.service.impl.ScheduleService;
-import cn.comradexy.middleware.sdk.common.ScheduleContext;
+import cn.comradexy.middleware.sdk.support.storage.IStorageService;
+import cn.comradexy.middleware.sdk.support.storage.jdbc.JdbcStorageService;
 import cn.comradexy.middleware.sdk.task.JobStore;
 import cn.comradexy.middleware.sdk.task.Scheduler;
 import lombok.Getter;
@@ -25,11 +26,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @EnableConfigurationProperties(EasyCronSchedulerProperties.class)
 @Getter
 public class EasyCronSchedulerConfiguration {
-    private final EasyCronSchedulerProperties easyCronSchedulerProperties;
+    private final EasyCronSchedulerProperties properties;
 
     @Autowired
-    public EasyCronSchedulerConfiguration(EasyCronSchedulerProperties easyCronSchedulerProperties) {
-        this.easyCronSchedulerProperties = easyCronSchedulerProperties;
+    public EasyCronSchedulerConfiguration(EasyCronSchedulerProperties properties) {
+        this.properties = properties;
     }
 
     @Bean("comradexy-middleware-job-store")
@@ -42,7 +43,7 @@ public class EasyCronSchedulerConfiguration {
         // 创建定时任务调度器
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         // 设置线程池容量
-        taskScheduler.setPoolSize(easyCronSchedulerProperties.schedulerPoolSize);
+        taskScheduler.setPoolSize(properties.getSchedulerPoolSize());
         // 设置线程名前缀
         taskScheduler.setThreadNamePrefix("scheduler-thread-");
         // 等待任务在关机时完成--表明等待所有线程执行完
@@ -65,5 +66,11 @@ public class EasyCronSchedulerConfiguration {
     @Conditional(AdminImportCondition.class)
     public IScheduleService scheduleService() {
         return new ScheduleService();
+    }
+
+    @Bean
+    @Conditional(StorageImportCondition.class)
+    public IStorageService storageService() {
+        return new JdbcStorageService();
     }
 }

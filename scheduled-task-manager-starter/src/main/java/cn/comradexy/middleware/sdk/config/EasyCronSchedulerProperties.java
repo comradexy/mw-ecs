@@ -15,9 +15,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Getter
 @Setter
 public class EasyCronSchedulerProperties {
-    public String schedulerServerId;
-    public String schedulerServerName;
-    public int schedulerPoolSize = 8;
-    public Boolean enableStorage = false;
-    public Boolean enableAdmin = false;
+    private String schedulerServerId;
+    private String schedulerServerName;
+    private Integer schedulerPoolSize = 8;
+    private Boolean enableStorage = false;
+    private Boolean enableAdmin = false;
 }
