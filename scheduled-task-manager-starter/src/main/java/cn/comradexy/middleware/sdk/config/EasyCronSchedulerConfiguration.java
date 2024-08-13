@@ -1,6 +1,7 @@
 package cn.comradexy.middleware.sdk.config;
 
 import cn.comradexy.middleware.sdk.common.ScheduleContext;
+import cn.comradexy.middleware.sdk.task.JobStore;
 import cn.comradexy.middleware.sdk.task.Scheduler;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,11 @@ public class EasyCronSchedulerConfiguration {
     @Autowired
     public EasyCronSchedulerConfiguration(EasyCronSchedulerProperties easyCronSchedulerProperties) {
         this.easyCronSchedulerProperties = easyCronSchedulerProperties;
+    }
+
+    @Bean("comradexy-middleware-job-store")
+    public JobStore jobStore() {
+        return new JobStore();
     }
 
     @Bean("comradexy-middleware-easy-cron-scheduler")

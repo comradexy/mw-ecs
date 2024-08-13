@@ -8,12 +8,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.config.CronTask;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
+import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
@@ -57,8 +59,8 @@ public class Scheduler implements IScheduler, DisposableBean {
         clearInvalidTasks();
 
         // 获取任务信息
-        ExecDetail execDetail = JobStore.getExecDetail(taskKey);
-        Job job = JobStore.getJob(execDetail.getJobKey());
+        ExecDetail execDetail = ScheduleContext.jobStore.getExecDetail(taskKey);
+        Job job = ScheduleContext.jobStore.getJob(execDetail.getJobKey());
 
         // 检查任务状态是否为INIT
         if (!ExecDetail.ExecState.INIT.equals(execDetail.getState())) {
@@ -81,7 +83,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         }
 
         // 3.更新任务状态为已完成
-        JobStore.setComplete(taskKey);
+        ScheduleContext.jobStore.setComplete(taskKey);
     }
 
     @Override
@@ -97,7 +99,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         }
 
         // 3.更新任务状态为暂停
-        JobStore.setPaused(taskKey);
+        ScheduleContext.jobStore.setPaused(taskKey);
     }
 
     @Override
@@ -105,13 +107,14 @@ public class Scheduler implements IScheduler, DisposableBean {
         clearInvalidTasks();
 
         // 获取任务信息
-        ExecDetail execDetail = JobStore.getExecDetail(taskKey);
-        Job job = JobStore.getJob(execDetail.getJobKey());
+        ExecDetail execDetail = ScheduleContext.jobStore.getExecDetail(taskKey);
+        Job job = ScheduleContext.jobStore.getJob(execDetail.getJobKey());
 
         // 检查任务状态是否为PAUSED或者BLOCKED
         if (!(ExecDetail.ExecState.PAUSED.equals(execDetail.getState())
                 || ExecDetail.ExecState.BLOCKED.equals(execDetail.getState()))) {
-            String errorMsg = "恢复失败：任务[" + taskKey + "]状态为[" + execDetail.getState().getDesc() + "]，仅允许恢复PAUSED或BLOCKED状态的任务";
+            String errorMsg = "恢复失败：任务[" + taskKey + "]状态为[" + execDetail.getState().getDesc() + "]，仅允许恢复PAUSED" +
+                    "或BLOCKED状态的任务";
             logger.error(errorMsg);
             throw new RuntimeException(errorMsg);
         }
@@ -140,7 +143,7 @@ public class Scheduler implements IScheduler, DisposableBean {
     private void clearInvalidTasks() {
         // 清空缓存中失效的任务
         scheduledTasks.forEach((key, value) -> {
-            if (!ExecDetail.ExecState.RUNNING.equals(JobStore.getExecDetail(key).getState())) {
+            if (!ExecDetail.ExecState.RUNNING.equals(ScheduleContext.jobStore.getExecDetail(key).getState())) {
                 if (!value.isCancelled()) value.cancel();
                 scheduledTasks.remove(key);
             }
@@ -153,7 +156,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         // 设置过期监控
         if (!setExpireMonitor(taskKey, execDetail.getEndTime())) {
             logger.warn("任务[{}]已过期，无法启动该任务", taskKey);
-            JobStore.setComplete(taskKey);
+            ScheduleContext.jobStore.setComplete(taskKey);
             return;
         }
 
@@ -185,7 +188,7 @@ public class Scheduler implements IScheduler, DisposableBean {
             scheduledTask.future = taskScheduler.schedule(cronTask.getRunnable(), cronTask.getTrigger());
         } catch (TaskRejectedException ex) {
             logger.warn("任务[{}]启动失败：任务调度器拒绝任务", taskKey);
-            JobStore.setBlocked(taskKey);
+            ScheduleContext.jobStore.setBlocked(taskKey);
             return;
         }
 
@@ -193,7 +196,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         scheduledTasks.put(taskKey, scheduledTask);
 
         // 更新任务状态为运行中
-        JobStore.setRunning(taskKey);
+        ScheduleContext.jobStore.setRunning(taskKey);
     }
 
     private boolean setExpireMonitor(String taskKey, Date endTime) {
@@ -216,11 +219,11 @@ public class Scheduler implements IScheduler, DisposableBean {
             Class<?> beanClass = Class.forName(beanClassName);
             // 先根据类型获取，再根据名称获取
             try {
-                return ScheduleContext.Global.applicationContext.getBean(beanClass);
+                return ScheduleContext.applicationContext.getBean(beanClass);
             } catch (NoUniqueBeanDefinitionException ex) {
                 logger.trace("存在多个{}类型的Bean，尝试根据名称获取", beanClass.getName());
                 try {
-                    return ScheduleContext.Global.applicationContext.getBean(beanClass, beanName);
+                    return ScheduleContext.applicationContext.getBean(beanClass, beanName);
                 } catch (NoSuchBeanDefinitionException ex2) {
                     logger.debug("未找到名为{}的{}类型的Bean", beanName, beanClass.getName());
                     return null;

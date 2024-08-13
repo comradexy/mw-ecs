@@ -1,6 +1,7 @@
 package cn.comradexy.middleware.sdk.admin.service.impl;
 
 import cn.comradexy.middleware.sdk.admin.service.IScheduleService;
+import cn.comradexy.middleware.sdk.common.ScheduleContext;
 import cn.comradexy.middleware.sdk.domain.TaskDTO;
 import cn.comradexy.middleware.sdk.task.IScheduler;
 import cn.comradexy.middleware.sdk.task.JobStore;
@@ -17,19 +18,19 @@ import java.util.List;
  * @CreateTime: 2024-08-13
  * @Description: 定时任务服务
  */
-@Service
 public class ScheduleService implements IScheduleService {
     @Resource
     private IScheduler scheduler;
 
     public List<TaskDTO> queryAllTasks() {
         List<TaskDTO> tasks = new ArrayList<>();
-        JobStore.EXEC_DETAIL_MAP.values().forEach((execDetail) -> tasks.add(TaskDTO.createTaskDTO(execDetail)));
+//        ScheduleContext.jobStore.EXEC_DETAIL_MAP.values().forEach((execDetail) -> tasks.add(TaskDTO.createTaskDTO(execDetail)));
         return tasks;
     }
 
     public TaskDTO queryTask(String key) {
-        return TaskDTO.createTaskDTO(JobStore.EXEC_DETAIL_MAP.get(key));
+//        return TaskDTO.createTaskDTO(JobStore.EXEC_DETAIL_MAP.get(key));
+        return new TaskDTO();
     }
 
     public void cancelTask(String taskKey) {
