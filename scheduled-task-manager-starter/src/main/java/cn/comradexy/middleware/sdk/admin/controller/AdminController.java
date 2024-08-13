@@ -26,34 +26,59 @@ public class AdminController {
 
     @GetMapping("/list")
     public Result<?> list() {
-        logger.info("查询所有任务");
-        return Result.success(scheduleService.queryAllTasks());
+        try {
+            logger.info("查询所有任务");
+            return Result.success(scheduleService.queryAllTasks());
+        } catch (Exception e) {
+            logger.error("请求失败", e);
+            return Result.fail(e.getMessage());
+        }
     }
 
     @GetMapping("/query")
     public Result<?> query(@RequestParam("taskKey") String taskKey) {
-        logger.info("查询任务：{}", taskKey);
-        return Result.success(scheduleService.queryTask(taskKey));
+        try {
+            logger.info("查询任务：{}", taskKey);
+            return Result.success(scheduleService.queryTask(taskKey));
+        } catch (Exception e) {
+            logger.error("请求失败", e);
+            return Result.fail(e.getMessage());
+        }
     }
 
     @PostMapping("/cancel")
     public Result<?> cancel(@RequestBody Request request) {
-        logger.info("取消任务：{}", request.getTaskKey());
-        scheduleService.cancelTask(request.getTaskKey());
-        return Result.success();
+        try {
+            logger.info("取消任务：{}", request.getTaskKey());
+            scheduleService.cancelTask(request.getTaskKey());
+            return Result.success();
+        } catch (Exception e) {
+            logger.error("请求失败", e);
+            return Result.fail(e.getMessage());
+        }
     }
 
     @PostMapping("/pause")
     public Result<?> pause(@RequestBody Request request) {
-        logger.info("暂停任务：{}", request.getTaskKey());
-        scheduleService.pasueTask(request.getTaskKey());
-        return Result.success();
+        try {
+            logger.info("暂停任务：{}", request.getTaskKey());
+            scheduleService.pasueTask(request.getTaskKey());
+            return Result.success();
+        } catch (Exception e) {
+            logger.error("请求失败", e);
+            return Result.fail(e.getMessage());
+        }
     }
 
     @PostMapping("/resume")
     public Result<?> resume(@RequestBody Request request) {
-        logger.info("恢复任务：{}", request.getTaskKey());
-        scheduleService.resumeTask(request.getTaskKey());
-        return Result.success();
+        try {
+            logger.info("恢复任务：{}", request.getTaskKey());
+            scheduleService.resumeTask(request.getTaskKey());
+            return Result.success();
+        } catch (Exception e) {
+            logger.error("请求失败", e);
+            return Result.fail(e.getMessage());
+        }
     }
 }

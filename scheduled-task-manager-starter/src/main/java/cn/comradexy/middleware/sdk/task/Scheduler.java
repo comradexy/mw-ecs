@@ -89,6 +89,8 @@ public class Scheduler implements IScheduler, DisposableBean {
         // 1.删除缓存中的任务
         ScheduledTask scheduledTask = scheduledTasks.remove(taskKey);
 
+        // TODO: 判断scheduleTask是否为null，并检查任务状态
+
         // 2.停止正在执行任务
         if (null != scheduledTask) {
             scheduledTask.cancel();
@@ -109,8 +111,9 @@ public class Scheduler implements IScheduler, DisposableBean {
         // 检查任务状态是否为PAUSED或者BLOCKED
         if (!(ExecDetail.ExecState.PAUSED.equals(execDetail.getState())
                 || ExecDetail.ExecState.BLOCKED.equals(execDetail.getState()))) {
-            logger.warn("恢复失败：任务[{}]状态为{}，仅允许恢复PAUSED或BLOCKED状态的任务", taskKey, execDetail.getState().getDesc());
-            return;
+            String errorMsg = "恢复失败：任务[" + taskKey + "]状态为[" + execDetail.getState().getDesc() + "]，仅允许恢复PAUSED或BLOCKED状态的任务";
+            logger.error(errorMsg);
+            throw new RuntimeException(errorMsg);
         }
 
         // TODO: 根据任务的上次执行时间和执行次数，计算下次执行时间，
