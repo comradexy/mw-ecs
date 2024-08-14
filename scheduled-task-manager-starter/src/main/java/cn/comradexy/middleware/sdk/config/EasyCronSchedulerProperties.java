@@ -1,7 +1,7 @@
 package cn.comradexy.middleware.sdk.config;
 
+import lombok.Data;
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -12,8 +12,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @Description: 配置参数
  */
 @ConfigurationProperties("comradexy.middleware.scheudle")
-@Getter
-@Setter
+@Data
 public class EasyCronSchedulerProperties {
     private String schedulerServerId;
     private String schedulerServerName;
@@ -21,6 +20,14 @@ public class EasyCronSchedulerProperties {
     private Boolean enableStorage = false;
     private Boolean enableAdmin = false;
     private String storageType = StorageType.JDBC.getValue();
+    private DataSourceProperties dataSource;
+
+    @Data
+    public static class DataSourceProperties {
+        private String url;
+        private String username;
+        private String password;
+    }
 
     @Getter
     public enum StorageType {
