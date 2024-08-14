@@ -16,10 +16,6 @@ import org.slf4j.LoggerFactory;
 public class JdbcStorageService implements IStorageService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public JdbcStorageService() {
-        logger.info("JDBC 存储服务初始化");
-    }
-
     @Override
     public void insertJob(Job job) {
         // TODO

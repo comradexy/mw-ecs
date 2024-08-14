@@ -1,10 +1,5 @@
 package cn.comradexy.middleware.sdk.config;
 
-import cn.comradexy.middleware.sdk.admin.controller.AdminController;
-import cn.comradexy.middleware.sdk.admin.service.IScheduleService;
-import cn.comradexy.middleware.sdk.admin.service.impl.ScheduleService;
-import cn.comradexy.middleware.sdk.support.storage.IStorageService;
-import cn.comradexy.middleware.sdk.support.storage.jdbc.JdbcStorageService;
 import cn.comradexy.middleware.sdk.task.IJobStore;
 import cn.comradexy.middleware.sdk.task.IScheduler;
 import cn.comradexy.middleware.sdk.task.JobStore;
@@ -15,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
@@ -62,30 +56,4 @@ public class EasyCronSchedulerConfiguration {
         return new Scheduler(taskScheduler);
     }
 
-    @Bean
-    @Conditional(AdminImportCondition.class)
-    public AdminController adminController() {
-        return new AdminController();
-    }
-
-    @Bean
-    @Conditional(AdminImportCondition.class)
-    public IScheduleService scheduleService() {
-        return new ScheduleService();
-    }
-
-    @Bean("comradexy-middleware-storage-service")
-    @Conditional(StorageImportCondition.class)
-    public IStorageService storageService() {
-        if (properties.getStorageType().equals(EasyCronSchedulerProperties.StorageType.JDBC.getValue())) {
-            return new JdbcStorageService();
-        } else if (properties.getStorageType().equals(EasyCronSchedulerProperties.StorageType.REDIS.getValue())) {
-            // TODO: Redis存储服务
-            logger.warn("暂不支持的存储类型：{}", properties.getStorageType());
-            return null;
-        } else {
-            logger.warn("未知的存储类型：{}", properties.getStorageType());
-            return null;
-        }
-    }
 }

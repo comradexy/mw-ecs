@@ -12,6 +12,6 @@ comradexy:
       schedulerServerId: easy-cron-scheduler-server-01
       schedulerServerName: 简易定时任务调度服务01
       schedulerPoolSize: 8
-      enableStorage: true
+      enableStorage: false
       enableAdmin: true
       storageType: jdbc
