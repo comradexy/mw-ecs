@@ -8,6 +8,8 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +24,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
  */
 @Configuration("comradexy-middleware-easy-cron-scheduler-configuration")
 @EnableConfigurationProperties(EasyCronSchedulerProperties.class)
+@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class})
 @Getter
 public class EasyCronSchedulerConfiguration {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

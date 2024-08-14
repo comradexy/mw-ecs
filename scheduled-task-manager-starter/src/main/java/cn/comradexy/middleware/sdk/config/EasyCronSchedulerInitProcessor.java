@@ -21,10 +21,14 @@ import org.springframework.core.MethodIntrospector;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.Assert;
 import org.springframework.util.DigestUtils;
 
+import javax.sql.DataSource;
 import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -149,10 +153,34 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
      * 初始化存储服务
      */
     private void init_storage() {
-        // TODO: 如果开启持久化支持，还需要从数据库中读取任务及执行细节
         if (!ScheduleContext.properties.getEnableStorage()) return;
+
         ScheduleContext.storageService = ScheduleContext.applicationContext
                 .getBean("comradexy-middleware-storage-service", IStorageService.class);
+
+        if (ScheduleContext.properties.getStorageType().equals(EasyCronSchedulerProperties.StorageType.JDBC.getValue())) {
+            logger.info("初始化存储服务: JDBC");
+
+            try (Statement statement = ScheduleContext.applicationContext
+                    .getBean("comradexy-middleware-data-source", DataSource.class)
+                    .getConnection()
+                    .createStatement()) {
+                // 获取 resources 目录下的 schema.sql 文件，并执行
+                ClassPathResource resource = new ClassPathResource("schema.sql");
+                String schemaSql = new String(resource.getInputStream().readAllBytes());
+                // 按分号分割每条SQL语句
+                String[] sqlStatements = schemaSql.split(";");
+                for (String sql : sqlStatements) {
+                    if (!sql.trim().isEmpty()) statement.addBatch(sql);
+                }
+                statement.executeBatch();
+            } catch (Exception e) {
+                throw new RuntimeException("初始化数据库失败", e);
+            }
+        }
+
+        // TODO: REDIS存储服务
+
     }
 
     /**

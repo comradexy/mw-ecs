@@ -9,6 +9,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -17,6 +18,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.Statement;
 
 /**
  * 存储服务配置
@@ -27,7 +32,6 @@ import javax.sql.DataSource;
  */
 @Configuration
 @ConditionalOnProperty(prefix = "comradexy.middleware.scheudle", name = "enableStorage", havingValue = "true")
-@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class})
 @MapperScan("cn.comradexy.middleware.sdk.support.storage.jdbc.mapper")
 public class StorageConfiguration {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -42,7 +46,6 @@ public class StorageConfiguration {
     @Bean("comradexy-middleware-storage-service")
     public IStorageService storageService() {
         if (properties.getStorageType().equals(EasyCronSchedulerProperties.StorageType.JDBC.getValue())) {
-            logger.info("JDBC 存储服务初始化");
             return new JdbcStorageService();
         } else if (properties.getStorageType().equals(EasyCronSchedulerProperties.StorageType.REDIS.getValue())) {
             // TODO: Redis存储服务
@@ -54,14 +57,19 @@ public class StorageConfiguration {
         }
     }
 
-    @Bean
-    public SqlSessionFactory sqlSessionFactory() throws Exception {
-        DataSource dataSource = DataSourceBuilder.create()
+    @Bean("comradexy-middleware-data-source")
+    @ConditionalOnProperty(prefix = "comradexy.middleware.scheudle", name = "storageType", havingValue = "jdbc")
+    public DataSource dataSource() {
+        return DataSourceBuilder.create()
                 .url(properties.getDataSource().getUrl())
                 .username(properties.getDataSource().getUsername())
                 .password(properties.getDataSource().getPassword())
                 .build();
+    }
 
+    @Bean("comradexy-middleware-sql-session-factory")
+    @ConditionalOnProperty(prefix = "comradexy.middleware.scheudle", name = "storageType", havingValue = "jdbc")
+    public SqlSessionFactory sqlSessionFactory(@Qualifier("comradexy-middleware-data-source") DataSource dataSource) throws Exception {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
         sqlSessionFactoryBean.setTransactionFactory(new JdbcTransactionFactory());
