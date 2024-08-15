@@ -177,7 +177,7 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
                     .getConnection()
                     .createStatement()) {
                 // 获取 resources 目录下的 schema.sql 文件，并执行
-                ClassPathResource resource = new ClassPathResource("schema.sql");
+                ClassPathResource resource = new ClassPathResource("data/schema.sql");
                 String schemaSql = new String(resource.getInputStream().readAllBytes());
                 // 按分号分割每条SQL语句
                 String[] sqlStatements = schemaSql.split(";");
