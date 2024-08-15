@@ -1,5 +1,6 @@
 package cn.comradexy.middleware.sdk.config;
 
+import cn.comradexy.middleware.sdk.domain.ExecDetail;
 import cn.comradexy.middleware.sdk.support.storage.IStorageService;
 import cn.comradexy.middleware.sdk.support.storage.jdbc.JdbcStorageService;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -73,6 +74,7 @@ public class StorageConfiguration {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
         sqlSessionFactoryBean.setTransactionFactory(new JdbcTransactionFactory());
+        sqlSessionFactoryBean.setDefaultEnumTypeHandler(ExecDetail.ExecSateTypeHandler.class);
         return sqlSessionFactoryBean.getObject();
     }
 }

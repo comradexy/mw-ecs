@@ -27,10 +27,12 @@ import org.springframework.util.DigestUtils;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Method;
-import java.sql.Connection;
 import java.sql.Statement;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -55,9 +57,9 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
     private final Set<Class<?>> nonAnnotatedClasses = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     /**
-     * 待处理的任务
+     * 待处理任务
      */
-    private final Set<Task> pendingTasks = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Set<PendingTask> pendingTasks = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
@@ -104,21 +106,21 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
         // 解析@EzScheduled修饰的方法
         // 封装成Task，加入待处理任务集合
         // 等配置初始化完成后，再为任务分配key，并调度任务
-        Task task = new Task();
-        task.setJob(
+        PendingTask pendingTask = new PendingTask();
+        pendingTask.setJob(
                 Job.builder()
                         .beanClassName(bean.getClass().getName())
                         .beanName(beanName)
                         .methodName(method.getName())
                         .build()
         );
-        task.setExecDetail(ExecDetail.builder()
+        pendingTask.setExecDetail(ExecDetail.builder()
                 .cronExpr(ezScheduled.cron())
                 .desc(ezScheduled.desc())
                 .endTime(ezScheduled.endTime().equals(ScheduleContext.DEFAULT_END_TIME) ?
                         null : LocalDateTime.parse(ezScheduled.endTime()))
                 .build());
-        pendingTasks.add(task);
+        pendingTasks.add(pendingTask);
     }
 
     @Override
@@ -169,6 +171,7 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
         if (ScheduleContext.properties.getStorageType().equals(EasyCronSchedulerProperties.StorageType.JDBC.getValue())) {
             logger.info("初始化存储服务: JDBC");
 
+            // 初始化数据库，创建表（如果不存在）
             try (Statement statement = ScheduleContext.applicationContext
                     .getBean("comradexy-middleware-data-source", DataSource.class)
                     .getConnection()
@@ -185,6 +188,9 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
             } catch (Exception e) {
                 throw new RuntimeException("初始化数据库失败", e);
             }
+
+            // 数据恢复：从数据库中加载任务到缓存中
+            ScheduleContext.storageService.recover();
         }
 
         // TODO: REDIS存储服务
@@ -195,44 +201,52 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
      * 初始化任务
      */
     private void init_tasks() {
-        pendingTasks.forEach(task -> {
-            // 组装Job
-            String jobKey = task.getJobKey(ScheduleContext.properties.getSchedulerServerId());
-            if (null == ScheduleContext.jobStore.getJob(jobKey)) {
-                String jobDesc = "beanClass: " + task.job.getBeanClassName() +
-                        ", beanName: " + task.job.getBeanName() +
-                        ", methodName: " + task.job.getMethodName();
-                Job job = Job.builder()
-                        .key(task.getJobKey(ScheduleContext.properties.getSchedulerServerId()))
-                        .desc(jobDesc)
-                        .beanClassName(task.job.getBeanClassName())
-                        .beanName(task.job.getBeanName())
-                        .methodName(task.job.getMethodName())
-                        .build();
-                ScheduleContext.jobStore.addJob(job);
-            }
+        pendingTasks.forEach(pendingTask -> {
+            String execDetailKey = pendingTask.getExecDetailKey(ScheduleContext.properties.getSchedulerServerId());
+            String jobKey = pendingTask.getJobKey(ScheduleContext.properties.getSchedulerServerId());
 
             // 组装ExecDetail
-            String execDetailKey = task.getExecDetailKey(ScheduleContext.properties.getSchedulerServerId());
-            if (null == ScheduleContext.jobStore.getExecDetail(execDetailKey)) {
-                ExecDetail execDetail = ExecDetail.builder()
-                        .key(execDetailKey)
-                        .desc(task.execDetail.getDesc())
-                        .cronExpr(task.execDetail.getCronExpr())
-                        .jobKey(jobKey)
-                        .endTime(task.execDetail.getEndTime())
-                        .build();
-                ScheduleContext.jobStore.addExecDetail(execDetail);
-            }
+            if (null != ScheduleContext.jobStore.getExecDetail(execDetailKey)) return;
+            ExecDetail execDetail = ExecDetail.builder()
+                    .key(execDetailKey)
+                    .desc(pendingTask.getExecDetail().getDesc())
+                    .cronExpr(pendingTask.getExecDetail().getCronExpr())
+                    .jobKey(jobKey)
+                    .endTime(pendingTask.getExecDetail().getEndTime())
+                    .build();
+            ScheduleContext.jobStore.addExecDetail(execDetail);
 
-            // 调度任务
-            ScheduleContext.scheduler.scheduleTask(execDetailKey);
+            // 组装Job
+            if (null != ScheduleContext.jobStore.getJob(jobKey)) return;
+            String jobDesc = "beanClass: " + pendingTask.getJob().getBeanClassName() +
+                    ", beanName: " + pendingTask.getJob().getBeanName() +
+                    ", methodName: " + pendingTask.getJob().getMethodName();
+            Job job = Job.builder()
+                    .key(jobKey)
+                    .desc(jobDesc)
+                    .beanClassName(pendingTask.getJob().getBeanClassName())
+                    .beanName(pendingTask.getJob().getBeanName())
+                    .methodName(pendingTask.getJob().getMethodName())
+                    .build();
+            ScheduleContext.jobStore.addJob(job);
         });
 
+        // 调度任务
+        ScheduleContext.jobStore.getAllExecDetails().forEach(execDetail -> {
+            if (execDetail.getState().equals(ExecDetail.ExecState.INIT)) {
+                ScheduleContext.scheduler.scheduleTask(execDetail.getKey());
+            }
+
+            if (execDetail.getState().equals(ExecDetail.ExecState.BLOCKED)
+                    || execDetail.getState().equals(ExecDetail.ExecState.PAUSED)) {
+                ScheduleContext.scheduler.resumeTask(execDetail.getKey());
+            }
+        });
     }
 
+
     @Data
-    private static class Task {
+    private static class PendingTask {
         private Job job;
         private ExecDetail execDetail;
 

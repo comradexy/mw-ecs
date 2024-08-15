@@ -25,6 +25,19 @@ import java.util.concurrent.CountDownLatch;
  * @Description: 单元测试
  */
 public class UnitTest {
+    @Test
+    public void mapTest() {
+        Map<String, ExecDetail> map = new ConcurrentHashMap<>();
+        ExecDetail execDetail = ExecDetail.builder().
+                key("key").
+                desc("desc").
+                cronExpr("cronExpr").
+                jobKey("jobKey")
+                .build();
+        map.put(execDetail.getKey(), execDetail);
+        System.out.println(JSON.toJSONString(map.get("key")));
+        System.out.println(JSON.toJSONString(map.get("key1")));
+    }
 
     @Test
     public void endTimeMonitoringTest() throws InterruptedException {
@@ -40,24 +53,6 @@ public class UnitTest {
         }, new Date(startTime.getTime() + 5000));
 
         new CountDownLatch(1).await();
-    }
-
-    @Test
-    public void mapTest() {
-        Map<String, ExecDetail> map = new ConcurrentHashMap<>();
-        ExecDetail execDetail = ExecDetail.builder().
-                key("key").
-                desc("desc").
-                cronExpr("cronExpr").
-                jobKey("jobKey")
-                .build();
-        map.put(execDetail.getKey(), execDetail);
-        System.out.println(JSON.toJSONString(map.get("key")));
-
-        ExecDetail eD = map.get("key");
-        eD.setLastExecTime(new Date());
-        eD.setExecCount(eD.getExecCount() + 1);
-        System.out.println(JSON.toJSONString(map.get("key")));
     }
 
     @Test

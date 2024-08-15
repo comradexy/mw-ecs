@@ -3,7 +3,6 @@ package cn.comradexy.middleware.sdk.task;
 import cn.comradexy.middleware.sdk.domain.ExecDetail;
 import cn.comradexy.middleware.sdk.domain.Job;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -40,8 +39,4 @@ public interface IJobStore {
      */
     void save();
 
-    /**
-     * 加载任务及执行细节
-     */
-    void load();
 }

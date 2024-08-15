@@ -17,11 +17,6 @@ public interface IStorageService {
     void insertJob(Job job);
 
     /**
-     * 查询任务
-     */
-    Job queryJob(String jobKey);
-
-    /**
      * 更新任务
      */
     void updateJob(Job job);
@@ -37,11 +32,6 @@ public interface IStorageService {
     void insertExecDetail(ExecDetail execDetail);
 
     /**
-     * 查询执行详情
-     */
-    ExecDetail queryExecDetail(String execDetailKey);
-
-    /**
      * 更新执行详情
      */
     void updateExecDetail(ExecDetail execDetail);
@@ -52,12 +42,7 @@ public interface IStorageService {
     void deleteExecDetail(String execDetailKey);
 
     /**
-     * 保存
+     * 数据恢复
      */
-    void saveAll();
-
-    /**
-     * 加载
-     */
-    void loadAll();
+    void recover();
 }
