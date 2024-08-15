@@ -3,5 +3,4 @@
 <mapper namespace= "cn.comradexy.middleware.sdk.support.storage.jdbc.mapper.JobMapper">
 
 
-
 </mapper>

@@ -35,6 +35,7 @@ public class JdbcStorageService implements IStorageService {
     @Override
     public void deleteJob(String jobKey) {
         // TODO
+        // 删除ecs_job.key = #{key}的job，同时删除ecs_exec_detail.job_key = #{key}的所有exec_detail
     }
 
     @Override
