@@ -3,8 +3,11 @@ package cn.comradexy.middleware.sdk.support.storage.jdbc;
 import cn.comradexy.middleware.sdk.domain.ExecDetail;
 import cn.comradexy.middleware.sdk.domain.Job;
 import cn.comradexy.middleware.sdk.support.storage.IStorageService;
+import cn.comradexy.middleware.sdk.support.storage.jdbc.mapper.ExecDetailMapper;
+import cn.comradexy.middleware.sdk.support.storage.jdbc.mapper.JobMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * JDBC存储服务
@@ -16,15 +19,28 @@ import org.slf4j.LoggerFactory;
 public class JdbcStorageService implements IStorageService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private JobMapper jobMapper;
+
+    private ExecDetailMapper execDetailMapper;
+
+    @Autowired
+    public void setJobMapper(JobMapper jobMapper) {
+        this.jobMapper = jobMapper;
+    }
+
+    @Autowired
+    public void setExecDetailMapper(ExecDetailMapper execDetailMapper) {
+        this.execDetailMapper = execDetailMapper;
+    }
+
     @Override
     public void insertJob(Job job) {
-        // TODO
+        jobMapper.addJob(job);
     }
 
     @Override
     public Job queryJob(String jobKey) {
-        // TODO
-        return null;
+        return jobMapper.getJob(jobKey);
     }
 
     @Override
@@ -40,13 +56,12 @@ public class JdbcStorageService implements IStorageService {
 
     @Override
     public void insertExecDetail(ExecDetail execDetail) {
-        // TODO
+        execDetailMapper.addExecDetail(execDetail);
     }
 
     @Override
     public ExecDetail queryExecDetail(String execDetailKey) {
-        // TODO
-        return null;
+        return execDetailMapper.getExecDetail(execDetailKey);
     }
 
     @Override

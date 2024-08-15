@@ -1,5 +1,7 @@
 package cn.comradexy.middleware.sdk.annatation;
 
+import cn.comradexy.middleware.sdk.common.ScheduleContext;
+
 import java.lang.annotation.*;
 
 /**
@@ -18,5 +20,5 @@ public @interface EzScheduled {
 
     String desc() default "缺省";
 
-    long endTime() default Long.MAX_VALUE;
+    String endTime() default ScheduleContext.DEFAULT_END_TIME;
 }

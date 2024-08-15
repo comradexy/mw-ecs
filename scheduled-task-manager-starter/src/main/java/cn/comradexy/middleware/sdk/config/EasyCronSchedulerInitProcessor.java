@@ -29,6 +29,7 @@ import javax.sql.DataSource;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -104,12 +105,19 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
         // 封装成Task，加入待处理任务集合
         // 等配置初始化完成后，再为任务分配key，并调度任务
         Task task = new Task();
-        task.setCron(ezScheduled.cron());
-        task.setDesc(ezScheduled.desc());
-        task.setBeanClassName(bean.getClass().getName());
-        task.setBeanName(beanName);
-        task.setMethodName(method.getName());
-        task.setEndTime(new Date(ezScheduled.endTime()));
+        task.setJob(
+                Job.builder()
+                        .beanClassName(bean.getClass().getName())
+                        .beanName(beanName)
+                        .methodName(method.getName())
+                        .build()
+        );
+        task.setExecDetail(ExecDetail.builder()
+                .cronExpr(ezScheduled.cron())
+                .desc(ezScheduled.desc())
+                .endTime(ezScheduled.endTime().equals(ScheduleContext.DEFAULT_END_TIME) ?
+                        null : LocalDateTime.parse(ezScheduled.endTime()))
+                .build());
         pendingTasks.add(task);
     }
 
@@ -191,15 +199,15 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
             // 组装Job
             String jobKey = task.getJobKey(ScheduleContext.properties.getSchedulerServerId());
             if (null == ScheduleContext.jobStore.getJob(jobKey)) {
-                String jobDesc = "beanClass: " + task.getBeanClassName() +
-                        ", beanName: " + task.getBeanName() +
-                        ", methodName: " + task.getMethodName();
+                String jobDesc = "beanClass: " + task.job.getBeanClassName() +
+                        ", beanName: " + task.job.getBeanName() +
+                        ", methodName: " + task.job.getMethodName();
                 Job job = Job.builder()
                         .key(task.getJobKey(ScheduleContext.properties.getSchedulerServerId()))
                         .desc(jobDesc)
-                        .beanClassName(task.getBeanClassName())
-                        .beanName(task.getBeanName())
-                        .methodName(task.getMethodName())
+                        .beanClassName(task.job.getBeanClassName())
+                        .beanName(task.job.getBeanName())
+                        .methodName(task.job.getMethodName())
                         .build();
                 ScheduleContext.jobStore.addJob(job);
             }
@@ -209,10 +217,10 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
             if (null == ScheduleContext.jobStore.getExecDetail(execDetailKey)) {
                 ExecDetail execDetail = ExecDetail.builder()
                         .key(execDetailKey)
-                        .desc(task.getDesc())
-                        .cronExpr(task.getCron())
+                        .desc(task.execDetail.getDesc())
+                        .cronExpr(task.execDetail.getCronExpr())
                         .jobKey(jobKey)
-                        .endTime(task.getEndTime())
+                        .endTime(task.execDetail.getEndTime())
                         .build();
                 ScheduleContext.jobStore.addExecDetail(execDetail);
             }
@@ -225,19 +233,18 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
 
     @Data
     private static class Task {
-        private String cron;
-        private String desc;
-        private String beanClassName;
-        private String beanName;
-        private String methodName;
-        private Date endTime;
+        private Job job;
+        private ExecDetail execDetail;
 
         String getJobKey(String appName) {
-            return appName + "_" + beanClassName + "_" + beanName + "_" + methodName;
+            String key = appName + "_" + job.getBeanClassName() + "_" + job.getBeanName() + "_" + job.getMethodName();
+            return DigestUtils.md5DigestAsHex(key.getBytes());
         }
 
         String getExecDetailKey(String appName) {
-            String key = getJobKey(appName) + "_" + cron + "_" + endTime.toString();
+            String endTime = execDetail.getEndTime() == null ? ScheduleContext.DEFAULT_END_TIME :
+                    execDetail.getEndTime().toString();
+            String key = getJobKey(appName) + "_" + execDetail.getCronExpr() + "_" + endTime;
             return DigestUtils.md5DigestAsHex(key.getBytes());
         }
     }

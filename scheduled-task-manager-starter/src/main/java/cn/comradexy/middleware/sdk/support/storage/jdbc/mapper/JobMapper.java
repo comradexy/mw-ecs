@@ -14,8 +14,8 @@ import java.util.List;
  */
 @Mapper
 public interface JobMapper {
-    @Insert("INSERT INTO ecs_job (`key`, `desc`, bean_class_name, bean_name, method_name) " +
-            "VALUES (#{key}, #{desc}, #{beanClassName}, #{beanName}, #{methodName})")
+    @Insert("INSERT IGNORE INTO ecs_job(`key`, `desc`, bean_class_name, bean_name, method_name) " +
+            "VALUES(#{key}, #{desc}, #{beanClassName}, #{beanName}, #{methodName})")
     void addJob(Job job);
 
     @Delete("DELETE FROM ecs_job WHERE `key` = #{key}")

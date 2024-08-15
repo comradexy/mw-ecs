@@ -21,6 +21,7 @@ public class EasyCronSchedulerProperties {
     private Boolean enableAdmin = false;
     private String storageType = StorageType.JDBC.getValue();
     private DataSourceProperties dataSource;
+    // TODO: cleanExistingData
 
     @Data
     public static class DataSourceProperties {

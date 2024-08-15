@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Mapper
 public interface ExecDetailMapper {
-    @Insert("INSERT INTO ecs_exec_detail (`key`, `desc`, cron_expr, job_key, init_time, end_time, last_exec_time, " +
+    @Insert("INSERT IGNORE INTO ecs_exec_detail (`key`, `desc`, cron_expr, job_key, init_time, end_time, last_exec_time, " +
             "exec_count, state) " +
             "VALUES (#{key}, #{desc}, #{cronExpr}, #{jobKey}, #{initTime}, #{endTime}, #{lastExecTime}, " +
             "#{execCount}, #{state})")

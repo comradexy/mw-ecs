@@ -2,7 +2,7 @@ package cn.comradexy.middleware.sdk.task;
 
 import org.springframework.scheduling.config.Task;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 在固定时间执行的任务
@@ -12,14 +12,14 @@ import java.util.Date;
  * @Description: 在固定时间执行的任务
  */
 public class FixedTimeTask extends Task {
-    private final Date execTime;
+    private final LocalDateTime execTime;
 
-    public FixedTimeTask(Runnable runnable, Date execTime) {
+    public FixedTimeTask(Runnable runnable, LocalDateTime execTime) {
         super(runnable);
         this.execTime = execTime;
     }
 
-    public Date getExecTime() {
+    public LocalDateTime getExecTime() {
         return execTime;
     }
 }

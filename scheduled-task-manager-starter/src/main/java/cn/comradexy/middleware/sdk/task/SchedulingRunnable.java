@@ -5,7 +5,7 @@ import cn.comradexy.middleware.sdk.domain.ExecDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * Runnable增强类--任务调度
@@ -31,7 +31,7 @@ public class SchedulingRunnable implements Runnable {
     public void run() {
         try {
             ExecDetail execDetail = ScheduleContext.jobStore.getExecDetail(taskKey);
-            execDetail.setLastExecTime(new Date());
+            execDetail.setLastExecTime(LocalDateTime.now());
             execDetail.setExecCount(execDetail.getExecCount() + 1);
             this.runnable.run();
         } catch (RuntimeException e) {

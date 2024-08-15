@@ -1,8 +1,11 @@
 package cn.comradexy.middleware.sdk.task;
 
+import cn.comradexy.middleware.sdk.common.ScheduleContext;
 import cn.comradexy.middleware.sdk.domain.ExecDetail;
 import cn.comradexy.middleware.sdk.domain.Job;
 import cn.comradexy.middleware.sdk.support.storage.IStorageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
@@ -19,17 +22,29 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Description: 任务存储区
  */
 public class JobStore implements IJobStore {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final Map<String, Job> JOB_MAP = new ConcurrentHashMap<>(64);
     private final Map<String, ExecDetail> EXEC_DETAIL_MAP = new ConcurrentHashMap<>(64);
 
     @Override
     public void addJob(Job job) {
         JOB_MAP.put(job.getKey(), job);
+        if(!ScheduleContext.properties.getEnableStorage()) return;
+        if(ScheduleContext.storageService == null) {
+            throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
+        }
+        ScheduleContext.storageService.insertJob(job);
     }
 
     @Override
     public void addExecDetail(ExecDetail execDetail) {
         EXEC_DETAIL_MAP.put(execDetail.getKey(), execDetail);
+        if(!ScheduleContext.properties.getEnableStorage()) return;
+        if(ScheduleContext.storageService == null) {
+            throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
+        }
+        ScheduleContext.storageService.insertExecDetail(execDetail);
     }
 
     @Override

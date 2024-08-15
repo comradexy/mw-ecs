@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 执行细节实体
@@ -28,11 +28,11 @@ public class ExecDetail {
     private String jobKey;
 
     @Builder.Default
-    private Date initTime = new Date();
+    private LocalDateTime initTime = LocalDateTime.now();
 
-    private Date endTime;
+    private LocalDateTime endTime;
 
-    private Date lastExecTime;
+    private LocalDateTime lastExecTime;
 
     @Builder.Default
     private Long execCount = 0L;

@@ -2,7 +2,7 @@ package cn.comradexy.middleware.sdk.domain;
 
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 任务数据传输对象
@@ -17,13 +17,13 @@ public class TaskDTO {
     private String desc;
     private String cronExpr;
     private String jobKey;
-    private Date initTime;
-    private Date endTime;
-    private Date lastExecTime;
+    private LocalDateTime initTime;
+    private LocalDateTime endTime;
+    private LocalDateTime lastExecTime;
     private Long execCount;
     private String state;
 
-    public static TaskDTO createTaskDTO(ExecDetail execDetail){
+    public static TaskDTO createTaskDTO(ExecDetail execDetail) {
         TaskDTO task = new TaskDTO();
         task.setKey(execDetail.getKey());
         task.setDesc(execDetail.getDesc());

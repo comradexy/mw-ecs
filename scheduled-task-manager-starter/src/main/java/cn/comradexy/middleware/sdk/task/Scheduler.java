@@ -8,16 +8,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.config.CronTask;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
-import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -185,14 +186,16 @@ public class Scheduler implements IScheduler, DisposableBean {
         ScheduleContext.jobStore.updateState(taskKey, ExecDetail.ExecState.RUNNING);
     }
 
-    private boolean setExpireMonitor(String taskKey, Date endTime) {
-        if (null == endTime || endTime.equals(new Date(Long.MAX_VALUE))) return true; // 永久任务
-        if (endTime.before(new Date())) return false; // 已过期
+    private boolean setExpireMonitor(String taskKey, LocalDateTime endTime) {
+        if (null == endTime) return true; // 永久任务
+        if (endTime.isBefore(LocalDateTime.now())) return false; // 已过期
 
         // 在endTime时间点之后，结束任务
         FixedTimeTask fixedTimeTask = new FixedTimeTask(() -> cancelTask(taskKey), endTime);
         ScheduledTask expireMonitor = new ScheduledTask(fixedTimeTask);
-        expireMonitor.future = taskScheduler.schedule(fixedTimeTask.getRunnable(), fixedTimeTask.getExecTime());
+        expireMonitor.future = taskScheduler.schedule(
+                fixedTimeTask.getRunnable(),
+                Date.from(endTime.atZone(ZoneId.systemDefault()).toInstant()));
 
         // 保存监控任务
         expireMonitors.put(ScheduleContext.MONITOR_TASK_PREFIX + taskKey, expireMonitor);
