@@ -30,9 +30,9 @@ public interface IJobStore {
     Set<ExecDetail> getAllExecDetails();
 
     /**
-     * 更新任务状态
+     * 更新任务
      */
-    void updateState(String execDetailKey, ExecDetail.ExecState state);
+    void updateExecDetail(ExecDetail execDetail);
 
     /**
      * 保存任务及执行细节

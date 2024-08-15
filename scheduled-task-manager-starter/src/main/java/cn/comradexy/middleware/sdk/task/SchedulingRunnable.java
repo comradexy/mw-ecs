@@ -29,16 +29,19 @@ public class SchedulingRunnable implements Runnable {
 
     @Override
     public void run() {
+        ExecDetail execDetail = ScheduleContext.jobStore.getExecDetail(taskKey);
+        execDetail.setLastExecTime(LocalDateTime.now());
+        execDetail.setExecCount(execDetail.getExecCount() + 1);
+        ScheduleContext.jobStore.updateExecDetail(execDetail);
+
         try {
-            ExecDetail execDetail = ScheduleContext.jobStore.getExecDetail(taskKey);
-            execDetail.setLastExecTime(LocalDateTime.now());
-            execDetail.setExecCount(execDetail.getExecCount() + 1);
             this.runnable.run();
         } catch (RuntimeException e) {
             // 1.记录异常日志
             logger.error("任务[{}]执行异常: ", taskKey, e);
             // 2.任务执行状态切换
-            ScheduleContext.jobStore.updateState(taskKey, ExecDetail.ExecState.ERROR);
+            execDetail.setState(ExecDetail.ExecState.ERROR);
+            ScheduleContext.jobStore.updateExecDetail(execDetail);
         }
     }
 }

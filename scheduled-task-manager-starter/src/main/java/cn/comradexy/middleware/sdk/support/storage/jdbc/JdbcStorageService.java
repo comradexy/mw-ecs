@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @Description: JDBC存储服务
  */
 public class JdbcStorageService implements IStorageService {
-    
+
     private JobMapper jobMapper;
 
     private ExecDetailMapper execDetailMapper;
@@ -38,7 +38,7 @@ public class JdbcStorageService implements IStorageService {
 
     @Override
     public void updateJob(Job job) {
-        // TODO
+        jobMapper.updateJob(job);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class JdbcStorageService implements IStorageService {
 
     @Override
     public void updateExecDetail(ExecDetail execDetail) {
-        // TODO
+        execDetailMapper.updateExecDetail(execDetail);
     }
 
     @Override

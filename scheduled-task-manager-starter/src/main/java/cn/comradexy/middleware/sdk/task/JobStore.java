@@ -88,13 +88,13 @@ public class JobStore implements IJobStore {
     }
 
     @Override
-    public void updateState(String execDetailKey, ExecDetail.ExecState state) {
-        execDetailCache.get(execDetailKey).setState(state);
+    public void updateExecDetail(ExecDetail execDetail) {
+        execDetailCache.put(execDetail.getKey(), execDetail);
         if (!ScheduleContext.properties.getEnableStorage()) return;
         if (ScheduleContext.storageService == null) {
             throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
         }
-        ScheduleContext.storageService.updateExecDetail(execDetailCache.get(execDetailKey));
+        ScheduleContext.storageService.updateExecDetail(execDetailCache.get(execDetail.getKey()));
     }
 
     @Override

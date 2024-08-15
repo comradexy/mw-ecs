@@ -18,7 +18,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -84,7 +83,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         }
 
         // 3.更新任务状态为已完成
-        ScheduleContext.jobStore.updateState(taskKey, ExecDetail.ExecState.COMPLETE);
+        updateTaskSate(taskKey, ExecDetail.ExecState.COMPLETE);
     }
 
     @Override
@@ -100,7 +99,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         }
 
         // 3.更新任务状态为暂停
-        ScheduleContext.jobStore.updateState(taskKey, ExecDetail.ExecState.PAUSED);
+        updateTaskSate(taskKey, ExecDetail.ExecState.PAUSED);
     }
 
     @Override
@@ -111,13 +110,20 @@ public class Scheduler implements IScheduler, DisposableBean {
         ExecDetail execDetail = ScheduleContext.jobStore.getExecDetail(taskKey);
         Job job = ScheduleContext.jobStore.getJob(execDetail.getJobKey());
 
-        // 检查任务状态是否为PAUSED或者BLOCKED
+        if (null != scheduledTasks.get(taskKey)){
+            logger.error("任务[{}]已被调度，无法恢复", taskKey);
+            return;
+        }
+
+        // 检查任务状态是否为PAUSED、BLOCKED、RUNNING
+        // 如果发生故障时，任务状态未及时变更为PAUSED，数据库中的状态可能为RUNNING，此时允许恢复RUNNING状态的任务
         if (!(ExecDetail.ExecState.PAUSED.equals(execDetail.getState())
-                || ExecDetail.ExecState.BLOCKED.equals(execDetail.getState()))) {
-            String errorMsg = "恢复失败：任务[" + taskKey + "]状态为[" + execDetail.getState().getDesc() + "]，仅允许恢复PAUSED" +
-                    "或BLOCKED状态的任务";
+                || ExecDetail.ExecState.BLOCKED.equals(execDetail.getState())
+                || ExecDetail.ExecState.RUNNING.equals(execDetail.getState()))) {
+            String errorMsg = "恢复失败：任务[" + taskKey + "]状态为[" + execDetail.getState().getDesc() + "]，仅允许恢复" +
+                    "PAUSED/BLOCKED/RUNNING状态的任务";
             logger.error(errorMsg);
-            throw new RuntimeException(errorMsg);
+            return;
         }
 
         // TODO: 根据任务的上次执行时间和执行次数，计算下次执行时间，
@@ -143,7 +149,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         // 设置过期监控
         if (!setExpireMonitor(taskKey, execDetail.getEndTime())) {
             logger.warn("任务[{}]已过期，无法启动该任务", taskKey);
-            ScheduleContext.jobStore.updateState(taskKey, ExecDetail.ExecState.COMPLETE);
+            updateTaskSate(taskKey, ExecDetail.ExecState.COMPLETE);
             return;
         }
 
@@ -175,7 +181,7 @@ public class Scheduler implements IScheduler, DisposableBean {
             scheduledTask.future = taskScheduler.schedule(cronTask.getRunnable(), cronTask.getTrigger());
         } catch (TaskRejectedException ex) {
             logger.warn("任务[{}]启动失败：任务调度器拒绝任务", taskKey);
-            ScheduleContext.jobStore.updateState(taskKey, ExecDetail.ExecState.BLOCKED);
+            updateTaskSate(taskKey, ExecDetail.ExecState.BLOCKED);
             return;
         }
 
@@ -183,7 +189,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         scheduledTasks.put(taskKey, scheduledTask);
 
         // 更新任务状态为运行中
-        ScheduleContext.jobStore.updateState(taskKey, ExecDetail.ExecState.RUNNING);
+        updateTaskSate(taskKey, ExecDetail.ExecState.RUNNING);
     }
 
     private boolean setExpireMonitor(String taskKey, LocalDateTime endTime) {
@@ -225,6 +231,12 @@ public class Scheduler implements IScheduler, DisposableBean {
             logger.debug("未找到{}类型的Class", beanClassName);
             return null;
         }
+    }
+
+    private void updateTaskSate(String taskKey, ExecDetail.ExecState state) {
+        ExecDetail execDetail = ScheduleContext.jobStore.getExecDetail(taskKey);
+        execDetail.setState(state);
+        ScheduleContext.jobStore.updateExecDetail(execDetail);
     }
 
     @Override
