@@ -235,9 +235,7 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
         ScheduleContext.jobStore.getAllExecDetails().forEach(execDetail -> {
             if (execDetail.getState().equals(ExecDetail.ExecState.INIT)) {
                 ScheduleContext.scheduler.scheduleTask(execDetail.getKey());
-            }
-
-            if (execDetail.getState().equals(ExecDetail.ExecState.PAUSED)
+            } else if (execDetail.getState().equals(ExecDetail.ExecState.PAUSED)
                     || execDetail.getState().equals(ExecDetail.ExecState.BLOCKED)
                     || execDetail.getState().equals(ExecDetail.ExecState.RUNNING)) {
                 ScheduleContext.scheduler.resumeTask(execDetail.getKey());

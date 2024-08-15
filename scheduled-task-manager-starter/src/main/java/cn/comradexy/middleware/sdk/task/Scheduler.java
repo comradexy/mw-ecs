@@ -3,12 +3,15 @@ package cn.comradexy.middleware.sdk.task;
 import cn.comradexy.middleware.sdk.common.ScheduleContext;
 import cn.comradexy.middleware.sdk.domain.ExecDetail;
 import cn.comradexy.middleware.sdk.domain.Job;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskRejectedException;
+import org.springframework.lang.Nullable;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.config.CronTask;
 import org.springframework.util.Assert;
@@ -48,6 +51,10 @@ public class Scheduler implements IScheduler, DisposableBean {
      * 结束时间监控任务
      */
     private final Map<String, ScheduledTask> expireMonitors = new ConcurrentHashMap<>(64);
+
+    @Nullable
+    @Autowired
+    private SqlSessionFactory sqlSessionFactory;
 
     public Scheduler(TaskScheduler taskScheduler) {
         Assert.notNull(taskScheduler, "TaskScheduler must not be null");
@@ -110,7 +117,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         ExecDetail execDetail = ScheduleContext.jobStore.getExecDetail(taskKey);
         Job job = ScheduleContext.jobStore.getJob(execDetail.getJobKey());
 
-        if (null != scheduledTasks.get(taskKey)){
+        if (null != scheduledTasks.get(taskKey)) {
             logger.error("任务[{}]已被调度，无法恢复", taskKey);
             return;
         }
@@ -245,6 +252,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         // 1.1.停止系统任务
         systemTasks.forEach((key, task) -> task.cancel());
         // 1.2.停止已被调度的任务，更新任务状态为暂停
+        // TODO: 销毁顺序调整，先停止任务，再销毁sqlSessionFactory Bean
         scheduledTasks.keySet().forEach(this::pauseTask);
         // 1.3.停止结束时间监控任务
         expireMonitors.forEach((key, task) -> task.cancel());
