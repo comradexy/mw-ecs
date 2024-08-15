@@ -53,8 +53,13 @@ public class Scheduler implements IScheduler, DisposableBean {
     private final Map<String, ScheduledTask> expireMonitors = new ConcurrentHashMap<>(64);
 
     @Nullable
-    @Autowired
     private SqlSessionFactory sqlSessionFactory;
+
+    @Autowired
+    public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
+        // 引入依赖，避免sqlSessionFactory在Scheduler销毁之前就被销毁
+        this.sqlSessionFactory = sqlSessionFactory;
+    }
 
     public Scheduler(TaskScheduler taskScheduler) {
         Assert.notNull(taskScheduler, "TaskScheduler must not be null");

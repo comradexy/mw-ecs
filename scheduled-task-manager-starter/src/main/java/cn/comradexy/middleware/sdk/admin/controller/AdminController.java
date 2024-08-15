@@ -17,6 +17,7 @@ import javax.annotation.Resource;
  * @Description: 管理端controller
  */
 @ResponseBody
+@CrossOrigin
 @RequestMapping("/schedule/api")
 public class AdminController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
