@@ -128,6 +128,7 @@
         }
     </style>
 </head>
+
 <body>
 <div class="container">
     <h1> Easy Cron Scheduler「ECS-定时任务调度组件」 </h1>
@@ -140,11 +141,12 @@
             <th>任务ID</th>
             <th>描述</th>
             <th>Cron</th>
-            <th>JobKey</th>
+            <th>执行器</th>
             <th>创建时间</th>
             <th>结束时间</th>
             <th>最近执行时间</th>
             <th>执行次数</th>
+            <th>最大执行次数</th>
             <th>状态</th>
         </tr>
         </thead>
@@ -158,17 +160,16 @@
 <div id="myModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
-        <h2>Thread Pool Configuration</h2>
+        <h2> 任务执行器 </h2>
         <form id="configForm">
-            <label for="appName">应用名称:</label><br>
-            <input type="text" id="appName" name="appName" readonly><br>
-            <label for="threadPoolName">线程池名称:</label><br>
-            <input type="text" id="threadPoolName" name="threadPoolName" readonly><br>
-            <label for="corePoolSize">核心线程池数:</label><br>
-            <input type="number" id="corePoolSize" name="corePoolSize"><br>
-            <label for="maximumPoolSize">最大线程数:</label><br>
-            <input type="number" id="maximumPoolSize" name="maximumPoolSize"><br>
-            <button type="button" onclick="updateConfig()">确认修改</button>
+            <label for="desc">描述:</label><br>
+            <input type="text" id="desc" name="desc" readonly><br>
+            <label for="beanClassName">Class:</label><br>
+            <input type="text" id="beanClassName" name="beanClassName" readonly><br>
+            <label for="beanName">Bean:</label><br>
+            <input type="text" id="beanName" name="beanName" readonly><br>
+            <label for="methodName">Method:</label><br>
+            <input type="text" id="methodName" name="methodName" readonly><br>
         </form>
     </div>
 </div>
@@ -185,7 +186,7 @@
         autoRefreshBtn.addEventListener('click', function () {
             // 开始自动刷新
             if (!autoRefreshInterval) {
-                autoRefreshInterval = setInterval(fetchThreadPoolList, 3000);
+                autoRefreshInterval = setInterval(fetchTaskList, 3000);
                 autoRefreshBtn.style.display = 'none';
                 stopAutoRefreshBtn.style.display = 'inline';
             }
@@ -201,7 +202,7 @@
             }
         });
 
-        function fetchThreadPoolList() {
+        function fetchTaskList() {
             loader.style.display = 'block';
             var xhr = new XMLHttpRequest();
             xhr.open('GET', 'http://localhost:8091/schedule/api/list', true);
@@ -215,13 +216,13 @@
                             html += '<td>' + item.key + '</td>';
                             html += '<td>' + item.desc + '</td>';
                             html += '<td>' + item.cronExpr + '</td>';
-                            html += '<td>' + item.jobKey + '</td>';
+                            html += '<td><button onclick="openHandlerInfo(\'' + item.taskHandlerKey + '\')">详情</button></td>';
                             html += '<td>' + item.initTime + '</td>';
                             html += '<td>' + item.endTime + '</td>';
                             html += '<td>' + item.lastExecTime + '</td>';
                             html += '<td>' + item.execCount + '</td>';
+                            html += '<td>' + item.maxExecCount + '</td>';
                             html += '<td>' + item.state + '</td>';
-                            // html += '<td><button onclick="openModal(\'' + item.appName + '\', \'' + item.threadPoolName + '\')">修改</button></td>';
                             html += '</tr>';
                         });
                         tbody.innerHTML = html;
@@ -240,7 +241,7 @@
             xhr.send();
         }
 
-        fetchThreadPoolList();
+        fetchTaskList();
     });
 
     // 获取模态框元素
@@ -260,19 +261,19 @@
     }
 
     // 打开模态框并填充数据
-    function openModal(appName, threadPoolName) {
-        // 发起请求获取线程池配置
+    function openHandlerInfo(handlerKey) {
+        // 发起请求获取执行器信息
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'http://localhost:8089/dtp/api/query_thread_pool_config?appName=' + appName + '&threadPoolName=' + threadPoolName, true);
+        xhr.open('GET', 'http://localhost:8091/schedule/api/query_handler?handlerKey=' + handlerKey, true);
         xhr.onload = function () {
             if (xhr.status >= 200 && xhr.status < 300) {
                 var response = JSON.parse(xhr.responseText);
                 if (response.code === 200 && response.data) {
                     // 填充模态框表单
-                    document.getElementById('appName').value = response.data.appName;
-                    document.getElementById('threadPoolName').value = response.data.threadPoolName;
-                    document.getElementById('corePoolSize').value = response.data.corePoolSize;
-                    document.getElementById('maximumPoolSize').value = response.data.maximumPoolSize;
+                    document.getElementById('desc').value = response.data.desc;
+                    document.getElementById('beanClassName').value = response.data.beanClassName;
+                    document.getElementById('beanName').value = response.data.beanName;
+                    document.getElementById('methodName').value = response.data.methodName;
                     // ... (填充其他只读字段) ...
                     modal.style.display = "block";
                 } else {
@@ -286,41 +287,6 @@
             console.error('The request failed!');
         };
         xhr.send();
-    }
-
-    // 更新配置
-    function updateConfig() {
-        var appName = document.getElementById('appName').value;
-        var threadPoolName = document.getElementById('threadPoolName').value;
-        var corePoolSize = document.getElementById('corePoolSize').value;
-        var maximumPoolSize = document.getElementById('maximumPoolSize').value;
-
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'http://localhost:8089/dtp/api/update_thread_pool_config', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onload = function () {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                var response = JSON.parse(xhr.responseText);
-                if (response.code === 200) {
-                    alert('Configuration updated successfully!');
-                    modal.style.display = "none";
-                    fetchThreadPoolList(); // 重新加载线程池列表
-                } else {
-                    alert('Failed to update configuration: ' + response.info);
-                }
-            } else {
-                alert('Failed to update configuration!');
-            }
-        };
-        xhr.onerror = function () {
-            alert('Failed to update configuration!');
-        };
-        xhr.send(JSON.stringify({
-            appName: appName,
-            threadPoolName: threadPoolName,
-            corePoolSize: parseInt(corePoolSize, 10),
-            maximumPoolSize: parseInt(maximumPoolSize, 10)
-        }));
     }
 
 </script>

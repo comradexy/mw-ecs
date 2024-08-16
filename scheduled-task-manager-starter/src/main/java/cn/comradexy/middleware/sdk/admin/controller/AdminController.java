@@ -82,4 +82,15 @@ public class AdminController {
             return Result.fail(e.getMessage());
         }
     }
+
+    @GetMapping("/query_handler")
+    public Result<?> queryHandler(@RequestParam("handlerKey") String handlerKey) {
+        try {
+            logger.info("查询任务处理器: {}", handlerKey);
+            return Result.success(scheduleService.queryHandler(handlerKey));
+        } catch (Exception e) {
+            logger.error("请求失败", e);
+            return Result.fail(e.getMessage());
+        }
+    }
 }
