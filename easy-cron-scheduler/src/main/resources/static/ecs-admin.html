@@ -4,13 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <title>「ECS-定时任务调度组件」</title>
-
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        var serverPort = /*[[${serverPort}]]*/
-        /*]]>*/
-    </script>
-
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -225,7 +218,7 @@
                 function fetchTaskList() {
                     loader.style.display = 'block';
                     var xhr = new XMLHttpRequest();
-                    xhr.open('GET', 'http://localhost:' + serverPort + '/schedule/api/list', true);
+                    xhr.open('GET', '/schedule/api/list', true);
                     xhr.onload = function () {
                         if (xhr.status >= 200 && xhr.status < 300) {
                             var response = JSON.parse(xhr.responseText);
@@ -284,7 +277,7 @@
         function openHandlerInfo(handlerKey) {
             // 发起请求获取执行器信息
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'http://localhost:8091/schedule/api/query_handler?handlerKey=' + handlerKey, true);
+            xhr.open('GET', '/schedule/api/query_handler?handlerKey=' + handlerKey, true);
             xhr.onload = function () {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     var response = JSON.parse(xhr.responseText);
