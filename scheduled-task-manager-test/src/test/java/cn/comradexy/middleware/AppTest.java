@@ -1,6 +1,6 @@
 package cn.comradexy.middleware;
 
-import cn.comradexy.middleware.sdk.domain.Job;
+import cn.comradexy.middleware.sdk.domain.TaskHandler;
 import cn.comradexy.middleware.sdk.support.storage.jdbc.JdbcStorageService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,8 +21,8 @@ public class AppTest {
 
     @Test
     public void jdbcStorageServiceTest() {
-        jdbcStorageService.insertJob(
-                Job.builder().
+        jdbcStorageService.insertTaskHandler(
+                TaskHandler.builder().
                         key("key").
                         desc("desc").
                         beanClassName("beanClassName").

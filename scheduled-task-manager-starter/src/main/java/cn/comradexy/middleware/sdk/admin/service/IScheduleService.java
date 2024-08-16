@@ -1,6 +1,6 @@
 package cn.comradexy.middleware.sdk.admin.service;
 
-import cn.comradexy.middleware.sdk.domain.TaskDTO;
+import cn.comradexy.middleware.sdk.admin.domain.TaskDTO;
 
 import java.util.List;
 

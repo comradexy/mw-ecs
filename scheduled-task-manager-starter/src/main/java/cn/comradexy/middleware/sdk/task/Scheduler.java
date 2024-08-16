@@ -2,7 +2,7 @@ package cn.comradexy.middleware.sdk.task;
 
 import cn.comradexy.middleware.sdk.common.ScheduleContext;
 import cn.comradexy.middleware.sdk.domain.ExecDetail;
-import cn.comradexy.middleware.sdk.domain.Job;
+import cn.comradexy.middleware.sdk.domain.TaskHandler;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,8 +71,8 @@ public class Scheduler implements IScheduler, DisposableBean {
         clearInvalidTasks();
 
         // 获取任务信息
-        ExecDetail execDetail = ScheduleContext.jobStore.getExecDetail(taskKey);
-        Job job = ScheduleContext.jobStore.getJob(execDetail.getJobKey());
+        ExecDetail execDetail = ScheduleContext.taskStore.getExecDetail(taskKey);
+        TaskHandler job = ScheduleContext.taskStore.getTaskHandler(execDetail.getTaskHandlerKey());
 
         // 检查任务状态是否为INIT
         if (!ExecDetail.ExecState.INIT.equals(execDetail.getState())) {
@@ -119,8 +119,8 @@ public class Scheduler implements IScheduler, DisposableBean {
         clearInvalidTasks();
 
         // 获取任务信息
-        ExecDetail execDetail = ScheduleContext.jobStore.getExecDetail(taskKey);
-        Job job = ScheduleContext.jobStore.getJob(execDetail.getJobKey());
+        ExecDetail execDetail = ScheduleContext.taskStore.getExecDetail(taskKey);
+        TaskHandler job = ScheduleContext.taskStore.getTaskHandler(execDetail.getTaskHandlerKey());
 
         if (null != scheduledTasks.get(taskKey)) {
             logger.error("任务[{}]已被调度，无法恢复", taskKey);
@@ -148,14 +148,14 @@ public class Scheduler implements IScheduler, DisposableBean {
     private void clearInvalidTasks() {
         // 清空缓存中失效的任务
         scheduledTasks.forEach((key, value) -> {
-            if (!ExecDetail.ExecState.RUNNING.equals(ScheduleContext.jobStore.getExecDetail(key).getState())) {
+            if (!ExecDetail.ExecState.RUNNING.equals(ScheduleContext.taskStore.getExecDetail(key).getState())) {
                 if (!value.isCancelled()) value.cancel();
                 scheduledTasks.remove(key);
             }
         });
     }
 
-    private void runTask(Job job, ExecDetail execDetail) {
+    private void runTask(TaskHandler job, ExecDetail execDetail) {
         String taskKey = execDetail.getKey();
 
         // 设置过期监控
@@ -246,23 +246,19 @@ public class Scheduler implements IScheduler, DisposableBean {
     }
 
     private void updateTaskSate(String taskKey, ExecDetail.ExecState state) {
-        ExecDetail execDetail = ScheduleContext.jobStore.getExecDetail(taskKey);
+        ExecDetail execDetail = ScheduleContext.taskStore.getExecDetail(taskKey);
         execDetail.setState(state);
-        ScheduleContext.jobStore.updateExecDetail(execDetail);
+        ScheduleContext.taskStore.updateExecDetail(execDetail);
     }
 
     @Override
     public void destroy() {
-        // 1.停止所有任务
-        // 1.1.停止系统任务
+        // 1.停止系统任务
         systemTasks.forEach((key, task) -> task.cancel());
-        // 1.2.停止已被调度的任务，更新任务状态为暂停
+        // 2.停止已被调度的任务，更新任务状态为暂停
         // TODO: 销毁顺序调整，先停止任务，再销毁sqlSessionFactory Bean
         scheduledTasks.keySet().forEach(this::pauseTask);
-        // 1.3.停止结束时间监控任务
+        // 3.停止结束时间监控任务
         expireMonitors.forEach((key, task) -> task.cancel());
-
-        // 2.存储任务及执行细节
-        ScheduleContext.jobStore.save();
     }
 }

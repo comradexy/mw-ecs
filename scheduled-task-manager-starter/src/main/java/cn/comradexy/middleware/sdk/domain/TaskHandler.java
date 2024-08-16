@@ -5,21 +5,18 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 任务实体
+ * 任务处理器实体
  *
  * @Author: ComradeXY
  * @CreateTime: 2024-08-09
- * @Description: 任务实体
+ * @Description: 任务处理器实体
  */
 @Builder
 @Data
 @EqualsAndHashCode(of = {"beanClassName", "beanName", "methodName"})
-public class Job {
+public class TaskHandler {
     /**
      * 任务唯一标识
-     * <p>
-     * schedulerServerId + beanClassName + beanName + methodName
-     * </p>
      */
     private String key;
 

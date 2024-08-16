@@ -1,7 +1,7 @@
 package cn.comradexy.middleware.sdk.support.storage;
 
 import cn.comradexy.middleware.sdk.domain.ExecDetail;
-import cn.comradexy.middleware.sdk.domain.Job;
+import cn.comradexy.middleware.sdk.domain.TaskHandler;
 
 /**
  * 存储服务接口
@@ -14,17 +14,17 @@ public interface IStorageService {
     /**
      * 插入任务
      */
-    void insertJob(Job job);
+    void insertTaskHandler(TaskHandler job);
 
     /**
      * 更新任务
      */
-    void updateJob(Job job);
+    void updateJob(TaskHandler job);
 
     /**
      * 删除任务
      */
-    void deleteJob(String jobKey);
+    void deleteTaskHandler(String jobKey);
 
     /**
      * 插入执行详情

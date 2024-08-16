@@ -2,10 +2,10 @@ package cn.comradexy.middleware.sdk.support.storage.jdbc;
 
 import cn.comradexy.middleware.sdk.common.ScheduleContext;
 import cn.comradexy.middleware.sdk.domain.ExecDetail;
-import cn.comradexy.middleware.sdk.domain.Job;
+import cn.comradexy.middleware.sdk.domain.TaskHandler;
 import cn.comradexy.middleware.sdk.support.storage.IStorageService;
 import cn.comradexy.middleware.sdk.support.storage.jdbc.mapper.ExecDetailMapper;
-import cn.comradexy.middleware.sdk.support.storage.jdbc.mapper.JobMapper;
+import cn.comradexy.middleware.sdk.support.storage.jdbc.mapper.TaskHandlerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -17,13 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class JdbcStorageService implements IStorageService {
 
-    private JobMapper jobMapper;
+    private TaskHandlerMapper taskHandlerMapper;
 
     private ExecDetailMapper execDetailMapper;
 
     @Autowired
-    public void setJobMapper(JobMapper jobMapper) {
-        this.jobMapper = jobMapper;
+    public void setJobMapper(TaskHandlerMapper taskHandlerMapper) {
+        this.taskHandlerMapper = taskHandlerMapper;
     }
 
     @Autowired
@@ -32,17 +32,17 @@ public class JdbcStorageService implements IStorageService {
     }
 
     @Override
-    public void insertJob(Job job) {
-        jobMapper.addJob(job);
+    public void insertTaskHandler(TaskHandler job) {
+        taskHandlerMapper.addTaskHandler(job);
     }
 
     @Override
-    public void updateJob(Job job) {
-        jobMapper.updateJob(job);
+    public void updateJob(TaskHandler job) {
+        taskHandlerMapper.updateTaskHandler(job);
     }
 
     @Override
-    public void deleteJob(String jobKey) {
+    public void deleteTaskHandler(String jobKey) {
         // TODO
         // 删除ecs_job.key = #{key}的job，同时删除ecs_exec_detail.job_key = #{key}的所有exec_detail
     }
@@ -64,7 +64,7 @@ public class JdbcStorageService implements IStorageService {
 
     @Override
     public void recover() {
-        jobMapper.listJobs().forEach(job -> ScheduleContext.jobStore.addJob(job));
-        execDetailMapper.listExecDetails().forEach(execDetail -> ScheduleContext.jobStore.addExecDetail(execDetail));
+        taskHandlerMapper.listTaskHandlers().forEach(job -> ScheduleContext.taskStore.addTaskHandler(job));
+        execDetailMapper.listExecDetails().forEach(execDetail -> ScheduleContext.taskStore.addExecDetail(execDetail));
     }
 }

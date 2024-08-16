@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 /**
  * 执行细节实体
  * <p>
- * 记录任务执行的细节信息；与Job实体关联：多对一。
+ * 记录任务执行的细节信息；与TaskHandler实体关联：多对一。
  * </p>
  *
  * @Author: ComradeXY
@@ -31,7 +31,7 @@ public class ExecDetail {
 
     private String cronExpr;
 
-    private String jobKey;
+    private String taskHandlerKey;
 
     @Builder.Default
     private LocalDateTime initTime = LocalDateTime.now();

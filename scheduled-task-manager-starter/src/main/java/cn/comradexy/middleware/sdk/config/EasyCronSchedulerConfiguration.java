@@ -1,8 +1,8 @@
 package cn.comradexy.middleware.sdk.config;
 
-import cn.comradexy.middleware.sdk.task.IJobStore;
+import cn.comradexy.middleware.sdk.task.ITaskStore;
 import cn.comradexy.middleware.sdk.task.IScheduler;
-import cn.comradexy.middleware.sdk.task.JobStore;
+import cn.comradexy.middleware.sdk.task.TaskStore;
 import cn.comradexy.middleware.sdk.task.Scheduler;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -37,8 +37,8 @@ public class EasyCronSchedulerConfiguration {
     }
 
     @Bean("comradexy-middleware-job-store")
-    public IJobStore jobStore() {
-        return new JobStore();
+    public ITaskStore jobStore() {
+        return new TaskStore();
     }
 
     @Bean("comradexy-middleware-easy-cron-scheduler")

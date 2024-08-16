@@ -1,5 +1,6 @@
-package cn.comradexy.middleware.sdk.domain;
+package cn.comradexy.middleware.sdk.admin.domain;
 
+import cn.comradexy.middleware.sdk.domain.ExecDetail;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ public class TaskDTO {
     private String key;
     private String desc;
     private String cronExpr;
-    private String jobKey;
+    private String taskHandlerKey;
     private LocalDateTime initTime;
     private LocalDateTime endTime;
     private LocalDateTime lastExecTime;
@@ -28,7 +29,7 @@ public class TaskDTO {
         task.setKey(execDetail.getKey());
         task.setDesc(execDetail.getDesc());
         task.setCronExpr(execDetail.getCronExpr());
-        task.setJobKey(execDetail.getJobKey());
+        task.setTaskHandlerKey(execDetail.getTaskHandlerKey());
         task.setInitTime(execDetail.getInitTime());
         task.setEndTime(execDetail.getEndTime());
         task.setLastExecTime(execDetail.getLastExecTime());

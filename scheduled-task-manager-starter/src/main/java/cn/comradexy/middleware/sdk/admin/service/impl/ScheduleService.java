@@ -2,7 +2,7 @@ package cn.comradexy.middleware.sdk.admin.service.impl;
 
 import cn.comradexy.middleware.sdk.admin.service.IScheduleService;
 import cn.comradexy.middleware.sdk.common.ScheduleContext;
-import cn.comradexy.middleware.sdk.domain.TaskDTO;
+import cn.comradexy.middleware.sdk.admin.domain.TaskDTO;
 import cn.comradexy.middleware.sdk.task.IScheduler;
 
 import javax.annotation.Resource;
@@ -22,12 +22,12 @@ public class ScheduleService implements IScheduleService {
 
     public List<TaskDTO> queryAllTasks() {
         List<TaskDTO> tasks = new ArrayList<>();
-        ScheduleContext.jobStore.getAllExecDetails().forEach((execDetail) -> tasks.add(TaskDTO.createTaskDTO(execDetail)));
+        ScheduleContext.taskStore.getAllExecDetails().forEach((execDetail) -> tasks.add(TaskDTO.createTaskDTO(execDetail)));
         return tasks;
     }
 
     public TaskDTO queryTask(String key) {
-        return TaskDTO.createTaskDTO(ScheduleContext.jobStore.getExecDetail(key));
+        return TaskDTO.createTaskDTO(ScheduleContext.taskStore.getExecDetail(key));
     }
 
     public void cancelTask(String taskKey) {
