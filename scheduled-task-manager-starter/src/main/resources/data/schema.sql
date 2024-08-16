@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS ecs_exec_detail
     end_time         DATETIME              DEFAULT NULL,
     last_exec_time   DATETIME              DEFAULT NULL,
     exec_count       INT          NOT NULL DEFAULT 0,
+    max_exec_count   INT          NOT NULL DEFAULT 0,
     state            INT          NOT NULL DEFAULT 0,
     created_at       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

@@ -21,4 +21,6 @@ public @interface EzScheduled {
     String desc() default "缺省";
 
     String endTime() default ScheduleContext.DEFAULT_END_TIME;
+
+    long maxExecCount() default Long.MAX_VALUE;
 }

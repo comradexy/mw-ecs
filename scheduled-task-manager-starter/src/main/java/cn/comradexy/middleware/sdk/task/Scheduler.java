@@ -158,6 +158,13 @@ public class Scheduler implements IScheduler, DisposableBean {
     private void runTask(TaskHandler job, ExecDetail execDetail) {
         String taskKey = execDetail.getKey();
 
+        // 检查执行次数是否超过最大允许执行次数
+        if (execDetail.getExecCount() >= execDetail.getMaxExecCount()) {
+            logger.warn("任务[{}]已达到最大执行次数[{}]，无法启动该任务", taskKey, execDetail.getMaxExecCount());
+            updateTaskSate(taskKey, ExecDetail.ExecState.COMPLETE);
+            return;
+        }
+
         // 设置过期监控
         if (!setExpireMonitor(taskKey, execDetail.getEndTime())) {
             logger.warn("任务[{}]已过期，无法启动该任务", taskKey);
@@ -256,7 +263,6 @@ public class Scheduler implements IScheduler, DisposableBean {
         // 1.停止系统任务
         systemTasks.forEach((key, task) -> task.cancel());
         // 2.停止已被调度的任务，更新任务状态为暂停
-        // TODO: 销毁顺序调整，先停止任务，再销毁sqlSessionFactory Bean
         scheduledTasks.keySet().forEach(this::pauseTask);
         // 3.停止结束时间监控任务
         expireMonitors.forEach((key, task) -> task.cancel());

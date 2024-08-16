@@ -30,8 +30,15 @@ public class SchedulingRunnable implements Runnable {
     @Override
     public void run() {
         ExecDetail execDetail = ScheduleContext.taskStore.getExecDetail(taskKey);
-        execDetail.setLastExecTime(LocalDateTime.now());
+
+        if (execDetail.getExecCount() >= execDetail.getMaxExecCount()) {
+            execDetail.setState(ExecDetail.ExecState.COMPLETE);
+            ScheduleContext.taskStore.updateExecDetail(execDetail);
+            return;
+        }
+
         execDetail.setExecCount(execDetail.getExecCount() + 1);
+        execDetail.setLastExecTime(LocalDateTime.now());
         ScheduleContext.taskStore.updateExecDetail(execDetail);
 
         try {

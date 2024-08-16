@@ -119,6 +119,7 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
                 .desc(ezScheduled.desc())
                 .endTime(ezScheduled.endTime().equals(ScheduleContext.DEFAULT_END_TIME) ?
                         null : LocalDateTime.parse(ezScheduled.endTime()))
+                .maxExecCount(ezScheduled.maxExecCount())
                 .build());
         pendingTasks.add(pendingTask);
     }
@@ -217,6 +218,7 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
                     .cronExpr(pendingTask.getExecDetail().getCronExpr())
                     .taskHandlerKey(taskHandlerKey)
                     .endTime(pendingTask.getExecDetail().getEndTime())
+                    .maxExecCount(pendingTask.getExecDetail().getMaxExecCount())
                     .build();
             ScheduleContext.taskStore.addExecDetail(execDetail);
 

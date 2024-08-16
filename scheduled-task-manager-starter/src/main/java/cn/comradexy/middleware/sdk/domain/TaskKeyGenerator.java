@@ -35,7 +35,8 @@ public class TaskKeyGenerator {
     public static String getExecDetailKey(String schedulerServerId, TaskHandler taskHandler, ExecDetail execDetail) {
         String endTime = execDetail.getEndTime() == null ? ScheduleContext.DEFAULT_END_TIME :
                 execDetail.getEndTime().toString();
-        String key = getTaskHandlerKey(schedulerServerId, taskHandler) + "_" + execDetail.getCronExpr() + "_" + endTime;
+        String key = getTaskHandlerKey(schedulerServerId, taskHandler) + "_" + execDetail.getCronExpr() + "_" + endTime
+                + execDetail.getMaxExecCount();
         return DigestUtils.md5DigestAsHex(key.getBytes());
     }
 }

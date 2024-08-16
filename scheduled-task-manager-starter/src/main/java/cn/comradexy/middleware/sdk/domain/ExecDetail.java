@@ -44,6 +44,9 @@ public class ExecDetail {
     private Long execCount = 0L;
 
     @Builder.Default
+    private Long maxExecCount = Long.MAX_VALUE;
+
+    @Builder.Default
     private ExecState state = ExecState.INIT;
 
     @Getter
