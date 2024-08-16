@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cn.comradexy.middleware</groupId>
-    <artifactId>mw-stm</artifactId>
+    <artifactId>mw-ecs</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>scheduled-task-manager-starter</module>
-        <module>scheduled-task-manager-test</module>
+        <module>easy-cron-scheduler</module>
+        <module>easy-cron-scheduler-test</module>
     </modules>
 
     <properties>
