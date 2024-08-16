@@ -1,5 +1,6 @@
-package cn.comradexy.middleware.ecs.config;
+package cn.comradexy.middleware.ecs.support.storage.config;
 
+import cn.comradexy.middleware.ecs.config.EasyCronSchedulerProperties;
 import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.support.storage.IStorageService;
 import cn.comradexy.middleware.ecs.support.storage.jdbc.JdbcStorageService;

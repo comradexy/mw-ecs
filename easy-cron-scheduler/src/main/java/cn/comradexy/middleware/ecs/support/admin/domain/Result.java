@@ -1,4 +1,4 @@
-package cn.comradexy.middleware.ecs.admin.domain;
+package cn.comradexy.middleware.ecs.support.admin.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

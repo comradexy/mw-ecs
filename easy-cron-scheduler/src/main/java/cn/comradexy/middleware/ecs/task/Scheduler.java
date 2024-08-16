@@ -52,13 +52,14 @@ public class Scheduler implements IScheduler, DisposableBean {
      */
     private final Map<String, ScheduledTask> expireMonitors = new ConcurrentHashMap<>(64);
 
-    @Nullable
     private SqlSessionFactory sqlSessionFactory;
 
+    @Nullable
     @Autowired
-    public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
+    public SqlSessionFactory setSqlSessionFactory() {
         // 引入依赖，避免sqlSessionFactory在Scheduler销毁之前就被销毁
-        this.sqlSessionFactory = sqlSessionFactory;
+        // 并且enableStorage为false时，不会注入sqlSessionFactory，所以需要@Nullable，避免报错
+        return sqlSessionFactory;
     }
 
     public Scheduler(TaskScheduler taskScheduler) {

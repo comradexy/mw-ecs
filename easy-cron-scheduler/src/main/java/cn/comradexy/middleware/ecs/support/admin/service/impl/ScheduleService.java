@@ -1,9 +1,9 @@
-package cn.comradexy.middleware.ecs.admin.service.impl;
+package cn.comradexy.middleware.ecs.support.admin.service.impl;
 
-import cn.comradexy.middleware.ecs.admin.domain.TaskHandlerDTO;
-import cn.comradexy.middleware.ecs.admin.service.IScheduleService;
+import cn.comradexy.middleware.ecs.support.admin.domain.TaskHandlerDTO;
+import cn.comradexy.middleware.ecs.support.admin.service.IScheduleService;
 import cn.comradexy.middleware.ecs.common.ScheduleContext;
-import cn.comradexy.middleware.ecs.admin.domain.ExecDetailDTO;
+import cn.comradexy.middleware.ecs.support.admin.domain.ExecDetailDTO;
 import cn.comradexy.middleware.ecs.task.IScheduler;
 
 import javax.annotation.Resource;

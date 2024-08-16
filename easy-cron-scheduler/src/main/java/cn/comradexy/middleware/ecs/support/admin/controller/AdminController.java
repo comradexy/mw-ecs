@@ -1,8 +1,8 @@
-package cn.comradexy.middleware.ecs.admin.controller;
+package cn.comradexy.middleware.ecs.support.admin.controller;
 
-import cn.comradexy.middleware.ecs.admin.service.IScheduleService;
-import cn.comradexy.middleware.ecs.admin.domain.Request;
-import cn.comradexy.middleware.ecs.admin.domain.Result;
+import cn.comradexy.middleware.ecs.support.admin.service.IScheduleService;
+import cn.comradexy.middleware.ecs.support.admin.domain.Request;
+import cn.comradexy.middleware.ecs.support.admin.domain.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;

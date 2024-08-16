@@ -1,9 +1,9 @@
 package cn.comradexy.middleware.ecs.annatation;
 
-import cn.comradexy.middleware.ecs.config.AdminConfiguration;
+import cn.comradexy.middleware.ecs.support.admin.config.AdminConfiguration;
 import cn.comradexy.middleware.ecs.config.EasyCronSchedulerConfiguration;
 import cn.comradexy.middleware.ecs.config.EasyCronSchedulerInitProcessor;
-import cn.comradexy.middleware.ecs.config.StorageConfiguration;
+import cn.comradexy.middleware.ecs.support.storage.config.StorageConfiguration;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.Import;
 
