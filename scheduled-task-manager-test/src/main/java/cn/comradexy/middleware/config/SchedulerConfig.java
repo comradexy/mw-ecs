@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
  * @Description: 配置类
  */
 @Configuration
-public class ScheduledTaskMgrConfig {
+public class SchedulerConfig {
     @Bean
     public ScheduledJob scheduledJob() {
         return new ScheduledJob();
