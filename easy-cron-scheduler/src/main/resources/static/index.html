@@ -1,8 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>「ECS-定时任务调度组件」</title>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var serverPort = /*[[${serverPort}]]*/
+        /*]]>*/
+    </script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -25,11 +33,14 @@
             margin-top: 20px;
         }
 
-        table, th, td {
+        table,
+        th,
+        td {
             border: 1px solid #ddd;
         }
 
-        th, td {
+        th,
+        td {
             padding: 10px;
             text-align: left;
         }
@@ -56,7 +67,8 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0, 0, 0, 0.5); /* 更深的背景遮罩 */
+            background-color: rgba(0, 0, 0, 0.5);
+            /* 更深的背景遮罩 */
             padding-top: 100px;
         }
 
@@ -67,8 +79,10 @@
             border: 1px solid #888;
             width: 80%;
             max-width: 500px;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
-            border-radius: 10px; /* 圆角边框 */
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            /* 添加阴影效果 */
+            border-radius: 10px;
+            /* 圆角边框 */
         }
 
         .close {
@@ -92,26 +106,32 @@
         /* 调整表单元素的样式 */
         .modal input[type="text"],
         .modal input[type="number"] {
-            width: calc(100% - 10px); /* 让输入框宽度适应容器 */
+            width: calc(100% - 10px);
+            /* 让输入框宽度适应容器 */
             padding: 8px;
-            margin-bottom: 15px; /* 增加间距 */
+            margin-bottom: 15px;
+            /* 增加间距 */
             border: 1px solid #ccc;
-            border-radius: 4px; /* 圆角输入框 */
+            border-radius: 4px;
+            /* 圆角输入框 */
         }
 
         /* 为按钮添加样式 */
         button {
-            background-color: #4CAF50; /* 绿色背景 */
+            background-color: #4CAF50;
+            /* 绿色背景 */
             color: white;
             padding: 10px 20px;
             margin: 10px 0;
             border: none;
-            border-radius: 4px; /* 圆角按钮 */
+            border-radius: 4px;
+            /* 圆角按钮 */
             cursor: pointer;
         }
 
         button:hover {
-            background-color: #45a049; /* 深绿色背景 */
+            background-color: #45a049;
+            /* 深绿色背景 */
         }
 
         /* 调整标签和输入框的对齐 */
@@ -130,165 +150,166 @@
 </head>
 
 <body>
-<div class="container">
-    <h1> Easy Cron Scheduler「ECS-定时任务调度组件」 </h1>
-    <div class="loader">Loading...</div>
-    <button id="autoRefreshBtn">自动刷新</button>
-    <button id="stopAutoRefreshBtn" style="display:none;">停止刷新</button>
-    <table id="threadPoolList">
-        <thead>
-        <tr>
-            <th>任务ID</th>
-            <th>描述</th>
-            <th>Cron</th>
-            <th>执行器</th>
-            <th>创建时间</th>
-            <th>结束时间</th>
-            <th>最近执行时间</th>
-            <th>执行次数</th>
-            <th>最大执行次数</th>
-            <th>状态</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- Data will be inserted here -->
-        </tbody>
-    </table>
-</div>
-
-<!-- 模态框（Modal） -->
-<div id="myModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2> 任务执行器 </h2>
-        <form id="configForm">
-            <label for="desc">描述:</label><br>
-            <input type="text" id="desc" name="desc" readonly><br>
-            <label for="beanClassName">Class:</label><br>
-            <input type="text" id="beanClassName" name="beanClassName" readonly><br>
-            <label for="beanName">Bean:</label><br>
-            <input type="text" id="beanName" name="beanName" readonly><br>
-            <label for="methodName">Method:</label><br>
-            <input type="text" id="methodName" name="methodName" readonly><br>
-        </form>
+    <div class="container">
+        <h1> Easy Cron Scheduler「ECS-定时任务调度组件」 </h1>
+        <div class="loader">Loading...</div>
+        <button id="autoRefreshBtn">自动刷新</button>
+        <button id="stopAutoRefreshBtn" style="display:none;">停止刷新</button>
+        <table id="threadPoolList">
+            <thead>
+                <tr>
+                    <th>任务ID</th>
+                    <th>描述</th>
+                    <th>Cron</th>
+                    <th>执行器</th>
+                    <th>创建时间</th>
+                    <th>结束时间</th>
+                    <th>最近执行时间</th>
+                    <th>执行次数</th>
+                    <th>最大执行次数</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be inserted here -->
+            </tbody>
+        </table>
     </div>
-</div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var loader = document.querySelector('.loader');
-        var tbody = document.querySelector('#threadPoolList tbody');
+    <!-- 模态框（Modal） -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2> 任务执行器 </h2>
+            <form id="configForm">
+                <label for="desc">描述:</label><br>
+                <input type="text" id="desc" name="desc" readonly><br>
+                <label for="beanClassName">Class:</label><br>
+                <input type="text" id="beanClassName" name="beanClassName" readonly><br>
+                <label for="beanName">Bean:</label><br>
+                <input type="text" id="beanName" name="beanName" readonly><br>
+                <label for="methodName">Method:</label><br>
+                <input type="text" id="methodName" name="methodName" readonly><br>
+            </form>
+        </div>
+    </div>
 
-        var autoRefreshInterval;
-        var autoRefreshBtn = document.getElementById('autoRefreshBtn');
-        var stopAutoRefreshBtn = document.getElementById('stopAutoRefreshBtn');
+    <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var loader = document.querySelector('.loader');
+                var tbody = document.querySelector('#threadPoolList tbody');
 
-        autoRefreshBtn.addEventListener('click', function () {
-            // 开始自动刷新
-            if (!autoRefreshInterval) {
-                autoRefreshInterval = setInterval(fetchTaskList, 3000);
-                autoRefreshBtn.style.display = 'none';
-                stopAutoRefreshBtn.style.display = 'inline';
+                var autoRefreshInterval;
+                var autoRefreshBtn = document.getElementById('autoRefreshBtn');
+                var stopAutoRefreshBtn = document.getElementById('stopAutoRefreshBtn');
+
+                autoRefreshBtn.addEventListener('click', function () {
+                    // 开始自动刷新
+                    if (!autoRefreshInterval) {
+                        autoRefreshInterval = setInterval(fetchTaskList, 3000);
+                        autoRefreshBtn.style.display = 'none';
+                        stopAutoRefreshBtn.style.display = 'inline';
+                    }
+                });
+
+                stopAutoRefreshBtn.addEventListener('click', function () {
+                    // 停止自动刷新
+                    if (autoRefreshInterval) {
+                        clearInterval(autoRefreshInterval);
+                        autoRefreshInterval = null;
+                        autoRefreshBtn.style.display = 'inline';
+                        stopAutoRefreshBtn.style.display = 'none';
+                    }
+                });
+
+                function fetchTaskList() {
+                    loader.style.display = 'block';
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', 'http://localhost:' + serverPort + '/schedule/api/list', true);
+                    xhr.onload = function () {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            var response = JSON.parse(xhr.responseText);
+                            if (response.code === 200 && Array.isArray(response.data)) {
+                                var html = '';
+                                response.data.forEach(function (item) {
+                                    html += '<tr>';
+                                    html += '<td>' + item.key + '</td>';
+                                    html += '<td>' + item.desc + '</td>';
+                                    html += '<td>' + item.cronExpr + '</td>';
+                                    html += '<td><button onclick="openHandlerInfo(\'' + item.taskHandlerKey + '\')">详情</button></td>';
+                                    html += '<td>' + item.initTime + '</td>';
+                                    html += '<td>' + item.endTime + '</td>';
+                                    html += '<td>' + item.lastExecTime + '</td>';
+                                    html += '<td>' + item.execCount + '</td>';
+                                    html += '<td>' + item.maxExecCount + '</td>';
+                                    html += '<td>' + item.state + '</td>';
+                                    html += '</tr>';
+                                });
+                                tbody.innerHTML = html;
+                            } else {
+                                console.error('The request was successful but the data format is incorrect!');
+                            }
+                        } else {
+                            console.error('The request failed!');
+                        }
+                        loader.style.display = 'none';
+                    };
+                    xhr.onerror = function () {
+                        console.error('The request failed!');
+                        loader.style.display = 'none';
+                    };
+                    xhr.send();
+                }
+
+                fetchTaskList();
+            });
+
+        // 获取模态框元素
+        var modal = document.getElementById("myModal");
+        var span = document.getElementsByClassName("close")[0];
+
+        // 点击 <span> (x), 关闭模态框
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // 点击模态框外的区域, 关闭模态框
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
             }
-        });
+        }
 
-        stopAutoRefreshBtn.addEventListener('click', function () {
-            // 停止自动刷新
-            if (autoRefreshInterval) {
-                clearInterval(autoRefreshInterval);
-                autoRefreshInterval = null;
-                autoRefreshBtn.style.display = 'inline';
-                stopAutoRefreshBtn.style.display = 'none';
-            }
-        });
-
-        function fetchTaskList() {
-            loader.style.display = 'block';
+        // 打开模态框并填充数据
+        function openHandlerInfo(handlerKey) {
+            // 发起请求获取执行器信息
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'http://localhost:8091/schedule/api/list', true);
+            xhr.open('GET', 'http://localhost:8091/schedule/api/query_handler?handlerKey=' + handlerKey, true);
             xhr.onload = function () {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     var response = JSON.parse(xhr.responseText);
-                    if (response.code === 200 && Array.isArray(response.data)) {
-                        var html = '';
-                        response.data.forEach(function (item) {
-                            html += '<tr>';
-                            html += '<td>' + item.key + '</td>';
-                            html += '<td>' + item.desc + '</td>';
-                            html += '<td>' + item.cronExpr + '</td>';
-                            html += '<td><button onclick="openHandlerInfo(\'' + item.taskHandlerKey + '\')">详情</button></td>';
-                            html += '<td>' + item.initTime + '</td>';
-                            html += '<td>' + item.endTime + '</td>';
-                            html += '<td>' + item.lastExecTime + '</td>';
-                            html += '<td>' + item.execCount + '</td>';
-                            html += '<td>' + item.maxExecCount + '</td>';
-                            html += '<td>' + item.state + '</td>';
-                            html += '</tr>';
-                        });
-                        tbody.innerHTML = html;
+                    if (response.code === 200 && response.data) {
+                        // 填充模态框表单
+                        document.getElementById('desc').value = response.data.desc;
+                        document.getElementById('beanClassName').value = response.data.beanClassName;
+                        document.getElementById('beanName').value = response.data.beanName;
+                        document.getElementById('methodName').value = response.data.methodName;
+                        // ... (填充其他只读字段) ...
+                        modal.style.display = "block";
                     } else {
                         console.error('The request was successful but the data format is incorrect!');
                     }
                 } else {
                     console.error('The request failed!');
                 }
-                loader.style.display = 'none';
             };
             xhr.onerror = function () {
                 console.error('The request failed!');
-                loader.style.display = 'none';
             };
             xhr.send();
         }
 
-        fetchTaskList();
-    });
-
-    // 获取模态框元素
-    var modal = document.getElementById("myModal");
-    var span = document.getElementsByClassName("close")[0];
-
-    // 点击 <span> (x), 关闭模态框
-    span.onclick = function () {
-        modal.style.display = "none";
-    }
-
-    // 点击模态框外的区域, 关闭模态框
-    window.onclick = function (event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
-
-    // 打开模态框并填充数据
-    function openHandlerInfo(handlerKey) {
-        // 发起请求获取执行器信息
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'http://localhost:8091/schedule/api/query_handler?handlerKey=' + handlerKey, true);
-        xhr.onload = function () {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                var response = JSON.parse(xhr.responseText);
-                if (response.code === 200 && response.data) {
-                    // 填充模态框表单
-                    document.getElementById('desc').value = response.data.desc;
-                    document.getElementById('beanClassName').value = response.data.beanClassName;
-                    document.getElementById('beanName').value = response.data.beanName;
-                    document.getElementById('methodName').value = response.data.methodName;
-                    // ... (填充其他只读字段) ...
-                    modal.style.display = "block";
-                } else {
-                    console.error('The request was successful but the data format is incorrect!');
-                }
-            } else {
-                console.error('The request failed!');
-            }
-        };
-        xhr.onerror = function () {
-            console.error('The request failed!');
-        };
-        xhr.send();
-    }
-
-</script>
+    </script>
 </body>
+
 </html>

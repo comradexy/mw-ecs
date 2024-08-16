@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: ecs-test
+
+server:
+  port: 8080
+
+# 设置日志级别
+logging:
+  level:
+    root: info
+
+comradexy:
+  middleware:
+    scheudle:
+      schedulerServerId: easy-cron-scheduler-server-01
+      schedulerServerName: 简易定时任务调度服务01
+      schedulerPoolSize: 8
+      enableStorage: true
+      enableAdmin: true
+      storageType: jdbc
+      dataSource:
+        url: jdbc:mysql://localhost:3306/easy_cron_scheduler?useUnicode=true&characterEncoding=utf-8&useSSL=false
+        username: root
+        password: 1234
