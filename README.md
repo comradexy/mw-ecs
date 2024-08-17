@@ -29,31 +29,6 @@ Schedule是计划执行任务的通用术语。Quartz是Java任务调度框架�
 
 
 
-## TODO
-
-开发：
-
-- 完善 `pauseTask` 和 `resumeTask` 方法，需要先完成任务持久化的实现（[参考Quartz的任务持久化原理](#Quartz任务持久化)），持久化任务恢复后正确执行应当考虑：
-  - 幂等性：要求任务逻辑本身具有幂等性，即多次执行同一任务应该产生相同的结果。这有助于避免在故障恢复后由于重复执行任务而导致的问题。
-
-  - 任务状态管理：允许任务在执行过程中更新其状态。通过将状态信息存储在数据库中，跟踪任务的执行进度，并在必要时进行恢复。
-
-  - 触发器恢复策略：支持多种触发器恢复策略，如“立即恢复”和“下次触发时恢复”。这些策略允许在故障恢复后根据具体情况选择如何重新调度任务。
-
-
-- 相似任务提醒，任务相似度计算方案设计
-- 目前使用的是 `ThreadPoolTaskScheduler` （和 `ConcurrentTaskScheduler` 有什么区别？），`ThreadPoolTaskScheduler` 使用 `ScheduledTreadPoolExecutor` 作为底层实现，而 `ScheduledTreadPoolExecutor` 使用的**无界的延迟阻塞队列 `DelayedWorkQueue` **，任务队列**最大长度为 `Integer.MAX_VALUE`** ，<u>（如果一直创建定时任务）可能堆积大量的请求，从而导致 OOM</u>，**需要为 `ScheduledTaskMgr` 设计最大任务数和拒绝策略**，以免发生OOM。
-- 配置 `StringValueResolver` ，解析字符串中的占位符和 SpEL 表达式。
-
-
-
-测试：
-
-- 不配置 TaskScheduler 的 Bean ，应该由 SchuledWithMgrPostBeanProcessor 报错；
-- TaskScheduler 的加载流程并没有按照预想的流程进行，需要进一步测试
-
-
-
 ## Note
 
 - `@Scheduled` 默认以**单线程模式**执行（如果没有配置 `TaskScheduler` ，Spring会给 `ScheduledTaskRegister#TaskScheduler` 配置一个底层实现为 `SingleThreadScheduledExecutor` 的 `ConcurrentTaskScheduler` ），若需要并发执行定时任务，可以通过 `@Async` 和 `@EnableAsync` 注解实现（方法上加 `@Async` ，启动类上添加 `@EnableAsync` 注解）。
