@@ -45,10 +45,10 @@ public class StorageConfiguration {
             return new JdbcStorageService();
         } else if (properties.getStorageType().equals(EasyCronSchedulerProperties.StorageType.REDIS.getValue())) {
             // TODO: Redis存储服务
-            logger.warn("暂不支持的存储类型：{}", properties.getStorageType());
+            logger.warn("[EasyCronScheduler] Storage type: [{}] is not supported yet.", properties.getStorageType());
             return null;
         } else {
-            logger.warn("未知的存储类型：{}", properties.getStorageType());
+            logger.warn("[EasyCronScheduler] Storage type: [{}] is not supported.", properties.getStorageType());
             return null;
         }
     }

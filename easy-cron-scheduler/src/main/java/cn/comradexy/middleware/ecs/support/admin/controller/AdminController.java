@@ -28,10 +28,10 @@ public class AdminController {
     @GetMapping("/list")
     public Result<?> list() {
         try {
-            logger.info("查询所有任务");
+            logger.info("[EasyCronScheduler] Query all tasks.");
             return Result.success(scheduleService.queryAllTasks());
         } catch (Exception e) {
-            logger.error("请求失败", e);
+            logger.error("[EasyCronScheduler] Failed to query all tasks", e);
             return Result.fail(e.getMessage());
         }
     }
@@ -39,10 +39,10 @@ public class AdminController {
     @GetMapping("/query")
     public Result<?> query(@RequestParam("taskKey") String taskKey) {
         try {
-            logger.info("查询任务：{}", taskKey);
+            logger.info("[EasyCronScheduler] Query task, task key: {}", taskKey);
             return Result.success(scheduleService.queryTask(taskKey));
         } catch (Exception e) {
-            logger.error("请求失败", e);
+            logger.error("[EasyCronScheduler] Failed to query task, task key: {}", taskKey, e);
             return Result.fail(e.getMessage());
         }
     }
@@ -50,11 +50,11 @@ public class AdminController {
     @PostMapping("/cancel")
     public Result<?> cancel(@RequestBody Request request) {
         try {
-            logger.info("取消任务：{}", request.getTaskKey());
+            logger.info("[EasyCronScheduler] Cancel task, task key: {}", request.getTaskKey());
             scheduleService.cancelTask(request.getTaskKey());
             return Result.success();
         } catch (Exception e) {
-            logger.error("请求失败", e);
+            logger.error("[EasyCronScheduler] Failed to cancel task, task key: {}", request.getTaskKey(), e);
             return Result.fail(e.getMessage());
         }
     }
@@ -62,11 +62,11 @@ public class AdminController {
     @PostMapping("/pause")
     public Result<?> pause(@RequestBody Request request) {
         try {
-            logger.info("暂停任务：{}", request.getTaskKey());
+            logger.info("[EasyCronScheduler] Pause task, task key: {}", request.getTaskKey());
             scheduleService.pasueTask(request.getTaskKey());
             return Result.success();
         } catch (Exception e) {
-            logger.error("请求失败", e);
+            logger.error("[EasyCronScheduler] Failed to pause task, task key: {}", request.getTaskKey(), e);
             return Result.fail(e.getMessage());
         }
     }
@@ -74,11 +74,11 @@ public class AdminController {
     @PostMapping("/resume")
     public Result<?> resume(@RequestBody Request request) {
         try {
-            logger.info("恢复任务：{}", request.getTaskKey());
+            logger.info("[EasyCronScheduler] Resume task, task key: {}", request.getTaskKey());
             scheduleService.resumeTask(request.getTaskKey());
             return Result.success();
         } catch (Exception e) {
-            logger.error("请求失败", e);
+            logger.error("[EasyCronScheduler] Failed to resume task, task key: {}", request.getTaskKey(), e);
             return Result.fail(e.getMessage());
         }
     }
@@ -86,10 +86,10 @@ public class AdminController {
     @GetMapping("/query_handler")
     public Result<?> queryHandler(@RequestParam("handlerKey") String handlerKey) {
         try {
-            logger.info("查询任务处理器: {}", handlerKey);
+            logger.info("[EasyCronScheduler] Query handler, handler key: {}", handlerKey);
             return Result.success(scheduleService.queryHandler(handlerKey));
         } catch (Exception e) {
-            logger.error("请求失败", e);
+            logger.error("[EasyCronScheduler] Failed to query handler, handler key: {}", handlerKey, e);
             return Result.fail(e.getMessage());
         }
     }

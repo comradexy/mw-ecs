@@ -63,7 +63,7 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
-        Assert.notNull(applicationContext, "ApplicationContext 不能为null");
+        Assert.notNull(applicationContext, "ApplicationContext must not be null");
         ScheduleContext.applicationContext = applicationContext;
     }
 
@@ -148,7 +148,7 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
             ScheduleContext.taskStore = ScheduleContext.applicationContext
                     .getBean("comradexy-middleware-job-store", ITaskStore.class);
         } catch (Exception e) {
-            logger.error("初始化配置异常", e);
+            logger.error("[EasyCronScheduler] Init config failed", e);
             throw new RuntimeException(e);
         }
     }
@@ -170,7 +170,7 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
                 .getBean("comradexy-middleware-storage-service", IStorageService.class);
 
         if (ScheduleContext.properties.getStorageType().equals(EasyCronSchedulerProperties.StorageType.JDBC.getValue())) {
-            logger.info("初始化存储服务: JDBC");
+            logger.info("[EasyCronScheduler] init storage service: JDBC");
 
             // 初始化数据库，创建表（如果不存在）
             try (Statement statement = ScheduleContext.applicationContext
@@ -187,7 +187,7 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
                 }
                 statement.executeBatch();
             } catch (Exception e) {
-                throw new RuntimeException("初始化数据库失败", e);
+                throw new RuntimeException("[EasyCronScheduler] Init storage service failed", e);
             }
 
             // 数据恢复：从数据库中加载任务到缓存中

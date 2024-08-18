@@ -45,7 +45,7 @@ public class SchedulingRunnable implements Runnable {
             this.runnable.run();
         } catch (RuntimeException e) {
             // 1.记录异常日志
-            logger.error("任务[{}]执行异常: ", taskKey, e);
+            logger.error("[EasyCronScheduler] Task execution error, task key: {}", taskKey, e);
             // 2.任务执行状态切换
             execDetail.setState(ExecDetail.ExecState.ERROR);
             ScheduleContext.taskStore.updateExecDetail(execDetail);

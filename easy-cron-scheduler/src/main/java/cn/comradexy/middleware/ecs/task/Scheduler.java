@@ -77,7 +77,7 @@ public class Scheduler implements IScheduler, DisposableBean {
 
         // 检查任务状态是否为INIT
         if (!ExecDetail.ExecState.INIT.equals(execDetail.getState())) {
-            logger.warn("启动失败：任务[{}]状态为{}，仅允许启动INIT状态的任务", taskKey, execDetail.getState().getDesc());
+            logger.error("[EasyCronScheduler] Task: [key-{}] is not in INIT state, unable to schedule", taskKey);
             return;
         }
 
@@ -124,7 +124,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         TaskHandler job = ScheduleContext.taskStore.getTaskHandler(execDetail.getTaskHandlerKey());
 
         if (null != scheduledTasks.get(taskKey)) {
-            logger.error("任务[{}]已被调度，无法恢复", taskKey);
+            logger.error("[EasyCronScheduler] Task: [key-{}] is already running, unable to resume", taskKey);
             return;
         }
 
@@ -133,9 +133,8 @@ public class Scheduler implements IScheduler, DisposableBean {
         if (!(ExecDetail.ExecState.PAUSED.equals(execDetail.getState())
                 || ExecDetail.ExecState.BLOCKED.equals(execDetail.getState())
                 || ExecDetail.ExecState.RUNNING.equals(execDetail.getState()))) {
-            String errorMsg = "恢复失败：任务[" + taskKey + "]状态为[" + execDetail.getState().getDesc() + "]，仅允许恢复" +
-                    "PAUSED/BLOCKED/RUNNING状态的任务";
-            logger.error(errorMsg);
+            logger.error("[EasyCronScheduler] Task: [key-{}] is not in PAUSED/BLOCKED/RUNNING state, unable to resume",
+                    taskKey);
             return;
         }
 
@@ -161,14 +160,15 @@ public class Scheduler implements IScheduler, DisposableBean {
 
         // 检查执行次数是否超过最大允许执行次数
         if (execDetail.getExecCount() >= execDetail.getMaxExecCount()) {
-            logger.warn("任务[{}]已达到最大执行次数[{}]，无法启动该任务", taskKey, execDetail.getMaxExecCount());
+            logger.error("[EasyCronScheduler] Task: [key-{}] has reached the maximum number of executions, " +
+                    "unable to start", taskKey);
             updateTaskSate(taskKey, ExecDetail.ExecState.COMPLETE);
             return;
         }
 
         // 设置过期监控
         if (!setExpireMonitor(taskKey, execDetail.getEndTime())) {
-            logger.warn("任务[{}]已过期，无法启动该任务", taskKey);
+            logger.error("[EasyCronScheduler] Task: [key-{}] has expired, unable to start", taskKey);
             updateTaskSate(taskKey, ExecDetail.ExecState.COMPLETE);
             return;
         }
@@ -176,12 +176,12 @@ public class Scheduler implements IScheduler, DisposableBean {
         // 组装任务
         Object bean = getBean(job.getBeanName(), job.getBeanClassName());
         if (null == bean) {
-            logger.warn("未找到任务[{}]的Bean，无法启动该任务", taskKey);
+            logger.error("[EasyCronScheduler] Task: [key-{}] failed to start, unable to get bean", taskKey);
             return;
         }
         Method method = ReflectionUtils.findMethod(bean.getClass(), job.getMethodName());
         if (null == method) {
-            logger.warn("未找到任务[{}]的Method，无法启动该任务", taskKey);
+            logger.error("[EasyCronScheduler] Task: [key-{}] failed to start, unable to get method", taskKey);
             return;
         }
         Runnable runnable = () -> {
@@ -200,7 +200,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         try {
             scheduledTask.future = taskScheduler.schedule(cronTask.getRunnable(), cronTask.getTrigger());
         } catch (TaskRejectedException ex) {
-            logger.warn("任务[{}]启动失败：任务调度器拒绝任务", taskKey);
+            logger.error("[EasyCronScheduler] Task: [key-{}] failed to start, task rejected", taskKey);
             updateTaskSate(taskKey, ExecDetail.ExecState.BLOCKED);
             return;
         }
@@ -236,19 +236,20 @@ public class Scheduler implements IScheduler, DisposableBean {
             try {
                 return ScheduleContext.applicationContext.getBean(beanClass);
             } catch (NoUniqueBeanDefinitionException ex) {
-                logger.trace("存在多个{}类型的Bean，尝试根据名称获取", beanClass.getName());
+                logger.trace("[EasyCronScheduler] Bean of type {} is not unique", beanClass.getName());
                 try {
                     return ScheduleContext.applicationContext.getBean(beanClass, beanName);
                 } catch (NoSuchBeanDefinitionException ex2) {
-                    logger.debug("未找到名为{}的{}类型的Bean", beanName, beanClass.getName());
+                    logger.debug("[EasyCronScheduler] Bean of type {} with name {} not found",
+                            beanClass.getName(), beanName);
                     return null;
                 }
             } catch (NoSuchBeanDefinitionException ex) {
-                logger.debug("未找到{}类型的Bean", beanClass.getName());
+                logger.debug("[EasyCronScheduler] Bean of type {} not found", beanClass.getName());
                 return null;
             }
         } catch (ClassNotFoundException ex) {
-            logger.debug("未找到{}类型的Class", beanClassName);
+            logger.debug("[EasyCronScheduler] Bean class {} not found", beanClassName);
             return null;
         }
     }
