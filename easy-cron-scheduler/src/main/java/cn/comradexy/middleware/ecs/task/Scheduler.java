@@ -75,6 +75,11 @@ public class Scheduler implements IScheduler, DisposableBean {
         ExecDetail execDetail = ScheduleContext.taskStore.getExecDetail(taskKey);
         TaskHandler job = ScheduleContext.taskStore.getTaskHandler(execDetail.getTaskHandlerKey());
 
+        if (null != scheduledTasks.get(taskKey)) {
+            logger.error("[EasyCronScheduler] Task: [key-{}] is already running, unable to resume", taskKey);
+            return;
+        }
+
         // 检查任务状态是否为INIT
         if (!ExecDetail.ExecState.INIT.equals(execDetail.getState())) {
             logger.error("[EasyCronScheduler] Task: [key-{}] is not in INIT state, unable to schedule", taskKey);
@@ -103,8 +108,6 @@ public class Scheduler implements IScheduler, DisposableBean {
     public void pauseTask(String taskKey) {
         // 1.删除缓存中的任务
         ScheduledTask scheduledTask = scheduledTasks.remove(taskKey);
-
-        // TODO: 判断scheduleTask是否为null，并检查任务状态
 
         // 2.停止正在执行任务
         if (null != scheduledTask) {
