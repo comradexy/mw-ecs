@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>「ECS-定时任务调度组件」</title>
+    <title>「ECS-Admin」</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -144,23 +144,24 @@
 
 <body>
     <div class="container">
-        <h1> Easy Cron Scheduler「ECS-定时任务调度组件」 </h1>
+        <h1> [ECS] Easy Cron Scheduler </h1>
+        <h2> Make it easy to manage and schedule cron tasks. </h2>
         <div class="loader">Loading...</div>
-        <button id="autoRefreshBtn">自动刷新</button>
-        <button id="stopAutoRefreshBtn" style="display:none;">停止刷新</button>
+        <button id="autoRefreshBtn">Auto Refresh</button>
+        <button id="stopAutoRefreshBtn" style="display:none;">Stop Refresh</button>
         <table id="threadPoolList">
             <thead>
                 <tr>
-                    <th>任务ID</th>
-                    <th>描述</th>
-                    <th>Cron</th>
-                    <th>执行器</th>
-                    <th>创建时间</th>
-                    <th>结束时间</th>
-                    <th>最近执行时间</th>
-                    <th>执行次数</th>
-                    <th>最大执行次数</th>
-                    <th>状态</th>
+                    <th>Task ID</th>
+                    <th>Description</th>
+                    <th>Cron Expression</th>
+                    <th>Task Handler</th>
+                    <th>Init Time</th>
+                    <th>End Time</th>
+                    <th>Execution Count</th>
+                    <th>Last Execution Time</th>
+                    <th>Maximum Execution Count</th>
+                    <th>State</th>
                 </tr>
             </thead>
             <tbody>
@@ -173,9 +174,9 @@
     <div id="myModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2> 任务执行器 </h2>
+            <h2> Task Handler </h2>
             <form id="configForm">
-                <label for="desc">描述:</label><br>
+                <label for="desc">Description:</label><br>
                 <input type="text" id="desc" name="desc" readonly><br>
                 <label for="beanClassName">Class:</label><br>
                 <input type="text" id="beanClassName" name="beanClassName" readonly><br>
@@ -229,11 +230,11 @@
                                     html += '<td>' + item.key + '</td>';
                                     html += '<td>' + item.desc + '</td>';
                                     html += '<td>' + item.cronExpr + '</td>';
-                                    html += '<td><button onclick="openHandlerInfo(\'' + item.taskHandlerKey + '\')">详情</button></td>';
+                                    html += '<td><button onclick="openHandlerInfo(\'' + item.taskHandlerKey + '\')">Detail</button></td>';
                                     html += '<td>' + item.initTime + '</td>';
                                     html += '<td>' + item.endTime + '</td>';
-                                    html += '<td>' + item.lastExecTime + '</td>';
                                     html += '<td>' + item.execCount + '</td>';
+                                    html += '<td>' + item.lastExecTime + '</td>';
                                     html += '<td>' + item.maxExecCount + '</td>';
                                     html += '<td>' + item.state + '</td>';
                                     html += '</tr>';

@@ -51,12 +51,12 @@ public class ExecDetail {
 
     @Getter
     public enum ExecState {
-        INIT(0, "初始化"),
-        RUNNING(1, "运行中"),
-        PAUSED(2, "暂停"),
-        COMPLETE(3, "完成"),
-        ERROR(4, "错误"),
-        BLOCKED(5, "阻塞");
+        INIT(0, "Initialized"),
+        RUNNING(1, "Running"),
+        PAUSED(2, "Paused"),
+        COMPLETE(3, "Completed"),
+        ERROR(4, "Error"),
+        BLOCKED(5, "Blocked");
 
         private final int value;
         private final String desc;
