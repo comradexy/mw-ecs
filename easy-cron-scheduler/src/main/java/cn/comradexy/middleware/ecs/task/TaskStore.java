@@ -3,6 +3,8 @@ package cn.comradexy.middleware.ecs.task;
 import cn.comradexy.middleware.ecs.common.ScheduleContext;
 import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.domain.TaskHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -19,6 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TaskStore implements ITaskStore {
     private final Map<String, TaskHandler> taskHandlerCache = new ConcurrentHashMap<>(64);
     private final Map<String, ExecDetail> execDetailCache = new ConcurrentHashMap<>(64);
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     @Override
@@ -54,8 +58,13 @@ public class TaskStore implements ITaskStore {
     @Override
     public void deleteTaskHandler(String taskHandlerKey) {
         TaskHandler taskHandler = taskHandlerCache.remove(taskHandlerKey);
-        // 查询 EXEC_DETAIL_MAP 中所有 taskHandlerKey==taskHandler.key 的 ExecDetail，然后删除
-        execDetailCache.entrySet().removeIf(entry -> entry.getValue().getTaskHandlerKey().equals(taskHandler.getKey()));
+        // 查询 EXEC_DETAIL_MAP 中所有 taskHandlerKey==taskHandler.key 的 ExecDetail
+        // 如果有，则报错，不允许删除
+        if (execDetailCache.values().stream()
+                .anyMatch(execDetail -> execDetail.getTaskHandlerKey().equals(taskHandlerKey))) {
+            logger.error("[EasyCronScheduler] TaskHandler {} has related ExecDetail, cannot be deleted",
+                    taskHandlerKey);
+        }
         if (!ScheduleContext.properties.getEnableStorage()) return;
         if (ScheduleContext.storageService == null) {
             throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");

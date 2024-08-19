@@ -43,8 +43,8 @@ public class JdbcStorageService implements IStorageService {
 
     @Override
     public void deleteTaskHandler(String jobKey) {
-        // TODO
-        // 删除ecs_job.key = #{key}的job，同时删除ecs_exec_detail.job_key = #{key}的所有exec_detail
+        // TODO: 查询 EXEC_DETAIL_MAP 中所有 taskHandlerKey==taskHandler.key 的 ExecDetail，然后删除
+        taskHandlerMapper.deleteTaskHandler(jobKey);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class JdbcStorageService implements IStorageService {
 
     @Override
     public void deleteExecDetail(String execDetailKey) {
-        // TODO
+        execDetailMapper.deleteExecDetail(execDetailKey);
     }
 
     @Override

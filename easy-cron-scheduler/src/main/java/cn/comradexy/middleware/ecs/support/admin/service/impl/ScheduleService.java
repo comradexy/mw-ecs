@@ -60,7 +60,7 @@ public class ScheduleService implements IScheduleService {
         // TODO: taskStore新增方法--按taskHandlerKey查询ExecDetail
         if (ScheduleContext.taskStore.getAllExecDetails().stream()
                 .noneMatch(execDetail -> execDetail.getTaskHandlerKey().equals(taskHandlerKey))) {
-            ScheduleContext.taskStore.deleteTaskHandler(taskKey);
+            ScheduleContext.taskStore.deleteTaskHandler(taskHandlerKey);
         }
     }
 
