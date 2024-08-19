@@ -47,7 +47,7 @@ public class AdminController {
         }
     }
 
-    @PostMapping("/cancel")
+    @PutMapping("/cancel")
     public Result<?> cancel(@RequestBody Request request) {
         try {
             logger.info("[EasyCronScheduler] Cancel task, task key: {}", request.getTaskKey());
@@ -59,7 +59,7 @@ public class AdminController {
         }
     }
 
-    @PostMapping("/pause")
+    @PutMapping("/pause")
     public Result<?> pause(@RequestBody Request request) {
         try {
             logger.info("[EasyCronScheduler] Pause task, task key: {}", request.getTaskKey());
@@ -71,7 +71,7 @@ public class AdminController {
         }
     }
 
-    @PostMapping("/resume")
+    @PutMapping("/resume")
     public Result<?> resume(@RequestBody Request request) {
         try {
             logger.info("[EasyCronScheduler] Resume task, task key: {}", request.getTaskKey());
@@ -79,6 +79,30 @@ public class AdminController {
             return Result.success();
         } catch (Exception e) {
             logger.error("[EasyCronScheduler] Failed to resume task, task key: {}", request.getTaskKey(), e);
+            return Result.fail(e.getMessage());
+        }
+    }
+
+    @PutMapping("/schedule")
+    public Result<?> schedule(@RequestBody Request request) {
+        try {
+            logger.info("[EasyCronScheduler] Schedule task, task key: {}", request.getTaskKey());
+            scheduleService.scheduleTask(request.getTaskKey());
+            return Result.success();
+        } catch (Exception e) {
+            logger.error("[EasyCronScheduler] Failed to schedule task, task key: {}", request.getTaskKey(), e);
+            return Result.fail(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/delete")
+    public Result<?> delete(@RequestBody Request request) {
+        try {
+            logger.info("[EasyCronScheduler] Delete task, task key: {}", request.getTaskKey());
+            scheduleService.deleteTask(request.getTaskKey());
+            return Result.success();
+        } catch (Exception e) {
+            logger.error("[EasyCronScheduler] Failed to delete task, task key: {}", request.getTaskKey(), e);
             return Result.fail(e.getMessage());
         }
     }

@@ -15,6 +15,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/ecs_admin").setViewName("forward:/ecs-admin.html");
+        registry.addViewController("/ecs_admin").setViewName("forward:/index.html");
     }
 }

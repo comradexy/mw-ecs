@@ -1,9 +1,9 @@
 package cn.comradexy.middleware.ecs.support.admin.service.impl;
 
-import cn.comradexy.middleware.ecs.support.admin.domain.TaskHandlerDTO;
-import cn.comradexy.middleware.ecs.support.admin.service.IScheduleService;
 import cn.comradexy.middleware.ecs.common.ScheduleContext;
 import cn.comradexy.middleware.ecs.support.admin.domain.ExecDetailDTO;
+import cn.comradexy.middleware.ecs.support.admin.domain.TaskHandlerDTO;
+import cn.comradexy.middleware.ecs.support.admin.service.IScheduleService;
 import cn.comradexy.middleware.ecs.task.IScheduler;
 
 import javax.annotation.Resource;
@@ -31,6 +31,10 @@ public class ScheduleService implements IScheduleService {
         return ExecDetailDTO.createExecDetailDTO(ScheduleContext.taskStore.getExecDetail(key));
     }
 
+    public void scheduleTask(String taskKey) {
+        scheduler.scheduleTask(taskKey);
+    }
+
     public void cancelTask(String taskKey) {
         scheduler.cancelTask(taskKey);
     }
@@ -43,7 +47,25 @@ public class ScheduleService implements IScheduleService {
         scheduler.resumeTask(taskKey);
     }
 
+    public void deleteTask(String taskKey) {
+        // TODO:
+
+    }
+
     public TaskHandlerDTO queryHandler(String handlerKey) {
         return TaskHandlerDTO.createTaskHandlerDTO(ScheduleContext.taskStore.getTaskHandler(handlerKey));
+    }
+
+    public void updateTask(ExecDetailDTO execDetailDTO) {
+        // TODO:
+
+        // 1.校验参数
+
+        // 2.暂停任务
+
+        // 3.更新任务
+
+        // 4.恢复任务
+
     }
 }
