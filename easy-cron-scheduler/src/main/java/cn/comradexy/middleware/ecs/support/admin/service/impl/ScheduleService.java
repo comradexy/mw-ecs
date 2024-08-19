@@ -1,6 +1,7 @@
 package cn.comradexy.middleware.ecs.support.admin.service.impl;
 
 import cn.comradexy.middleware.ecs.common.ScheduleContext;
+import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.support.admin.domain.ExecDetailDTO;
 import cn.comradexy.middleware.ecs.support.admin.domain.TaskHandlerDTO;
 import cn.comradexy.middleware.ecs.support.admin.service.IScheduleService;
@@ -48,8 +49,19 @@ public class ScheduleService implements IScheduleService {
     }
 
     public void deleteTask(String taskKey) {
-        // TODO:
+        // 停止任务
+        scheduler.cancelTask(taskKey);
 
+        // 删除ExecDetail
+        String taskHandlerKey = ScheduleContext.taskStore.getExecDetail(taskKey).getTaskHandlerKey();
+        ScheduleContext.taskStore.deleteExecDetail(taskKey);
+
+        // 检查对应的TaskHandler是否还有其他任务，没有则删除TaskHandler
+        // TODO: taskStore新增方法--按taskHandlerKey查询ExecDetail
+        if (ScheduleContext.taskStore.getAllExecDetails().stream()
+                .noneMatch(execDetail -> execDetail.getTaskHandlerKey().equals(taskHandlerKey))) {
+            ScheduleContext.taskStore.deleteTaskHandler(taskKey);
+        }
     }
 
     public TaskHandlerDTO queryHandler(String handlerKey) {
