@@ -260,11 +260,9 @@ public class Scheduler implements IScheduler, DisposableBean {
 
     @Override
     public void destroy() {
-        // 1.停止系统任务
-        systemTasks.forEach((key, task) -> task.cancel());
-        // 2.停止已被调度的任务，更新任务状态为暂停
+        // 停止已被调度的任务，更新任务状态为暂停
         scheduledTasks.keySet().forEach(this::pauseTask);
-        // 3.停止结束时间监控任务
+        // 停止结束时间监控任务
         expireMonitors.forEach((key, task) -> task.cancel());
     }
 }
