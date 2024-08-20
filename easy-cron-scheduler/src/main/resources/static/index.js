@@ -78,11 +78,8 @@ function generateOperationButton(state, taskKey) {
         case 'Running':
             buttonHTML = '<button onclick="handleOperation(\'Put\', \'/schedule/api/pause\', \'' + taskKey + '\')">Pause</button>';
             break;
-        case 'Completed':
-            buttonHTML = '<button onclick="handleOperation(\'Delete\', \'/schedule/api/delete\', \'' + taskKey + '\')">Delete</button>';
-            break;
         default:
-            buttonHTML = '<button disabled>Unknown State</button>';
+            buttonHTML = '';
             break;
     }
     return buttonHTML;
