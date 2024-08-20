@@ -64,7 +64,23 @@ public class JdbcStorageService implements IStorageService {
 
     @Override
     public void recover() {
-        taskHandlerMapper.listTaskHandlers().forEach(job -> ScheduleContext.taskStore.addTaskHandler(job));
-        execDetailMapper.listExecDetails().forEach(execDetail -> ScheduleContext.taskStore.addExecDetail(execDetail));
+        execDetailMapper.listExecDetails().forEach(execDetail -> {
+            // 如果任务状态为COMPLETE，则删除
+            if (execDetail.getState().equals(ExecDetail.ExecState.COMPLETE)) {
+                execDetailMapper.deleteExecDetail(execDetail.getKey());
+                return;
+            }
+            ScheduleContext.taskStore.addExecDetail(execDetail);
+        });
+
+        taskHandlerMapper.listTaskHandlers().forEach(taskHandler -> {
+            // 如果没有ExecDetail和TaskHandler绑定，则删除TaskHandler
+            if(ScheduleContext.taskStore.getExecDetailsByTaskHandlerKey(taskHandler.getKey()).isEmpty()) {
+                taskHandlerMapper.deleteTaskHandler(taskHandler.getKey());
+                return;
+            }
+            ScheduleContext.taskStore.addTaskHandler(taskHandler);
+        });
+
     }
 }

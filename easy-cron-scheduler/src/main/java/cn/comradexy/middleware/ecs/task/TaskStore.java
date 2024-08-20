@@ -83,6 +83,17 @@ public class TaskStore implements ITaskStore {
     }
 
     @Override
+    public Set<ExecDetail> getExecDetailsByTaskHandlerKey(String taskHandlerKey){
+        Set<ExecDetail> execDetails = new HashSet<>();
+        execDetailCache.values().forEach(execDetail -> {
+            if (execDetail.getTaskHandlerKey().equals(taskHandlerKey)) {
+                execDetails.add(execDetail);
+            }
+        });
+        return execDetails;
+    }
+
+    @Override
     public Set<TaskHandler> getAllTaskHandlers() {
         return new HashSet<>(taskHandlerCache.values());
     }

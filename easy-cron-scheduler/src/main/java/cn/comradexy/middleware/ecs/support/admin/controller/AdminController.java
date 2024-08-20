@@ -95,18 +95,6 @@ public class AdminController {
         }
     }
 
-    @DeleteMapping("/delete")
-    public Result<?> delete(@RequestBody Request request) {
-        try {
-            logger.info("[EasyCronScheduler] Delete task, task key: {}", request.getTaskKey());
-            scheduleService.deleteTask(request.getTaskKey());
-            return Result.success();
-        } catch (Exception e) {
-            logger.error("[EasyCronScheduler] Failed to delete task, task key: {}", request.getTaskKey(), e);
-            return Result.fail(e.getMessage());
-        }
-    }
-
     @GetMapping("/query_handler")
     public Result<?> queryHandler(@RequestParam("handlerKey") String handlerKey) {
         try {

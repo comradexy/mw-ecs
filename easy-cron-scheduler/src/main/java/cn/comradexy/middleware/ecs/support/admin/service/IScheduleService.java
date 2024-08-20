@@ -29,7 +29,7 @@ public interface IScheduleService {
     void scheduleTask(String taskKey);
 
     /**
-     * 取消任务
+     * 取消任务 (停止并删除任务)
      */
     void cancelTask(String taskKey);
 
@@ -42,11 +42,6 @@ public interface IScheduleService {
      * 恢复任务
      */
     void resumeTask(String taskKey);
-
-    /**
-     * 删除任务
-     */
-    void deleteTask(String taskKey);
 
     /**
      * 查询任务处理器

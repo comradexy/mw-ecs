@@ -37,18 +37,6 @@ public class ScheduleService implements IScheduleService {
     }
 
     public void cancelTask(String taskKey) {
-        scheduler.cancelTask(taskKey);
-    }
-
-    public void pasueTask(String taskKey) {
-        scheduler.pauseTask(taskKey);
-    }
-
-    public void resumeTask(String taskKey) {
-        scheduler.resumeTask(taskKey);
-    }
-
-    public void deleteTask(String taskKey) {
         // 停止任务
         scheduler.cancelTask(taskKey);
 
@@ -57,11 +45,17 @@ public class ScheduleService implements IScheduleService {
         ScheduleContext.taskStore.deleteExecDetail(taskKey);
 
         // 检查对应的TaskHandler是否还有其他任务，没有则删除TaskHandler
-        // TODO: taskStore新增方法--按taskHandlerKey查询ExecDetail
-        if (ScheduleContext.taskStore.getAllExecDetails().stream()
-                .noneMatch(execDetail -> execDetail.getTaskHandlerKey().equals(taskHandlerKey))) {
+        if (ScheduleContext.taskStore.getExecDetailsByTaskHandlerKey(taskHandlerKey).isEmpty()) {
             ScheduleContext.taskStore.deleteTaskHandler(taskHandlerKey);
         }
+    }
+
+    public void pasueTask(String taskKey) {
+        scheduler.pauseTask(taskKey);
+    }
+
+    public void resumeTask(String taskKey) {
+        scheduler.resumeTask(taskKey);
     }
 
     public TaskHandlerDTO queryHandler(String handlerKey) {
