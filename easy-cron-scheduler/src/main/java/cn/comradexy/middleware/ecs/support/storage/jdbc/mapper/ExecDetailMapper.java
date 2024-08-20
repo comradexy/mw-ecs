@@ -3,7 +3,7 @@ package cn.comradexy.middleware.ecs.support.storage.jdbc.mapper;
 import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import org.apache.ibatis.annotations.*;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * ExecDetail对象关系映射
@@ -33,10 +33,10 @@ public interface ExecDetailMapper {
     @Select("SELECT `key`, `desc`, cron_expr, task_handler_key, init_time, end_time, last_exec_time, exec_count, " +
             "max_exec_count, `state` " +
             "FROM ecs_exec_detail WHERE `key` = #{execDetailKey}")
-    ExecDetail getExecDetail(String execDetailKey);
+    ExecDetail queryExecDetail(String execDetailKey);
 
     @Select("SELECT `key`, `desc`, cron_expr, task_handler_key, init_time, end_time, last_exec_time, exec_count, " +
             "max_exec_count, `state` " +
             "FROM ecs_exec_detail")
-    List<ExecDetail> listExecDetails();
+    Set<ExecDetail> queryAllExecDetails();
 }

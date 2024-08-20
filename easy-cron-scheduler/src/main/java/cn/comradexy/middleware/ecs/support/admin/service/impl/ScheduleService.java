@@ -6,6 +6,8 @@ import cn.comradexy.middleware.ecs.support.admin.domain.ExecDetailDTO;
 import cn.comradexy.middleware.ecs.support.admin.domain.TaskHandlerDTO;
 import cn.comradexy.middleware.ecs.support.admin.service.IScheduleService;
 import cn.comradexy.middleware.ecs.task.IScheduler;
+import cn.comradexy.middleware.ecs.task.ITaskStore;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -19,17 +21,28 @@ import java.util.List;
  * @Description: 定时任务服务
  */
 public class ScheduleService implements IScheduleService {
-    @Resource
+
     private IScheduler scheduler;
+    private ITaskStore taskStore;
+
+    @Autowired
+    public void setScheduler(IScheduler scheduler) {
+        this.scheduler = scheduler;
+    }
+
+    @Autowired
+    public void setTaskStore(ITaskStore taskStore) {
+        this.taskStore = taskStore;
+    }
 
     public List<ExecDetailDTO> queryAllTasks() {
         List<ExecDetailDTO> tasks = new ArrayList<>();
-        ScheduleContext.taskStore.getAllExecDetails().forEach((execDetail) -> tasks.add(ExecDetailDTO.createExecDetailDTO(execDetail)));
+        taskStore.getAllExecDetails().forEach((execDetail) -> tasks.add(ExecDetailDTO.createExecDetailDTO(execDetail)));
         return tasks;
     }
 
     public ExecDetailDTO queryTask(String key) {
-        return ExecDetailDTO.createExecDetailDTO(ScheduleContext.taskStore.getExecDetail(key));
+        return ExecDetailDTO.createExecDetailDTO(taskStore.getExecDetail(key));
     }
 
     public void scheduleTask(String taskKey) {
@@ -41,12 +54,12 @@ public class ScheduleService implements IScheduleService {
         scheduler.cancelTask(taskKey);
 
         // 删除ExecDetail
-        String taskHandlerKey = ScheduleContext.taskStore.getExecDetail(taskKey).getTaskHandlerKey();
-        ScheduleContext.taskStore.deleteExecDetail(taskKey);
+        String taskHandlerKey = taskStore.getExecDetail(taskKey).getTaskHandlerKey();
+        taskStore.deleteExecDetail(taskKey);
 
         // 检查对应的TaskHandler是否还有其他任务，没有则删除TaskHandler
-        if (ScheduleContext.taskStore.getExecDetailsByTaskHandlerKey(taskHandlerKey).isEmpty()) {
-            ScheduleContext.taskStore.deleteTaskHandler(taskHandlerKey);
+        if (taskStore.getExecDetailsByTaskHandlerKey(taskHandlerKey).isEmpty()) {
+            taskStore.deleteTaskHandler(taskHandlerKey);
         }
     }
 
@@ -59,7 +72,7 @@ public class ScheduleService implements IScheduleService {
     }
 
     public TaskHandlerDTO queryHandler(String handlerKey) {
-        return TaskHandlerDTO.createTaskHandlerDTO(ScheduleContext.taskStore.getTaskHandler(handlerKey));
+        return TaskHandlerDTO.createTaskHandlerDTO(taskStore.getTaskHandler(handlerKey));
     }
 
     public void updateTask(ExecDetailDTO execDetailDTO) {

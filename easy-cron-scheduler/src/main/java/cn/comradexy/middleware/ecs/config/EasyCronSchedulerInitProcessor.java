@@ -191,7 +191,7 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
             }
 
             // 数据恢复：从数据库中加载任务到缓存中
-            ScheduleContext.storageService.recover();
+            ScheduleContext.taskStore.recover();
         }
 
         // TODO: REDIS存储服务

@@ -3,6 +3,8 @@ package cn.comradexy.middleware.ecs.support.storage;
 import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.domain.TaskHandler;
 
+import java.util.Set;
+
 /**
  * 存储服务接口
  *
@@ -42,7 +44,12 @@ public interface IStorageService {
     void deleteExecDetail(String execDetailKey);
 
     /**
-     * 数据恢复
+     * 查询所有执行器
      */
-    void recover();
+    Set<TaskHandler> queryAllTaskHandlers();
+
+    /**
+     * 查询所有执行详情
+     */
+    Set<ExecDetail> queryAllExecDetails();
 }

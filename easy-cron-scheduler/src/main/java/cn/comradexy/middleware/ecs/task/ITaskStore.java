@@ -63,4 +63,8 @@ public interface ITaskStore {
      */
     void updateExecDetail(ExecDetail execDetail);
 
+    /**
+     * 数据恢复
+     */
+    void recover();
 }

@@ -47,19 +47,17 @@ public class Scheduler implements IScheduler, DisposableBean {
      */
     private final Map<String, ScheduledTask> expireMonitors = new ConcurrentHashMap<>(64);
 
-    private SqlSessionFactory sqlSessionFactory;
+    /**
+     * 任务存储区
+     */
+    private final ITaskStore taskStore;
 
-    @Nullable
-    @Autowired
-    public SqlSessionFactory setSqlSessionFactory() {
-        // 引入依赖，避免sqlSessionFactory在Scheduler销毁之前就被销毁
-        // 并且enableStorage为false时，不会注入sqlSessionFactory，所以需要@Nullable，避免报错
-        return sqlSessionFactory;
-    }
-
-    public Scheduler(TaskScheduler taskScheduler) {
+    public Scheduler(TaskScheduler taskScheduler, ITaskStore taskStore) {
         Assert.notNull(taskScheduler, "TaskScheduler must not be null");
         this.taskScheduler = taskScheduler;
+        
+        Assert.notNull(taskStore, "TaskStore must not be null");
+        this.taskStore = taskStore;
     }
 
     @Override
@@ -67,8 +65,8 @@ public class Scheduler implements IScheduler, DisposableBean {
         clearInvalidTasks();
 
         // 获取任务信息
-        ExecDetail execDetail = ScheduleContext.taskStore.getExecDetail(taskKey);
-        TaskHandler job = ScheduleContext.taskStore.getTaskHandler(execDetail.getTaskHandlerKey());
+        ExecDetail execDetail = taskStore.getExecDetail(taskKey);
+        TaskHandler job = taskStore.getTaskHandler(execDetail.getTaskHandlerKey());
 
         if (null != scheduledTasks.get(taskKey)) {
             logger.error("[EasyCronScheduler] Task: [key-{}] is already running, unable to resume", taskKey);
@@ -118,8 +116,8 @@ public class Scheduler implements IScheduler, DisposableBean {
         clearInvalidTasks();
 
         // 获取任务信息
-        ExecDetail execDetail = ScheduleContext.taskStore.getExecDetail(taskKey);
-        TaskHandler job = ScheduleContext.taskStore.getTaskHandler(execDetail.getTaskHandlerKey());
+        ExecDetail execDetail = taskStore.getExecDetail(taskKey);
+        TaskHandler job = taskStore.getTaskHandler(execDetail.getTaskHandlerKey());
 
         if (null != scheduledTasks.get(taskKey)) {
             logger.error("[EasyCronScheduler] Task: [key-{}] is already running, unable to resume", taskKey);
@@ -146,7 +144,7 @@ public class Scheduler implements IScheduler, DisposableBean {
     private void clearInvalidTasks() {
         // 清空缓存中失效的任务
         scheduledTasks.forEach((key, value) -> {
-            if (!ExecDetail.ExecState.RUNNING.equals(ScheduleContext.taskStore.getExecDetail(key).getState())) {
+            if (!ExecDetail.ExecState.RUNNING.equals(taskStore.getExecDetail(key).getState())) {
                 if (!value.isCancelled()) value.cancel();
                 scheduledTasks.remove(key);
             }
@@ -253,9 +251,9 @@ public class Scheduler implements IScheduler, DisposableBean {
     }
 
     private void updateTaskSate(String taskKey, ExecDetail.ExecState state) {
-        ExecDetail execDetail = ScheduleContext.taskStore.getExecDetail(taskKey);
+        ExecDetail execDetail = taskStore.getExecDetail(taskKey);
         execDetail.setState(state);
-        ScheduleContext.taskStore.updateExecDetail(execDetail);
+        taskStore.updateExecDetail(execDetail);
     }
 
     @Override

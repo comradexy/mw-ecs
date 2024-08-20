@@ -37,12 +37,12 @@ public class EasyCronSchedulerConfiguration {
     }
 
     @Bean("comradexy-middleware-job-store")
-    public ITaskStore jobStore() {
+    public ITaskStore taskStore() {
         return new TaskStore();
     }
 
     @Bean("comradexy-middleware-easy-cron-scheduler")
-    public IScheduler scheduler() {
+    public IScheduler scheduler(ITaskStore taskStore) {
         // 创建定时任务调度器
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         // 设置线程池容量
@@ -56,7 +56,7 @@ public class EasyCronSchedulerConfiguration {
         // 初始化
         taskScheduler.initialize();
 
-        return new Scheduler(taskScheduler);
+        return new Scheduler(taskScheduler, taskStore);
     }
 
 }

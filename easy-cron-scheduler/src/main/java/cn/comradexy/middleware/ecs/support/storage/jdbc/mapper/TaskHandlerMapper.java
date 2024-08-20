@@ -3,7 +3,7 @@ package cn.comradexy.middleware.ecs.support.storage.jdbc.mapper;
 import cn.comradexy.middleware.ecs.domain.TaskHandler;
 import org.apache.ibatis.annotations.*;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Job对象关系映射
@@ -33,5 +33,5 @@ public interface TaskHandlerMapper {
 
     @Select("SELECT `key`, `desc`, bean_class_name, bean_name, method_name " +
             "FROM ecs_task_handler")
-    List<TaskHandler> listTaskHandlers();
+    Set<TaskHandler> queryAllTaskHandlers();
 }

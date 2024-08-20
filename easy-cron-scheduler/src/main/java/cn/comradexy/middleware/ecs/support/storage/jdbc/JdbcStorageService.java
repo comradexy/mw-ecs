@@ -1,12 +1,13 @@
 package cn.comradexy.middleware.ecs.support.storage.jdbc;
 
-import cn.comradexy.middleware.ecs.common.ScheduleContext;
 import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.domain.TaskHandler;
 import cn.comradexy.middleware.ecs.support.storage.IStorageService;
 import cn.comradexy.middleware.ecs.support.storage.jdbc.mapper.ExecDetailMapper;
 import cn.comradexy.middleware.ecs.support.storage.jdbc.mapper.TaskHandlerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Set;
 
 /**
  * JDBC存储服务
@@ -18,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class JdbcStorageService implements IStorageService {
 
     private TaskHandlerMapper taskHandlerMapper;
-
     private ExecDetailMapper execDetailMapper;
 
     @Autowired
@@ -63,24 +63,12 @@ public class JdbcStorageService implements IStorageService {
     }
 
     @Override
-    public void recover() {
-        execDetailMapper.listExecDetails().forEach(execDetail -> {
-            // 如果任务状态为COMPLETE，则删除
-            if (execDetail.getState().equals(ExecDetail.ExecState.COMPLETE)) {
-                execDetailMapper.deleteExecDetail(execDetail.getKey());
-                return;
-            }
-            ScheduleContext.taskStore.addExecDetail(execDetail);
-        });
+    public Set<TaskHandler> queryAllTaskHandlers() {
+        return taskHandlerMapper.queryAllTaskHandlers();
+    }
 
-        taskHandlerMapper.listTaskHandlers().forEach(taskHandler -> {
-            // 如果没有ExecDetail和TaskHandler绑定，则删除TaskHandler
-            if(ScheduleContext.taskStore.getExecDetailsByTaskHandlerKey(taskHandler.getKey()).isEmpty()) {
-                taskHandlerMapper.deleteTaskHandler(taskHandler.getKey());
-                return;
-            }
-            ScheduleContext.taskStore.addTaskHandler(taskHandler);
-        });
-
+    @Override
+    public Set<ExecDetail> queryAllExecDetails() {
+        return execDetailMapper.queryAllExecDetails();
     }
 }
