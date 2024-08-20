@@ -14,7 +14,6 @@ import org.springframework.context.ApplicationContext;
  * @Description: 定时任务上下文信息
  */
 public class ScheduleContext {
-    public static final String SYS_TASK_PREFIX = "SYSTEM_";
     public static final String MONITOR_TASK_PREFIX = "MONITOR_";
     public static final String DEFAULT_END_TIME = "NEVER_EXPIRE";
 

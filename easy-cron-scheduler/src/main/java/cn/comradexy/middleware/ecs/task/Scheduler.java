@@ -38,11 +38,6 @@ public class Scheduler implements IScheduler, DisposableBean {
     private final TaskScheduler taskScheduler;
 
     /**
-     * 系统任务: 任务状态监控、任务定期存储/清理等
-     */
-    private final Map<String, ScheduledTask> systemTasks = new ConcurrentHashMap<>(8);
-
-    /**
      * 已被调度的任务
      */
     private final Map<String, ScheduledTask> scheduledTasks = new ConcurrentHashMap<>(64);
