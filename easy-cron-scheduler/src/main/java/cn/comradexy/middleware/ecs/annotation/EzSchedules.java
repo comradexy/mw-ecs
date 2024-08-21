@@ -1,4 +1,4 @@
-package cn.comradexy.middleware.ecs.annatation;
+package cn.comradexy.middleware.ecs.annotation;
 
 import java.lang.annotation.*;
 

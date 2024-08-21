@@ -1,4 +1,4 @@
-package cn.comradexy.middleware.ecs.annatation;
+package cn.comradexy.middleware.ecs.annotation;
 
 import cn.comradexy.middleware.ecs.support.admin.config.AdminConfiguration;
 import cn.comradexy.middleware.ecs.config.EasyCronSchedulerConfiguration;

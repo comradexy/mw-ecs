@@ -1,6 +1,6 @@
 package cn.comradexy.middleware;
 
-import cn.comradexy.middleware.ecs.annatation.EnableEzScheduling;
+import cn.comradexy.middleware.ecs.annotation.EnableEzScheduling;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

@@ -1,7 +1,7 @@
 package cn.comradexy.middleware.ecs.config;
 
-import cn.comradexy.middleware.ecs.annatation.EzScheduled;
-import cn.comradexy.middleware.ecs.annatation.EzSchedules;
+import cn.comradexy.middleware.ecs.annotation.EzScheduled;
+import cn.comradexy.middleware.ecs.annotation.EzSchedules;
 import cn.comradexy.middleware.ecs.common.ScheduleContext;
 import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.domain.TaskHandler;
@@ -75,8 +75,11 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) {
-        // Bean有可能被CGLIB增强，这个时候要取其父类
-        Class<?> targetClass = AopProxyUtils.ultimateTargetClass(bean);
+        // Bean有可能被CGLIB增强，这个时候要取其原始类
+        //Class<?> targetClass = AopProxyUtils.ultimateTargetClass(bean);
+        Object targetBean = AopProxyUtils.getSingletonTarget(bean);
+        if (targetBean == null) return bean;
+        Class<?> targetClass = targetBean.getClass();
         // 判断类是否有EzScheduled注解
         if (this.nonAnnotatedClasses.contains(targetClass) || !AnnotationUtils.isCandidateClass(targetClass,
                 Arrays.asList(EzScheduled.class, EzSchedules.class))) {
@@ -95,7 +98,7 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
             this.nonAnnotatedClasses.add(targetClass);
         } else {
             annotatedMethods.forEach((method, annotations) -> annotations.forEach((scheduled) -> {
-                processEzScheduled(scheduled, method, bean, beanName);
+                processEzScheduled(scheduled, method, targetBean, beanName);
             }));
         }
 
