@@ -55,7 +55,7 @@ public class Scheduler implements IScheduler, DisposableBean {
     public Scheduler(TaskScheduler taskScheduler, ITaskStore taskStore) {
         Assert.notNull(taskScheduler, "TaskScheduler must not be null");
         this.taskScheduler = taskScheduler;
-        
+
         Assert.notNull(taskStore, "TaskStore must not be null");
         this.taskStore = taskStore;
     }
@@ -125,8 +125,8 @@ public class Scheduler implements IScheduler, DisposableBean {
             return;
         }
 
-        // 检查任务状态是否为PAUSED、BLOCKED、RUNNING
-        // 如果发生故障时，任务状态未及时变更为PAUSED，数据库中的状态可能为RUNNING，此时允许恢复RUNNING状态的任务
+        // 允许恢复的任务的状态包括：PAUSED、BLOCKED、RUNNING
+        // 如果发生故障时，数据库中的任务状态为RUNNING，需要恢复任务
         if (!(ExecDetail.ExecState.PAUSED.equals(execDetail.getState())
                 || ExecDetail.ExecState.BLOCKED.equals(execDetail.getState())
                 || ExecDetail.ExecState.RUNNING.equals(execDetail.getState()))) {
@@ -260,8 +260,16 @@ public class Scheduler implements IScheduler, DisposableBean {
 
     @Override
     public void destroy() {
-        // 停止已被调度的任务，更新任务状态为暂停
-        scheduledTasks.keySet().forEach(this::pauseTask);
+        // 停止已被调度的任务
+        scheduledTasks.keySet().forEach(key -> {
+            // 删除缓存中的任务
+            ScheduledTask scheduledTask = scheduledTasks.remove(key);
+            // 停止正在执行任务
+            if (null != scheduledTask) {
+                scheduledTask.cancel();
+            }
+            // 任务状态保持为RUNNING，方便下次启动时继续执行
+        });
         // 停止结束时间监控任务
         expireMonitors.forEach((key, task) -> task.cancel());
     }
