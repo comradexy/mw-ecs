@@ -83,6 +83,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         runTask(job, execDetail);
     }
 
+    // TODO：删除cancelTask
     @Override
     public void cancelTask(String taskKey) {
         // 1.删除缓存中的任务
@@ -197,6 +198,7 @@ public class Scheduler implements IScheduler, DisposableBean {
             scheduledTask.future = taskScheduler.schedule(cronTask.getRunnable(), cronTask.getTrigger());
         } catch (TaskRejectedException ex) {
             logger.error("[EasyCronScheduler] Task: [key-{}] failed to start, task rejected", taskKey);
+            // TODO：创建延迟任务，重新调度
             updateTaskSate(taskKey, ExecDetail.ExecState.BLOCKED);
             return;
         }
