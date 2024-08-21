@@ -227,12 +227,12 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
 
             // 组装Job
             if (null != ScheduleContext.taskStore.getTaskHandler(taskHandlerKey)) return;
-            String jobDesc = "beanClass: " + pendingTask.getTaskHandler().getBeanClassName() +
+            String handlerDesc = "beanClass: " + pendingTask.getTaskHandler().getBeanClassName() +
                     ", beanName: " + pendingTask.getTaskHandler().getBeanName() +
                     ", methodName: " + pendingTask.getTaskHandler().getMethodName();
             TaskHandler job = TaskHandler.builder()
                     .key(taskHandlerKey)
-                    .desc(jobDesc)
+                    .desc(handlerDesc)
                     .beanClassName(pendingTask.getTaskHandler().getBeanClassName())
                     .beanName(pendingTask.getTaskHandler().getBeanName())
                     .methodName(pendingTask.getTaskHandler().getMethodName())

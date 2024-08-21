@@ -1,6 +1,6 @@
 package cn.comradexy.middleware.ecs.config;
 
-import cn.comradexy.middleware.ecs.aspect.TaskAspect;
+import cn.comradexy.middleware.ecs.aspect.TaskHandlerAspect;
 import cn.comradexy.middleware.ecs.task.ITaskStore;
 import cn.comradexy.middleware.ecs.task.IScheduler;
 import cn.comradexy.middleware.ecs.task.TaskStore;
@@ -60,8 +60,8 @@ public class EasyCronSchedulerConfiguration {
         return new Scheduler(taskScheduler, taskStore);
     }
 
-    @Bean("comradexy-middleware-task-aspect")
-    public TaskAspect taskAspect() {
-        return new TaskAspect();
+    @Bean
+    public TaskHandlerAspect taskAspect() {
+        return new TaskHandlerAspect();
     }
 }

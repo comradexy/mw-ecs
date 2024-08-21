@@ -20,11 +20,10 @@ import java.time.format.DateTimeFormatter;
 public class ScheduledJob {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-//    @EzSchedules({
-//            @EzScheduled(cron = "0/4 * * * * ?", desc = "每4秒执行一次", maxExecCount = 100),
-//            @EzScheduled(cron = "0/2 * * * * ?", desc = "每2秒执行一次", maxExecCount = 100)
-//    })
-    @EzScheduled(cron = "0/4 * * * * ?", desc = "每4秒执行一次", maxExecCount = 100)
+    @EzSchedules({
+            @EzScheduled(cron = "0/4 * * * * ?", desc = "每4秒执行一次", maxExecCount = 100),
+            @EzScheduled(cron = "0/2 * * * * ?", desc = "每2秒执行一次", maxExecCount = 100)
+    })
     public void test() {
         String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
         logger.info("{}: 定时任务执行", currentTime);
