@@ -112,8 +112,8 @@ public class Scheduler implements IScheduler, DisposableBean {
 
     public void taskRejected(TaskRejectedException e, String taskKey) {
         // TODO: 上报任务被拒绝的情况到zk
-        logger.error("[EasyCronScheduler] Task blocked, task key: {}", taskKey, e);
-        updateTaskSate(taskKey, ExecDetail.ExecState.BLOCKED);
+        logger.error("[EasyCronScheduler] Task rejected, task key: {}", taskKey, e);
+        updateTaskSate(taskKey, ExecDetail.ExecState.ERROR);
     }
 
     @Override
@@ -191,6 +191,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         } catch (TaskRejectedException ex) {
             logger.error("[EasyCronScheduler] Task: [key-{}] failed to start, task rejected. Waiting for retry...",
                     taskKey);
+            updateTaskSate(taskKey, ExecDetail.ExecState.BLOCKED);
             throw ex;
         }
 
