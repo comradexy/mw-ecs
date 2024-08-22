@@ -64,14 +64,6 @@ public class TaskStore implements ITaskStore {
             throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
         }
         storageService.deleteExecDetail(execDetailKey);
-
-        // 检查其处理器是否还有关联其他的执行详情
-        if (execDetail != null) {
-            String taskHandlerKey = execDetail.getTaskHandlerKey();
-            if (getExecDetailsByTaskHandlerKey(taskHandlerKey).isEmpty()) {
-                deleteTaskHandler(taskHandlerKey);
-            }
-        }
     }
 
     @Override
@@ -115,22 +107,4 @@ public class TaskStore implements ITaskStore {
         storageService.queryAllTaskHandlers().forEach(this::addTaskHandler);
     }
 
-    private void deleteTaskHandler(String taskHandlerKey) {
-        taskHandlerCache.remove(taskHandlerKey);
-        if (!ScheduleContext.properties.getEnableStorage()) return;
-        if (storageService == null) {
-            throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
-        }
-        storageService.deleteTaskHandler(taskHandlerKey);
-    }
-
-    private Set<ExecDetail> getExecDetailsByTaskHandlerKey(String taskHandlerKey) {
-        Set<ExecDetail> execDetails = new HashSet<>();
-        execDetailCache.values().forEach(execDetail -> {
-            if (execDetail.getTaskHandlerKey().equals(taskHandlerKey)) {
-                execDetails.add(execDetail);
-            }
-        });
-        return execDetails;
-    }
 }
