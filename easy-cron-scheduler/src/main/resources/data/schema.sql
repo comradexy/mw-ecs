@@ -27,3 +27,10 @@ CREATE TABLE IF NOT EXISTS ecs_exec_detail
     updated_at       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS ecs_error_log
+(
+    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+    exec_detail_key VARCHAR(255) NOT NULL UNIQUE KEY,
+    error_msg       TEXT,
+    created_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
