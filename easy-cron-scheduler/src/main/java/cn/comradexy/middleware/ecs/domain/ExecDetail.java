@@ -54,9 +54,8 @@ public class ExecDetail {
         INIT(0, "Initialized"),
         RUNNING(1, "Running"),
         PAUSED(2, "Paused"),
-        COMPLETE(3, "Completed"),
-        ERROR(4, "Error"),
-        BLOCKED(5, "Blocked");
+        BLOCKED(3, "Blocked"),
+        ERROR(4, "Error");
 
         private final int value;
         private final String desc;

@@ -21,10 +21,12 @@ public class SchedulingRunnable implements Runnable {
     private final Logger logger = LoggerFactory.getLogger(SchedulingRunnable.class);
     private final String taskKey;
     private final Runnable runnable;
+    private final IScheduler scheduler;
 
-    public SchedulingRunnable(String taskKey, Runnable runnable) {
+    public SchedulingRunnable(String taskKey, Runnable runnable, IScheduler scheduler) {
         this.taskKey = taskKey;
         this.runnable = runnable;
+        this.scheduler = scheduler;
     }
 
     @Override
@@ -32,8 +34,12 @@ public class SchedulingRunnable implements Runnable {
         ExecDetail execDetail = ScheduleContext.taskStore.getExecDetail(taskKey);
 
         if (execDetail.getExecCount() >= execDetail.getMaxExecCount()) {
-            execDetail.setState(ExecDetail.ExecState.COMPLETE);
-            ScheduleContext.taskStore.updateExecDetail(execDetail);
+            scheduler.cancelTask(taskKey);
+            return;
+        }
+
+        if(execDetail.getEndTime() != null && LocalDateTime.now().isAfter(execDetail.getEndTime())) {
+            scheduler.cancelTask(taskKey);
             return;
         }
 
@@ -49,6 +55,7 @@ public class SchedulingRunnable implements Runnable {
             // 2.任务执行状态切换
             execDetail.setState(ExecDetail.ExecState.ERROR);
             ScheduleContext.taskStore.updateExecDetail(execDetail);
+            // TODO: 上报异常
         }
     }
 }

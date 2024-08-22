@@ -47,18 +47,6 @@ public class AdminController {
         }
     }
 
-    @PutMapping("/cancel")
-    public Result<?> cancel(@RequestBody Request request) {
-        try {
-            logger.info("[EasyCronScheduler] Cancel task, task key: {}", request.getTaskKey());
-            scheduleService.cancelTask(request.getTaskKey());
-            return Result.success();
-        } catch (Exception e) {
-            logger.error("[EasyCronScheduler] Failed to cancel task, task key: {}", request.getTaskKey(), e);
-            return Result.fail(e.getMessage());
-        }
-    }
-
     @PutMapping("/pause")
     public Result<?> pause(@RequestBody Request request) {
         try {
@@ -79,18 +67,6 @@ public class AdminController {
             return Result.success();
         } catch (Exception e) {
             logger.error("[EasyCronScheduler] Failed to resume task, task key: {}", request.getTaskKey(), e);
-            return Result.fail(e.getMessage());
-        }
-    }
-
-    @PutMapping("/schedule")
-    public Result<?> schedule(@RequestBody Request request) {
-        try {
-            logger.info("[EasyCronScheduler] Schedule task, task key: {}", request.getTaskKey());
-            scheduleService.scheduleTask(request.getTaskKey());
-            return Result.success();
-        } catch (Exception e) {
-            logger.error("[EasyCronScheduler] Failed to schedule task, task key: {}", request.getTaskKey(), e);
             return Result.fail(e.getMessage());
         }
     }

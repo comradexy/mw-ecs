@@ -58,29 +58,20 @@ public class TaskStore implements ITaskStore {
 
     @Override
     public void deleteExecDetail(String execDetailKey) {
-        execDetailCache.remove(execDetailKey);
+        ExecDetail execDetail = execDetailCache.remove(execDetailKey);
         if (!ScheduleContext.properties.getEnableStorage()) return;
         if (storageService == null) {
             throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
         }
         storageService.deleteExecDetail(execDetailKey);
-    }
 
-    @Override
-    public void deleteTaskHandler(String taskHandlerKey) {
-        taskHandlerCache.remove(taskHandlerKey);
-        // 查询 EXEC_DETAIL_MAP 中所有 taskHandlerKey==taskHandler.key 的 ExecDetail
-        // 如果有，则报错，不允许删除
-        if (execDetailCache.values().stream()
-                .anyMatch(execDetail -> execDetail.getTaskHandlerKey().equals(taskHandlerKey))) {
-            logger.error("[EasyCronScheduler] TaskHandler {} has related ExecDetail, cannot be deleted",
-                    taskHandlerKey);
+        // 检查其处理器是否还有关联其他的执行详情
+        if (execDetail != null) {
+            String taskHandlerKey = execDetail.getTaskHandlerKey();
+            if (getExecDetailsByTaskHandlerKey(taskHandlerKey).isEmpty()) {
+                deleteTaskHandler(taskHandlerKey);
+            }
         }
-        if (!ScheduleContext.properties.getEnableStorage()) return;
-        if (storageService == null) {
-            throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
-        }
-        storageService.deleteTaskHandler(taskHandlerKey);
     }
 
     @Override
@@ -91,17 +82,6 @@ public class TaskStore implements ITaskStore {
     @Override
     public ExecDetail getExecDetail(String execDetailKey) {
         return execDetailCache.get(execDetailKey);
-    }
-
-    @Override
-    public Set<ExecDetail> getExecDetailsByTaskHandlerKey(String taskHandlerKey) {
-        Set<ExecDetail> execDetails = new HashSet<>();
-        execDetailCache.values().forEach(execDetail -> {
-            if (execDetail.getTaskHandlerKey().equals(taskHandlerKey)) {
-                execDetails.add(execDetail);
-            }
-        });
-        return execDetails;
     }
 
     @Override
@@ -131,23 +111,26 @@ public class TaskStore implements ITaskStore {
             throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
         }
 
-        storageService.queryAllExecDetails().forEach(execDetail -> {
-            // 如果任务状态为COMPLETE，则删除
-            if (execDetail.getState().equals(ExecDetail.ExecState.COMPLETE)) {
-                storageService.deleteExecDetail(execDetail.getKey());
-                return;
-            }
-            addExecDetail(execDetail);
-        });
+        storageService.queryAllExecDetails().forEach(this::addExecDetail);
+        storageService.queryAllTaskHandlers().forEach(this::addTaskHandler);
+    }
 
-        storageService.queryAllTaskHandlers().forEach(taskHandler -> {
-            // 如果没有ExecDetail和TaskHandler绑定，则删除TaskHandler
-            if (getExecDetailsByTaskHandlerKey(taskHandler.getKey()).isEmpty()) {
-                storageService.deleteTaskHandler(taskHandler.getKey());
-                return;
-            }
-            addTaskHandler(taskHandler);
-        });
+    private void deleteTaskHandler(String taskHandlerKey) {
+        taskHandlerCache.remove(taskHandlerKey);
+        if (!ScheduleContext.properties.getEnableStorage()) return;
+        if (storageService == null) {
+            throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
+        }
+        storageService.deleteTaskHandler(taskHandlerKey);
+    }
 
+    private Set<ExecDetail> getExecDetailsByTaskHandlerKey(String taskHandlerKey) {
+        Set<ExecDetail> execDetails = new HashSet<>();
+        execDetailCache.values().forEach(execDetail -> {
+            if (execDetail.getTaskHandlerKey().equals(taskHandlerKey)) {
+                execDetails.add(execDetail);
+            }
+        });
+        return execDetails;
     }
 }

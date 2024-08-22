@@ -24,14 +24,9 @@ public interface IScheduleService {
     ExecDetailDTO queryTask(String key);
 
     /**
-     * 调度任务
-     */
-    void scheduleTask(String taskKey);
-
-    /**
      * 取消任务 (停止并删除任务)
      */
-    void cancelTask(String taskKey);
+    void deleteTask(String taskKey);
 
     /**
      * 暂停任务
@@ -47,9 +42,4 @@ public interface IScheduleService {
      * 查询任务处理器
      */
     TaskHandlerDTO queryHandler(String handlerKey);
-
-    /**
-     * 更新任务
-     */
-    void updateTask(ExecDetailDTO execDetailDTO);
 }

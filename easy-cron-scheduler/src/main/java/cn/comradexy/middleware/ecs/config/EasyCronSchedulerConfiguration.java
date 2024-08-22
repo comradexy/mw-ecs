@@ -14,6 +14,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 /**
@@ -26,6 +27,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @Configuration("comradexy-middleware-easy-cron-scheduler-configuration")
 @EnableConfigurationProperties(EasyCronSchedulerProperties.class)
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class})
+@EnableRetry
 @Getter
 public class EasyCronSchedulerConfiguration {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

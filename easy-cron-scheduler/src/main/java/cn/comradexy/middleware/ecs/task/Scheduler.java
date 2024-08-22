@@ -3,15 +3,15 @@ package cn.comradexy.middleware.ecs.task;
 import cn.comradexy.middleware.ecs.common.ScheduleContext;
 import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.domain.TaskHandler;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskRejectedException;
-import org.springframework.lang.Nullable;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.config.CronTask;
 import org.springframework.util.Assert;
@@ -24,6 +24,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
 
 /**
  * 定时任务调度器
@@ -43,11 +44,6 @@ public class Scheduler implements IScheduler, DisposableBean {
     private final Map<String, ScheduledTask> scheduledTasks = new ConcurrentHashMap<>(64);
 
     /**
-     * 结束时间监控任务
-     */
-    private final Map<String, ScheduledTask> expireMonitors = new ConcurrentHashMap<>(64);
-
-    /**
      * 任务存储区
      */
     private final ITaskStore taskStore;
@@ -61,12 +57,14 @@ public class Scheduler implements IScheduler, DisposableBean {
     }
 
     @Override
+    @Retryable(value = TaskRejectedException.class, maxAttempts = 5, backoff = @Backoff(delay = 1000, multiplier = 2)
+            , recover = "taskRejected")
     public void scheduleTask(String taskKey) {
         clearInvalidTasks();
 
         // 获取任务信息
         ExecDetail execDetail = taskStore.getExecDetail(taskKey);
-        TaskHandler job = taskStore.getTaskHandler(execDetail.getTaskHandlerKey());
+        TaskHandler taskHandler = taskStore.getTaskHandler(execDetail.getTaskHandlerKey());
 
         if (null != scheduledTasks.get(taskKey)) {
             logger.error("[EasyCronScheduler] Task: [key-{}] is already running, unable to resume", taskKey);
@@ -80,45 +78,18 @@ public class Scheduler implements IScheduler, DisposableBean {
         }
 
         // 启动任务
-        runTask(job, execDetail);
-    }
-
-    // TODO：删除cancelTask
-    @Override
-    public void cancelTask(String taskKey) {
-        // 1.删除缓存中的任务
-        ScheduledTask scheduledTask = scheduledTasks.remove(taskKey);
-
-        // 2.停止正在执行任务
-        if (null != scheduledTask) {
-            scheduledTask.cancel();
-        }
-
-        // 3.更新任务状态为已完成
-        updateTaskSate(taskKey, ExecDetail.ExecState.COMPLETE);
+        runTask(taskHandler, execDetail);
     }
 
     @Override
-    public void pauseTask(String taskKey) {
-        // 1.删除缓存中的任务
-        ScheduledTask scheduledTask = scheduledTasks.remove(taskKey);
-
-        // 2.停止正在执行任务
-        if (null != scheduledTask) {
-            scheduledTask.cancel();
-        }
-
-        // 3.更新任务状态为暂停
-        updateTaskSate(taskKey, ExecDetail.ExecState.PAUSED);
-    }
-
-    @Override
+    @Retryable(value = TaskRejectedException.class, maxAttempts = 5, backoff = @Backoff(delay = 1000, multiplier = 2)
+            , recover = "taskRejected")
     public void resumeTask(String taskKey) {
         clearInvalidTasks();
 
         // 获取任务信息
         ExecDetail execDetail = taskStore.getExecDetail(taskKey);
-        TaskHandler job = taskStore.getTaskHandler(execDetail.getTaskHandlerKey());
+        TaskHandler taskHandler = taskStore.getTaskHandler(execDetail.getTaskHandlerKey());
 
         if (null != scheduledTasks.get(taskKey)) {
             logger.error("[EasyCronScheduler] Task: [key-{}] is already running, unable to resume", taskKey);
@@ -135,11 +106,37 @@ public class Scheduler implements IScheduler, DisposableBean {
             return;
         }
 
-        // TODO: 根据任务的上次执行时间和执行次数，计算下次执行时间，
-        //  改造ExecDetail，增加nextExecTime等字段
-
         // 启动任务
-        runTask(job, execDetail);
+        runTask(taskHandler, execDetail);
+    }
+
+    public void taskRejected(TaskRejectedException e, String taskKey) {
+        // TODO: 上报任务被拒绝的情况到zk
+        logger.error("[EasyCronScheduler] Task blocked, task key: {}", taskKey, e);
+        updateTaskSate(taskKey, ExecDetail.ExecState.BLOCKED);
+    }
+
+    @Override
+    public void pauseTask(String taskKey) {
+        // 删除缓存中的任务
+        ScheduledTask scheduledTask = scheduledTasks.remove(taskKey);
+        if (null != scheduledTask) {
+            scheduledTask.cancel();
+        }
+
+        // 更新任务状态为暂停
+        updateTaskSate(taskKey, ExecDetail.ExecState.PAUSED);
+    }
+
+    @Override
+    public void cancelTask(String taskKey) {
+        // 删除缓存中的任务
+        ScheduledTask scheduledTask = scheduledTasks.remove(taskKey);
+        if (null != scheduledTask) {
+            scheduledTask.cancel();
+        }
+        // 删除存储区中的任务
+        taskStore.deleteExecDetail(taskKey);
     }
 
     private void clearInvalidTasks() {
@@ -159,14 +156,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         if (execDetail.getExecCount() >= execDetail.getMaxExecCount()) {
             logger.error("[EasyCronScheduler] Task: [key-{}] has reached the maximum number of executions, " +
                     "unable to start", taskKey);
-            updateTaskSate(taskKey, ExecDetail.ExecState.COMPLETE);
-            return;
-        }
-
-        // 设置过期监控
-        if (!setExpireMonitor(taskKey, execDetail.getEndTime())) {
-            logger.error("[EasyCronScheduler] Task: [key-{}] has expired, unable to start", taskKey);
-            updateTaskSate(taskKey, ExecDetail.ExecState.COMPLETE);
+            taskStore.deleteExecDetail(taskKey);
             return;
         }
 
@@ -174,11 +164,13 @@ public class Scheduler implements IScheduler, DisposableBean {
         Object bean = getBean(job.getBeanName(), job.getBeanClassName());
         if (null == bean) {
             logger.error("[EasyCronScheduler] Task: [key-{}] failed to start, unable to get bean", taskKey);
+            // TODO: 任务状态切换为ERROR
             return;
         }
         Method method = ReflectionUtils.findMethod(bean.getClass(), job.getMethodName());
         if (null == method) {
             logger.error("[EasyCronScheduler] Task: [key-{}] failed to start, unable to get method", taskKey);
+            // TODO: 任务状态切换为ERROR
             return;
         }
         Runnable runnable = () -> {
@@ -189,7 +181,7 @@ public class Scheduler implements IScheduler, DisposableBean {
                 throw new RuntimeException(e);
             }
         };
-        SchedulingRunnable schedulingRunnable = new SchedulingRunnable(taskKey, runnable);
+        SchedulingRunnable schedulingRunnable = new SchedulingRunnable(taskKey, runnable, this);
 
         // 创建定时任务
         CronTask cronTask = new CronTask(schedulingRunnable, execDetail.getCronExpr());
@@ -197,10 +189,9 @@ public class Scheduler implements IScheduler, DisposableBean {
         try {
             scheduledTask.future = taskScheduler.schedule(cronTask.getRunnable(), cronTask.getTrigger());
         } catch (TaskRejectedException ex) {
-            logger.error("[EasyCronScheduler] Task: [key-{}] failed to start, task rejected", taskKey);
-            // TODO：创建延迟任务，重新调度
-            updateTaskSate(taskKey, ExecDetail.ExecState.BLOCKED);
-            return;
+            logger.error("[EasyCronScheduler] Task: [key-{}] failed to start, task rejected. Waiting for retry...",
+                    taskKey);
+            throw ex;
         }
 
         // 保存定时任务
@@ -208,23 +199,6 @@ public class Scheduler implements IScheduler, DisposableBean {
 
         // 更新任务状态为运行中
         updateTaskSate(taskKey, ExecDetail.ExecState.RUNNING);
-    }
-
-    private boolean setExpireMonitor(String taskKey, LocalDateTime endTime) {
-        if (null == endTime) return true; // 永久任务
-        if (endTime.isBefore(LocalDateTime.now())) return false; // 已过期
-
-        // 在endTime时间点之后，结束任务
-        FixedTimeTask fixedTimeTask = new FixedTimeTask(() -> cancelTask(taskKey), endTime);
-        ScheduledTask expireMonitor = new ScheduledTask(fixedTimeTask);
-        expireMonitor.future = taskScheduler.schedule(
-                fixedTimeTask.getRunnable(),
-                Date.from(endTime.atZone(ZoneId.systemDefault()).toInstant()));
-
-        // 保存监控任务
-        expireMonitors.put(ScheduleContext.MONITOR_TASK_PREFIX + taskKey, expireMonitor);
-
-        return true;
     }
 
     private Object getBean(String beanName, String beanClassName) {
@@ -260,7 +234,6 @@ public class Scheduler implements IScheduler, DisposableBean {
 
     @Override
     public void destroy() {
-        // 停止已被调度的任务
         scheduledTasks.keySet().forEach(key -> {
             // 删除缓存中的任务
             ScheduledTask scheduledTask = scheduledTasks.remove(key);
@@ -270,7 +243,5 @@ public class Scheduler implements IScheduler, DisposableBean {
             }
             // 任务状态保持为RUNNING，方便下次启动时继续执行
         });
-        // 停止结束时间监控任务
-        expireMonitors.forEach((key, task) -> task.cancel());
     }
 }

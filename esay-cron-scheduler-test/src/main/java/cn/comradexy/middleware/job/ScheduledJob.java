@@ -23,8 +23,8 @@ public class ScheduledJob {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @EzSchedules({
-            @EzScheduled(cron = "0/4 * * * * ?", desc = "每4秒执行一次", maxExecCount = 100),
-            @EzScheduled(cron = "0/2 * * * * ?", desc = "每2秒执行一次", maxExecCount = 100)
+            @EzScheduled(cron = "0/4 * * * * ?", desc = "每4秒执行一次", maxExecCount = 10),
+            @EzScheduled(cron = "0/2 * * * * ?", desc = "每2秒执行一次", maxExecCount = 10)
     })
     public void test() {
         String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));

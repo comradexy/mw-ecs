@@ -29,11 +29,6 @@ public interface ITaskStore {
     void deleteExecDetail(String execDetailKey);
 
     /**
-     * 删除任务处理器
-     */
-    void deleteTaskHandler(String taskHandlerKey);
-
-    /**
      * 根据 taskHandlerKey 查询 TaskHandler
      */
     TaskHandler getTaskHandler(String taskHandlerKey);
@@ -42,11 +37,6 @@ public interface ITaskStore {
      * 根据 execDetailKey 查询 ExecDetail
      */
     ExecDetail getExecDetail(String execDetailKey);
-
-    /**
-     * 根据 taskHandlerKey 查询所有的 ExecDetail
-     */
-    Set<ExecDetail> getExecDetailsByTaskHandlerKey(String taskHandlerKey);
 
     /**
      * 获取所有任务处理器

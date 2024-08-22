@@ -35,32 +35,8 @@ public class ScheduleService implements IScheduleService {
         this.taskStore = taskStore;
     }
 
-    public List<ExecDetailDTO> queryAllTasks() {
-        List<ExecDetailDTO> tasks = new ArrayList<>();
-        taskStore.getAllExecDetails().forEach((execDetail) -> tasks.add(ExecDetailDTO.createExecDetailDTO(execDetail)));
-        return tasks;
-    }
-
-    public ExecDetailDTO queryTask(String key) {
-        return ExecDetailDTO.createExecDetailDTO(taskStore.getExecDetail(key));
-    }
-
-    public void scheduleTask(String taskKey) {
-        scheduler.scheduleTask(taskKey);
-    }
-
-    public void cancelTask(String taskKey) {
-        // 停止任务
+    public void deleteTask(String taskKey) {
         scheduler.cancelTask(taskKey);
-
-        // 删除ExecDetail
-        String taskHandlerKey = taskStore.getExecDetail(taskKey).getTaskHandlerKey();
-        taskStore.deleteExecDetail(taskKey);
-
-        // 检查对应的TaskHandler是否还有其他任务，没有则删除TaskHandler
-        if (taskStore.getExecDetailsByTaskHandlerKey(taskHandlerKey).isEmpty()) {
-            taskStore.deleteTaskHandler(taskHandlerKey);
-        }
     }
 
     public void pasueTask(String taskKey) {
@@ -71,20 +47,17 @@ public class ScheduleService implements IScheduleService {
         scheduler.resumeTask(taskKey);
     }
 
-    public TaskHandlerDTO queryHandler(String handlerKey) {
-        return TaskHandlerDTO.createTaskHandlerDTO(taskStore.getTaskHandler(handlerKey));
+    public List<ExecDetailDTO> queryAllTasks() {
+        List<ExecDetailDTO> tasks = new ArrayList<>();
+        taskStore.getAllExecDetails().forEach((execDetail) -> tasks.add(ExecDetailDTO.createExecDetailDTO(execDetail)));
+        return tasks;
     }
 
-    public void updateTask(ExecDetailDTO execDetailDTO) {
-        // TODO:
+    public ExecDetailDTO queryTask(String key) {
+        return ExecDetailDTO.createExecDetailDTO(taskStore.getExecDetail(key));
+    }
 
-        // 1.校验参数
-
-        // 2.暂停任务
-
-        // 3.更新任务
-
-        // 4.恢复任务
-
+    public TaskHandlerDTO queryHandler(String handlerKey) {
+        return TaskHandlerDTO.createTaskHandlerDTO(taskStore.getTaskHandler(handlerKey));
     }
 }
