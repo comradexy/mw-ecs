@@ -7,8 +7,8 @@ import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.domain.TaskHandler;
 import cn.comradexy.middleware.ecs.domain.TaskKeyGenerator;
 import cn.comradexy.middleware.ecs.support.storage.IStorageService;
-import cn.comradexy.middleware.ecs.task.ITaskStore;
-import cn.comradexy.middleware.ecs.task.IScheduler;
+import cn.comradexy.middleware.ecs.task.Scheduler;
+import cn.comradexy.middleware.ecs.task.TaskStore;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,9 +147,9 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
                             EasyCronSchedulerConfiguration.class)
                     .getProperties();
             ScheduleContext.scheduler = ScheduleContext.applicationContext
-                    .getBean("comradexy-middleware-easy-cron-scheduler", IScheduler.class);
+                    .getBean("comradexy-middleware-easy-cron-scheduler", Scheduler.class);
             ScheduleContext.taskStore = ScheduleContext.applicationContext
-                    .getBean("comradexy-middleware-job-store", ITaskStore.class);
+                    .getBean("comradexy-middleware-job-store", TaskStore.class);
         } catch (Exception e) {
             logger.error("[EasyCronScheduler] Init config failed", e);
             throw new RuntimeException(e);
@@ -194,7 +194,11 @@ public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, Applic
             }
 
             // 数据恢复：从数据库中加载任务到缓存中
-            ScheduleContext.taskStore.recover();
+            if (ScheduleContext.storageService == null) {
+                throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
+            }
+            ScheduleContext.storageService.queryAllExecDetails().forEach(ScheduleContext.taskStore::addExecDetail);
+            ScheduleContext.storageService.queryAllTaskHandlers().forEach(ScheduleContext.taskStore::addTaskHandler);
         }
 
         // TODO: REDIS存储服务

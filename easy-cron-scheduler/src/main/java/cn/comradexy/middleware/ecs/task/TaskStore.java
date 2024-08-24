@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -23,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @CreateTime: 2024-08-10
  * @Description: 任务存储区
  */
-public class TaskStore implements ITaskStore {
+public class TaskStore {
     private final Map<String, TaskHandler> taskHandlerCache = new ConcurrentHashMap<>(64);
     private final Map<String, ExecDetail> execDetailCache = new ConcurrentHashMap<>(64);
 
@@ -37,7 +38,41 @@ public class TaskStore implements ITaskStore {
         this.storageService = storageService;
     }
 
-    @Override
+    /**
+     * 根据 taskHandlerKey 查询 TaskHandler (只读)
+     */
+    public TaskHandler getTaskHandler(String taskHandlerKey) {
+        return (TaskHandler) SerializationUtils.clone(taskHandlerCache.get(taskHandlerKey));
+    }
+
+    /**
+     * 根据 execDetailKey 查询 ExecDetail (只读)
+     */
+    public ExecDetail getExecDetail(String execDetailKey) {
+        return (ExecDetail) SerializationUtils.clone(execDetailCache.get(execDetailKey));
+    }
+
+    /**
+     * 获取所有任务处理器 (只读)
+     */
+    public Set<TaskHandler> getAllTaskHandlers() {
+        Set<TaskHandler> taskHandlers = new HashSet<>();
+        taskHandlerCache.values().forEach(taskHandler -> taskHandlers.add((TaskHandler) SerializationUtils.clone(taskHandler)));
+        return taskHandlers;
+    }
+
+    /**
+     * 获取所有执行详情 (只读)
+     */
+    public Set<ExecDetail> getAllExecDetails() {
+        Set<ExecDetail> execDetails = new HashSet<>();
+        execDetailCache.values().forEach(execDetail -> execDetails.add((ExecDetail) SerializationUtils.clone(execDetail)));
+        return execDetails;
+    }
+
+    /**
+     * 添加任务处理器
+     */
     public void addTaskHandler(TaskHandler taskHandler) {
         taskHandlerCache.put(taskHandler.getKey(), taskHandler);
         if (!ScheduleContext.properties.getEnableStorage()) return;
@@ -47,7 +82,9 @@ public class TaskStore implements ITaskStore {
         storageService.insertTaskHandler(taskHandler);
     }
 
-    @Override
+    /**
+     * 添加任务处理器
+     */
     public void addExecDetail(ExecDetail execDetail) {
         execDetailCache.put(execDetail.getKey(), execDetail);
         if (!ScheduleContext.properties.getEnableStorage()) return;
@@ -57,7 +94,9 @@ public class TaskStore implements ITaskStore {
         storageService.insertExecDetail(execDetail);
     }
 
-    @Override
+    /**
+     * 删除任务
+     */
     public void deleteExecDetail(String execDetailKey) {
         execDetailCache.remove(execDetailKey);
         if (!ScheduleContext.properties.getEnableStorage()) return;
@@ -67,49 +106,70 @@ public class TaskStore implements ITaskStore {
         storageService.deleteExecDetail(execDetailKey);
     }
 
-    @Override
-    public TaskHandler getTaskHandler(String taskHandlerKey) {
-        return taskHandlerCache.get(taskHandlerKey);
-    }
-
-    @Override
-    public ExecDetail getExecDetail(String execDetailKey) {
-        return execDetailCache.get(execDetailKey);
-    }
-
-    @Override
-    public Set<TaskHandler> getAllTaskHandlers() {
-        Set<TaskHandler> taskHandlers = new HashSet<>();
-        taskHandlerCache.values().forEach(taskHandler -> taskHandlers.add((TaskHandler) SerializationUtils.clone(taskHandler)));
-        return taskHandlers;
-    }
-
-    @Override
-    public Set<ExecDetail> getAllExecDetails() {
-        Set<ExecDetail> execDetails = new HashSet<>();
-        execDetailCache.values().forEach(execDetail -> execDetails.add((ExecDetail) SerializationUtils.clone(execDetail)));
-        return execDetails;
-    }
-
-    @Override
-    public void updateExecDetail(ExecDetail execDetail) {
-        execDetailCache.put(execDetail.getKey(), execDetail);
+    /**
+     * 更新任务状态
+     */
+    public void updateExecState(String execDetailKey, ExecDetail.ExecState execState) {
+        ExecDetail execDetail = execDetailCache.get(execDetailKey);
+        execDetail.setState(execState);
         if (!ScheduleContext.properties.getEnableStorage()) return;
         if (storageService == null) {
             throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
         }
-        storageService.updateExecDetail(execDetailCache.get(execDetail.getKey()));
+        storageService.updateExecDetail(execDetail);
     }
 
-    @Override
-    public void recover() {
+    /**
+     * 更新任务的cron表达式
+     */
+    public void updateCron(String execDetailKey, String cron) {
+        ExecDetail execDetail = execDetailCache.get(execDetailKey);
+        execDetail.setCronExpr(cron);
         if (!ScheduleContext.properties.getEnableStorage()) return;
         if (storageService == null) {
             throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
         }
+        storageService.updateExecDetail(execDetail);
+    }
 
-        storageService.queryAllExecDetails().forEach(this::addExecDetail);
-        storageService.queryAllTaskHandlers().forEach(this::addTaskHandler);
+    /**
+     * 更新任务的终止时间
+     */
+    public void updateEndTime(String execDetailKey, LocalDateTime endTime) {
+        ExecDetail execDetail = execDetailCache.get(execDetailKey);
+        execDetail.setEndTime(endTime);
+        if (!ScheduleContext.properties.getEnableStorage()) return;
+        if (storageService == null) {
+            throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
+        }
+        storageService.updateExecDetail(execDetail);
+    }
+
+    /**
+     * 更新任务的最大执行次数
+     */
+    public void updateMaxExecCount(String execDetailKey, Long maxExecCount) {
+        ExecDetail execDetail = execDetailCache.get(execDetailKey);
+        execDetail.setMaxExecCount(maxExecCount);
+        if (!ScheduleContext.properties.getEnableStorage()) return;
+        if (storageService == null) {
+            throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
+        }
+        storageService.updateExecDetail(execDetail);
+    }
+
+    /**
+     * 更新任务的最近执行时间和执行次数 (仅包内可见)
+     */
+    void updateExecDetail(String execDetailKey, LocalDateTime lastExecTime, Long execCount) {
+        ExecDetail execDetail = execDetailCache.get(execDetailKey);
+        execDetail.setLastExecTime(lastExecTime);
+        execDetail.setExecCount(execCount);
+        if (!ScheduleContext.properties.getEnableStorage()) return;
+        if (storageService == null) {
+            throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
+        }
+        storageService.updateExecDetail(execDetail);
     }
 
 }

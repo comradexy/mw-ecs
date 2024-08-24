@@ -21,12 +21,10 @@ public class SchedulingRunnable implements Runnable {
     private final Logger logger = LoggerFactory.getLogger(SchedulingRunnable.class);
     private final String taskKey;
     private final Runnable runnable;
-    private final IScheduler scheduler;
 
-    public SchedulingRunnable(String taskKey, Runnable runnable, IScheduler scheduler) {
+    public SchedulingRunnable(String taskKey, Runnable runnable) {
         this.taskKey = taskKey;
         this.runnable = runnable;
-        this.scheduler = scheduler;
     }
 
     @Override
@@ -34,27 +32,24 @@ public class SchedulingRunnable implements Runnable {
         ExecDetail execDetail = ScheduleContext.taskStore.getExecDetail(taskKey);
 
         if (execDetail.getExecCount() >= execDetail.getMaxExecCount()) {
-            scheduler.cancelTask(taskKey);
+            ScheduleContext.scheduler.cancelTask(taskKey);
             return;
         }
 
-        if(execDetail.getEndTime() != null && LocalDateTime.now().isAfter(execDetail.getEndTime())) {
-            scheduler.cancelTask(taskKey);
+        if (execDetail.getEndTime() != null && LocalDateTime.now().isAfter(execDetail.getEndTime())) {
+            ScheduleContext.scheduler.cancelTask(taskKey);
             return;
         }
 
-        execDetail.setExecCount(execDetail.getExecCount() + 1);
-        execDetail.setLastExecTime(LocalDateTime.now());
-        ScheduleContext.taskStore.updateExecDetail(execDetail);
+        ScheduleContext.taskStore.updateExecDetail(taskKey, LocalDateTime.now(), execDetail.getExecCount() + 1);
 
         try {
             this.runnable.run();
         } catch (RuntimeException e) {
             // 1.记录异常日志
             logger.error("[EasyCronScheduler] Task execution error, task key: {}", taskKey, e);
-            // 2.任务执行状态切换
-            execDetail.setState(ExecDetail.ExecState.ERROR);
-            ScheduleContext.taskStore.updateExecDetail(execDetail);
+            // 2.任务执行状态切换为ERROR
+            ScheduleContext.taskStore.updateExecState(taskKey, ExecDetail.ExecState.ERROR);
             // TODO: 上报异常
         }
     }

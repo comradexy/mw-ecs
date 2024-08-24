@@ -1,15 +1,12 @@
 package cn.comradexy.middleware.ecs.support.admin.service.impl;
 
-import cn.comradexy.middleware.ecs.common.ScheduleContext;
-import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.support.admin.domain.ExecDetailDTO;
 import cn.comradexy.middleware.ecs.support.admin.domain.TaskHandlerDTO;
 import cn.comradexy.middleware.ecs.support.admin.service.IScheduleService;
-import cn.comradexy.middleware.ecs.task.IScheduler;
-import cn.comradexy.middleware.ecs.task.ITaskStore;
+import cn.comradexy.middleware.ecs.task.Scheduler;
+import cn.comradexy.middleware.ecs.task.TaskStore;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,16 +19,16 @@ import java.util.List;
  */
 public class ScheduleService implements IScheduleService {
 
-    private IScheduler scheduler;
-    private ITaskStore taskStore;
+    private Scheduler scheduler;
+    private TaskStore taskStore;
 
     @Autowired
-    public void setScheduler(IScheduler scheduler) {
+    public void setScheduler(Scheduler scheduler) {
         this.scheduler = scheduler;
     }
 
     @Autowired
-    public void setTaskStore(ITaskStore taskStore) {
+    public void setTaskStore(TaskStore taskStore) {
         this.taskStore = taskStore;
     }
 

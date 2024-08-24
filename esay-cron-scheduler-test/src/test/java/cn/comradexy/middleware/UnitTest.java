@@ -5,7 +5,9 @@ import org.apache.commons.lang.SerializationUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -19,20 +21,18 @@ public class UnitTest {
 
     @Test
     public void test() throws UnsupportedEncodingException {
-        Set<ExecDetail> execDetails = new HashSet<>();
-        execDetails.add(ExecDetail.builder()
+        Map<String, ExecDetail> execDetails = new HashMap<>();
+        execDetails.put("key1", ExecDetail.builder()
                 .key("key1")
                 .taskHandlerKey("taskHandlerKey1")
                 .desc("desc1")
                 .cronExpr("cronExpr1")
                 .build());
-        execDetails.forEach(System.out::println);
+        System.out.println(execDetails.get("key1").getDesc());
 
-        Set<ExecDetail> execDetails2 = new HashSet<>();
-        execDetails.forEach(execDetail -> execDetails2.add((ExecDetail) SerializationUtils.clone(execDetail)));
-        execDetails2.forEach(execDetail -> execDetail.setKey(execDetail.getKey() + "_2"));
-        execDetails2.forEach(System.out::println);
+        ExecDetail execDetail = execDetails.get("key1");
+        execDetail.setDesc("desc2");
 
-        execDetails.forEach(System.out::println);
+        System.out.println(execDetails.get("key1").getDesc());
     }
 }

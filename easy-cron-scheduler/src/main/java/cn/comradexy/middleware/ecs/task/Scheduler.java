@@ -10,7 +10,6 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.config.CronTask;
@@ -19,12 +18,8 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledFuture;
 
 /**
  * 定时任务调度器
@@ -33,7 +28,7 @@ import java.util.concurrent.ScheduledFuture;
  * @CreateTime: 2024-07-22
  * @Description: 定时任务调度器
  */
-public class Scheduler implements IScheduler, DisposableBean {
+public class Scheduler implements DisposableBean {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final TaskScheduler taskScheduler;
@@ -46,9 +41,9 @@ public class Scheduler implements IScheduler, DisposableBean {
     /**
      * 任务存储区
      */
-    private final ITaskStore taskStore;
+    private final TaskStore taskStore;
 
-    public Scheduler(TaskScheduler taskScheduler, ITaskStore taskStore) {
+    public Scheduler(TaskScheduler taskScheduler, TaskStore taskStore) {
         Assert.notNull(taskScheduler, "TaskScheduler must not be null");
         this.taskScheduler = taskScheduler;
 
@@ -56,7 +51,11 @@ public class Scheduler implements IScheduler, DisposableBean {
         this.taskStore = taskStore;
     }
 
-    @Override
+    /**
+     * 创建并启动任务
+     *
+     * @param taskKey 任务ID
+     */
     @Retryable(value = TaskRejectedException.class, maxAttempts = 5, backoff = @Backoff(delay = 1000, multiplier = 2)
             , recover = "taskRejected")
     public void scheduleTask(String taskKey) {
@@ -81,7 +80,12 @@ public class Scheduler implements IScheduler, DisposableBean {
         runTask(taskHandler, execDetail);
     }
 
-    @Override
+
+    /**
+     * 重启任务
+     *
+     * @param taskKey 任务ID
+     */
     @Retryable(value = TaskRejectedException.class, maxAttempts = 5, backoff = @Backoff(delay = 1000, multiplier = 2)
             , recover = "taskRejected")
     public void resumeTask(String taskKey) {
@@ -110,13 +114,17 @@ public class Scheduler implements IScheduler, DisposableBean {
         runTask(taskHandler, execDetail);
     }
 
-    public void taskRejected(TaskRejectedException e, String taskKey) {
+    private void taskRejected(TaskRejectedException e, String taskKey) {
         // TODO: 上报任务被拒绝的情况到zk
         logger.error("[EasyCronScheduler] Task rejected, task key: {}", taskKey, e);
-        updateTaskSate(taskKey, ExecDetail.ExecState.ERROR);
+        taskStore.updateExecState(taskKey, ExecDetail.ExecState.ERROR);
     }
 
-    @Override
+    /**
+     * 暂停任务
+     *
+     * @param taskKey 任务ID
+     */
     public void pauseTask(String taskKey) {
         // 删除缓存中的任务
         ScheduledTask scheduledTask = scheduledTasks.remove(taskKey);
@@ -125,10 +133,14 @@ public class Scheduler implements IScheduler, DisposableBean {
         }
 
         // 更新任务状态为暂停
-        updateTaskSate(taskKey, ExecDetail.ExecState.PAUSED);
+        taskStore.updateExecState(taskKey, ExecDetail.ExecState.PAUSED);
     }
 
-    @Override
+    /**
+     * 停止任务
+     *
+     * @param taskKey 任务ID
+     */
     public void cancelTask(String taskKey) {
         // 删除缓存中的任务
         ScheduledTask scheduledTask = scheduledTasks.remove(taskKey);
@@ -149,7 +161,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         });
     }
 
-    private void runTask(TaskHandler job, ExecDetail execDetail) {
+    private void runTask(TaskHandler taskHandler, ExecDetail execDetail) {
         String taskKey = execDetail.getKey();
 
         // 检查执行次数是否超过最大允许执行次数
@@ -161,13 +173,13 @@ public class Scheduler implements IScheduler, DisposableBean {
         }
 
         // 组装任务
-        Object bean = getBean(job.getBeanName(), job.getBeanClassName());
+        Object bean = getBean(taskHandler.getBeanName(), taskHandler.getBeanClassName());
         if (null == bean) {
             logger.error("[EasyCronScheduler] Task: [key-{}] failed to start, unable to get bean", taskKey);
             // TODO: 任务状态切换为ERROR
             return;
         }
-        Method method = ReflectionUtils.findMethod(bean.getClass(), job.getMethodName());
+        Method method = ReflectionUtils.findMethod(bean.getClass(), taskHandler.getMethodName());
         if (null == method) {
             logger.error("[EasyCronScheduler] Task: [key-{}] failed to start, unable to get method", taskKey);
             // TODO: 任务状态切换为ERROR
@@ -181,7 +193,7 @@ public class Scheduler implements IScheduler, DisposableBean {
                 throw new RuntimeException(e);
             }
         };
-        SchedulingRunnable schedulingRunnable = new SchedulingRunnable(taskKey, runnable, this);
+        SchedulingRunnable schedulingRunnable = new SchedulingRunnable(taskKey, runnable);
 
         // 创建定时任务
         CronTask cronTask = new CronTask(schedulingRunnable, execDetail.getCronExpr());
@@ -191,7 +203,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         } catch (TaskRejectedException ex) {
             logger.error("[EasyCronScheduler] Task: [key-{}] failed to start, task rejected. Waiting for retry...",
                     taskKey);
-            updateTaskSate(taskKey, ExecDetail.ExecState.BLOCKED);
+            taskStore.updateExecState(taskKey, ExecDetail.ExecState.BLOCKED);
             throw ex;
         }
 
@@ -199,7 +211,7 @@ public class Scheduler implements IScheduler, DisposableBean {
         scheduledTasks.put(taskKey, scheduledTask);
 
         // 更新任务状态为运行中
-        updateTaskSate(taskKey, ExecDetail.ExecState.RUNNING);
+        taskStore.updateExecState(taskKey, ExecDetail.ExecState.RUNNING);
     }
 
     private Object getBean(String beanName, String beanClassName) {
@@ -225,12 +237,6 @@ public class Scheduler implements IScheduler, DisposableBean {
             logger.debug("[EasyCronScheduler] Bean class {} not found", beanClassName);
             return null;
         }
-    }
-
-    private void updateTaskSate(String taskKey, ExecDetail.ExecState state) {
-        ExecDetail execDetail = taskStore.getExecDetail(taskKey);
-        execDetail.setState(state);
-        taskStore.updateExecDetail(execDetail);
     }
 
     @Override

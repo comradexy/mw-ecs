@@ -1,10 +1,8 @@
 package cn.comradexy.middleware.ecs.config;
 
 import cn.comradexy.middleware.ecs.aspect.TaskHandlerAspect;
-import cn.comradexy.middleware.ecs.task.ITaskStore;
-import cn.comradexy.middleware.ecs.task.IScheduler;
-import cn.comradexy.middleware.ecs.task.TaskStore;
 import cn.comradexy.middleware.ecs.task.Scheduler;
+import cn.comradexy.middleware.ecs.task.TaskStore;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,12 +38,12 @@ public class EasyCronSchedulerConfiguration {
     }
 
     @Bean("comradexy-middleware-job-store")
-    public ITaskStore taskStore() {
+    public TaskStore taskStore() {
         return new TaskStore();
     }
 
     @Bean("comradexy-middleware-easy-cron-scheduler")
-    public IScheduler scheduler(ITaskStore taskStore) {
+    public Scheduler scheduler(TaskStore taskStore) {
         // 创建定时任务调度器
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         // 设置线程池容量
