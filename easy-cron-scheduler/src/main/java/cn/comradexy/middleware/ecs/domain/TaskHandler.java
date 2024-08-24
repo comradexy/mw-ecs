@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
+
 /**
  * 任务处理器实体
  *
@@ -14,7 +16,7 @@ import lombok.EqualsAndHashCode;
 @Builder
 @Data
 @EqualsAndHashCode(of = {"beanClassName", "beanName", "methodName"})
-public class TaskHandler {
+public class TaskHandler implements Serializable {
     /**
      * 任务唯一标识
      */

@@ -6,6 +6,7 @@ import lombok.Getter;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
+import java.io.Serializable;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,7 +25,7 @@ import java.time.LocalDateTime;
  */
 @Builder
 @Data
-public class ExecDetail {
+public class ExecDetail implements Serializable {
     private String key;
 
     private String desc;

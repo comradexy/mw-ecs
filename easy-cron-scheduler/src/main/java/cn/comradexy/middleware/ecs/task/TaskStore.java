@@ -4,6 +4,7 @@ import cn.comradexy.middleware.ecs.common.ScheduleContext;
 import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.domain.TaskHandler;
 import cn.comradexy.middleware.ecs.support.storage.IStorageService;
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,7 @@ public class TaskStore implements ITaskStore {
 
     @Override
     public void deleteExecDetail(String execDetailKey) {
-        ExecDetail execDetail = execDetailCache.remove(execDetailKey);
+        execDetailCache.remove(execDetailKey);
         if (!ScheduleContext.properties.getEnableStorage()) return;
         if (storageService == null) {
             throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
@@ -78,12 +79,16 @@ public class TaskStore implements ITaskStore {
 
     @Override
     public Set<TaskHandler> getAllTaskHandlers() {
-        return new HashSet<>(taskHandlerCache.values());
+        Set<TaskHandler> taskHandlers = new HashSet<>();
+        taskHandlerCache.values().forEach(taskHandler -> taskHandlers.add((TaskHandler) SerializationUtils.clone(taskHandler)));
+        return taskHandlers;
     }
 
     @Override
     public Set<ExecDetail> getAllExecDetails() {
-        return new HashSet<>(execDetailCache.values());
+        Set<ExecDetail> execDetails = new HashSet<>();
+        execDetailCache.values().forEach(execDetail -> execDetails.add((ExecDetail) SerializationUtils.clone(execDetail)));
+        return execDetails;
     }
 
     @Override

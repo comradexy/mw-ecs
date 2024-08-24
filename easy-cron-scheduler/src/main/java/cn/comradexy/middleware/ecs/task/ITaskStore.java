@@ -39,12 +39,12 @@ public interface ITaskStore {
     ExecDetail getExecDetail(String execDetailKey);
 
     /**
-     * 获取所有任务处理器
+     * 获取所有任务处理器（只读）
      */
     Set<TaskHandler> getAllTaskHandlers();
 
     /**
-     * 获取所有执行详情
+     * 获取所有执行详情（只读）
      */
     Set<ExecDetail> getAllExecDetails();
 
