@@ -57,4 +57,8 @@ public class ScheduleService implements IScheduleService {
     public TaskHandlerDTO queryHandler(String handlerKey) {
         return TaskHandlerDTO.createTaskHandlerDTO(taskStore.getTaskHandler(handlerKey));
     }
+
+    public String queryErrorMsg(String execDetailKey){
+        return taskStore.getErrorMsg(execDetailKey).getErrorMsg();
+    }
 }

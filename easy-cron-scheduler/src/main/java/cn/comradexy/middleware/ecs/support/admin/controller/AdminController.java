@@ -1,13 +1,14 @@
 package cn.comradexy.middleware.ecs.support.admin.controller;
 
-import cn.comradexy.middleware.ecs.support.admin.service.IScheduleService;
 import cn.comradexy.middleware.ecs.support.admin.domain.Request;
 import cn.comradexy.middleware.ecs.support.admin.domain.Result;
+import cn.comradexy.middleware.ecs.support.admin.service.IScheduleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 管理端controller
@@ -78,6 +79,29 @@ public class AdminController {
             return Result.success(scheduleService.queryHandler(handlerKey));
         } catch (Exception e) {
             logger.error("[EasyCronScheduler] Failed to query handler, handler key: {}", handlerKey, e);
+            return Result.fail(e.getMessage());
+        }
+    }
+
+    @GetMapping("/query_error_msg")
+    public Result<?> queryErrorMsg(@RequestParam("taskKey") String taskKey) {
+        try {
+            logger.info("[EasyCronScheduler] Query error message, task key: {}", taskKey);
+            return Result.success(scheduleService.queryErrorMsg(taskKey));
+        } catch (Exception e) {
+            logger.error("[EasyCronScheduler] Failed to query error message, task key: {}", taskKey, e);
+            return Result.fail(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/delete_batch")
+    public Result<?> deleteBatch(@RequestBody List<String> taskKeys) {
+        try {
+            logger.info("[EasyCronScheduler] Delete tasks, task keys: {}", taskKeys);
+            taskKeys.forEach(scheduleService::deleteTask);
+            return Result.success();
+        } catch (Exception e) {
+            logger.error("[EasyCronScheduler] Failed to delete tasks, task keys: {}", taskKeys, e);
             return Result.fail(e.getMessage());
         }
     }

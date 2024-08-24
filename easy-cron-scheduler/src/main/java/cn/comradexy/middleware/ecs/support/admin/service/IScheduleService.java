@@ -42,4 +42,9 @@ public interface IScheduleService {
      * 查询任务处理器
      */
     TaskHandlerDTO queryHandler(String handlerKey);
+
+    /**
+     * 查询任务报错信息
+     */
+    String queryErrorMsg(String execDetailKey);
 }

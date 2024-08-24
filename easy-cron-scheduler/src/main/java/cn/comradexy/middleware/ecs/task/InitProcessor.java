@@ -7,7 +7,6 @@ import cn.comradexy.middleware.ecs.config.EasyCronSchedulerConfiguration;
 import cn.comradexy.middleware.ecs.config.EasyCronSchedulerProperties;
 import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.domain.TaskHandler;
-import cn.comradexy.middleware.ecs.domain.TaskKeyGenerator;
 import cn.comradexy.middleware.ecs.support.storage.IStorageService;
 import lombok.Data;
 import org.slf4j.Logger;

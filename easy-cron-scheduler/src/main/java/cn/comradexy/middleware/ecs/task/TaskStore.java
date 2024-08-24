@@ -29,8 +29,7 @@ public class TaskStore {
 
     private IStorageService storageService;
 
-    @Nullable
-    @Autowired
+    @Autowired(required = false)
     public void setStorageService(IStorageService storageService) {
         this.storageService = storageService;
     }

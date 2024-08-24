@@ -63,27 +63,28 @@ document.addEventListener('DOMContentLoaded', function () {
         xhr.send();
     }
 
+    function generateOperationButton(state, taskKey) {
+        var buttonHTML = '';
+        switch (state) {
+            case 'Paused':
+                buttonHTML = '<button onclick="handleOperation(\'Put\', \'/schedule/api/resume\', \'' + taskKey + '\')">Resume</button>';
+                break;
+            case 'Running':
+                buttonHTML = '<button onclick="handleOperation(\'Put\', \'/schedule/api/pause\', \'' + taskKey + '\')">Pause</button>';
+                break;
+            case 'Error':
+                buttonHTML = '<button onclick="showErrorMsg(\'' + taskKey + '\')">Error</button>';
+                break;
+            default:
+                buttonHTML = '';
+                break;
+        }
+        return buttonHTML;
+    }
+
     fetchTaskList();
 });
 
-function generateOperationButton(state, taskKey) {
-    var buttonHTML = '';
-    switch (state) {
-        case 'Initialized':
-            buttonHTML = '<button onclick="handleOperation(\'Put\', \'/schedule/api/schedule\', \'' + taskKey + '\')">Schedule</button>';
-            break;
-        case 'Paused':
-            buttonHTML = '<button onclick="handleOperation(\'Put\', \'/schedule/api/resume\', \'' + taskKey + '\')">Resume</button>';
-            break;
-        case 'Running':
-            buttonHTML = '<button onclick="handleOperation(\'Put\', \'/schedule/api/pause\', \'' + taskKey + '\')">Pause</button>';
-            break;
-        default:
-            buttonHTML = '';
-            break;
-    }
-    return buttonHTML;
-}
 
 function handleOperation(method, url, taskKey) {
     var xhr = new XMLHttpRequest();
@@ -100,10 +101,29 @@ function handleOperation(method, url, taskKey) {
     xhr.onerror = function () {
         console.error('The operation request failed for task:', taskKey);
     };
-    xhr.send(JSON.stringify({ taskKey: taskKey }));
+    xhr.send(JSON.stringify({taskKey: taskKey}));
 }
 
-
+function showErrorMsg(taskKey) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/schedule/api/query_error_msg?taskKey=' + taskKey, true);
+    xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            var response = JSON.parse(xhr.responseText);
+            if (response.code === 200 && response.data) {
+                alert(response.data);
+            } else {
+                console.error('The request was successful but the data format is incorrect!');
+            }
+        } else {
+            console.error('The request failed!');
+        }
+    };
+    xhr.onerror = function () {
+        console.error('The request failed!');
+    };
+    xhr.send();
+}
 
 var modal = document.getElementById("myModal");
 var span = document.getElementsByClassName("close")[0];

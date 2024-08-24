@@ -22,13 +22,18 @@ import java.time.format.DateTimeFormatter;
 public class ScheduledJob {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @EzSchedules({
-            @EzScheduled(cron = "0/4 * * * * ?", desc = "每4秒执行一次", maxExecCount = 10),
-            @EzScheduled(cron = "0/2 * * * * ?", desc = "每2秒执行一次", maxExecCount = 10)
-    })
-    public void test() {
-//        String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
-//        logger.info("{}: 定时任务执行", currentTime);
-        int i = 1 / 0;
+    //    @EzSchedules({
+//            @EzScheduled(cron = "0/4 * * * * ?", desc = "每4秒执行一次"),
+//            @EzScheduled(cron = "0/2 * * * * ?", desc = "每2秒执行一次")
+//    })
+    @EzScheduled(cron = "0/5 * * * * ?", desc = "每5秒执行一次")
+    public void test1() {
+        String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+        logger.info("{}: 定时任务执行", currentTime);
+    }
+
+    @EzScheduled(cron = "0/3 * * * * ?", desc = "每3秒执行一次")
+    public void test2() {
+        int a = 1 / 0;
     }
 }

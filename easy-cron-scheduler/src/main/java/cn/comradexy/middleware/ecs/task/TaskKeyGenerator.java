@@ -1,6 +1,8 @@
-package cn.comradexy.middleware.ecs.domain;
+package cn.comradexy.middleware.ecs.task;
 
 import cn.comradexy.middleware.ecs.common.ScheduleContext;
+import cn.comradexy.middleware.ecs.domain.ExecDetail;
+import cn.comradexy.middleware.ecs.domain.TaskHandler;
 import org.springframework.util.DigestUtils;
 
 /**
