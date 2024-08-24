@@ -27,22 +27,8 @@ public class ScheduledJob {
             @EzScheduled(cron = "0/2 * * * * ?", desc = "每2秒执行一次", maxExecCount = 10)
     })
     public void test() {
-        String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
-        logger.info("{}: 定时任务执行", currentTime);
-    }
-
-    public void testRetry1() {
-        testRetry();
-    }
-
-    @Retryable(value = RuntimeException.class, maxAttempts = 3)
-    public void testRetry() {
-        System.out.println("retry");
-        throw new RuntimeException("throw error");
-    }
-
-    @Recover
-    public void recover(RuntimeException e) {
-        System.out.println("recover");
+//        String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+//        logger.info("{}: 定时任务执行", currentTime);
+        int i = 1 / 0;
     }
 }

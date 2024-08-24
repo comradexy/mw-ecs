@@ -1,8 +1,10 @@
 package cn.comradexy.middleware.ecs.support.storage.jdbc;
 
+import cn.comradexy.middleware.ecs.domain.ErrorMsg;
 import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.domain.TaskHandler;
 import cn.comradexy.middleware.ecs.support.storage.IStorageService;
+import cn.comradexy.middleware.ecs.support.storage.jdbc.mapper.ErrorMsgMapper;
 import cn.comradexy.middleware.ecs.support.storage.jdbc.mapper.ExecDetailMapper;
 import cn.comradexy.middleware.ecs.support.storage.jdbc.mapper.TaskHandlerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ public class JdbcStorageService implements IStorageService {
 
     private TaskHandlerMapper taskHandlerMapper;
     private ExecDetailMapper execDetailMapper;
+    private ErrorMsgMapper errorMsgMapper;
 
     @Autowired
     public void setJobMapper(TaskHandlerMapper taskHandlerMapper) {
@@ -29,6 +32,31 @@ public class JdbcStorageService implements IStorageService {
     @Autowired
     public void setExecDetailMapper(ExecDetailMapper execDetailMapper) {
         this.execDetailMapper = execDetailMapper;
+    }
+
+    @Autowired
+    public void setErrorMsgMapper(ErrorMsgMapper errorMsgMapper) {
+        this.errorMsgMapper = errorMsgMapper;
+    }
+
+    @Override
+    public void insertErrorMsg(String execDetailKey, String errorMsg) {
+        errorMsgMapper.insert(execDetailKey, errorMsg);
+    }
+
+    @Override
+    public ErrorMsg queryErrorMsg(String execDetailKey) {
+        return errorMsgMapper.query(execDetailKey);
+    }
+
+    @Override
+    public Set<ErrorMsg> queryAllErrorMsgs() {
+        return errorMsgMapper.queryAll();
+    }
+
+    @Override
+    public void deleteErrorMsg(String execDetailKey) {
+        errorMsgMapper.delete(execDetailKey);
     }
 
     @Override
@@ -43,7 +71,6 @@ public class JdbcStorageService implements IStorageService {
 
     @Override
     public void deleteTaskHandler(String jobKey) {
-        // TODO: 查询 EXEC_DETAIL_MAP 中所有 taskHandlerKey==taskHandler.key 的 ExecDetail，然后删除
         taskHandlerMapper.deleteTaskHandler(jobKey);
     }
 

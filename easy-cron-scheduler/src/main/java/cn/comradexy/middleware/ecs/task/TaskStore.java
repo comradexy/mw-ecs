@@ -1,6 +1,7 @@
 package cn.comradexy.middleware.ecs.task;
 
 import cn.comradexy.middleware.ecs.common.ScheduleContext;
+import cn.comradexy.middleware.ecs.domain.ErrorMsg;
 import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.domain.TaskHandler;
 import cn.comradexy.middleware.ecs.support.storage.IStorageService;
@@ -24,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TaskStore {
     private final Map<String, TaskHandler> taskHandlerCache = new ConcurrentHashMap<>(64);
     private final Map<String, ExecDetail> execDetailCache = new ConcurrentHashMap<>(64);
+    private final Map<String, ErrorMsg> errorMsgCache = new ConcurrentHashMap<>(64);
 
     private IStorageService storageService;
 
@@ -48,6 +50,13 @@ public class TaskStore {
     }
 
     /**
+     * 根据 execDetailKey 查询 ErrorMsg (只读)
+     */
+    public ErrorMsg getErrorMsg(String execDetailKey) {
+        return (ErrorMsg) SerializationUtils.clone(errorMsgCache.get(execDetailKey));
+    }
+
+    /**
      * 获取所有任务处理器 (只读)
      */
     public Set<TaskHandler> getAllTaskHandlers() {
@@ -63,6 +72,15 @@ public class TaskStore {
         Set<ExecDetail> execDetails = new HashSet<>();
         execDetailCache.values().forEach(execDetail -> execDetails.add((ExecDetail) SerializationUtils.clone(execDetail)));
         return execDetails;
+    }
+
+    /**
+     * 获取所有错误信息 (只读)
+     */
+    public Set<ErrorMsg> getAllErrorMsgs() {
+        Set<ErrorMsg> errorMsgSet = new HashSet<>();
+        errorMsgCache.values().forEach(errorMsg -> errorMsgSet.add((ErrorMsg) SerializationUtils.clone(errorMsg)));
+        return errorMsgSet;
     }
 
     /**
@@ -102,6 +120,20 @@ public class TaskStore {
     }
 
     /**
+     * 删除错误信息以及对应的任务详情
+     */
+    void clearError(String execDetailKey) {
+        errorMsgCache.remove(execDetailKey);
+        if (!ScheduleContext.properties.getEnableStorage()) return;
+        if (storageService == null) {
+            throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
+        }
+        storageService.deleteErrorMsg(execDetailKey);
+
+        deleteExecDetail(execDetailKey);
+    }
+
+    /**
      * 更新任务状态
      */
     void updateExecState(String execDetailKey, ExecDetail.ExecState execState) {
@@ -112,6 +144,23 @@ public class TaskStore {
             throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
         }
         storageService.updateExecDetail(execDetail);
+    }
+
+    /**
+     * 更新任务状态为ERROR，并记录错误信息
+     */
+    void updateExecState2Error(String execDetailKey, String msg) {
+        ExecDetail execDetail = execDetailCache.get(execDetailKey);
+        execDetail.setState(ExecDetail.ExecState.ERROR);
+        ErrorMsg errorMsg = new ErrorMsg(execDetailKey, msg);
+        errorMsgCache.put(execDetailKey, errorMsg);
+
+        if (!ScheduleContext.properties.getEnableStorage()) return;
+        if (storageService == null) {
+            throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
+        }
+        storageService.updateExecDetail(execDetail);
+        storageService.insertErrorMsg(execDetailKey, msg);
     }
 
     /**

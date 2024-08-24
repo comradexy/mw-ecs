@@ -33,7 +33,7 @@ public class ScheduleService implements IScheduleService {
     }
 
     public void deleteTask(String taskKey) {
-        scheduler.cancelTask(taskKey);
+        scheduler.deleteTask(taskKey);
     }
 
     public void pasueTask(String taskKey) {

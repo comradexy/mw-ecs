@@ -1,5 +1,6 @@
 package cn.comradexy.middleware.ecs.support.storage;
 
+import cn.comradexy.middleware.ecs.domain.ErrorMsg;
 import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.domain.TaskHandler;
 
@@ -13,6 +14,26 @@ import java.util.Set;
  * @Description: 存储服务接口
  */
 public interface IStorageService {
+    /**
+     * 插入错误信息
+     */
+    void insertErrorMsg(String execDetailKey, String errorMsg);
+
+    /**
+     * 查询错误信息
+     */
+    ErrorMsg queryErrorMsg(String execDetailKey);
+
+    /**
+     * 查询所有错误信息
+     */
+    Set<ErrorMsg> queryAllErrorMsgs();
+
+    /**
+     * 删除错误信息
+     */
+    void deleteErrorMsg(String execDetailKey);
+
     /**
      * 插入任务
      */

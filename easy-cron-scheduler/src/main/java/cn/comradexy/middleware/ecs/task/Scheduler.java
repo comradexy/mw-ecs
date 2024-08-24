@@ -16,6 +16,8 @@ import org.springframework.scheduling.config.CronTask;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -115,9 +117,11 @@ public class Scheduler implements DisposableBean {
     }
 
     private void taskRejected(TaskRejectedException e, String taskKey) {
-        // TODO: 上报任务被拒绝的情况到zk
         logger.error("[EasyCronScheduler] Task rejected, task key: {}", taskKey, e);
-        taskStore.updateExecState(taskKey, ExecDetail.ExecState.ERROR);
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        taskStore.updateExecState2Error(taskKey, "Task rejected, caused by: \n" + sw);
     }
 
     /**
@@ -127,28 +131,31 @@ public class Scheduler implements DisposableBean {
      */
     public void pauseTask(String taskKey) {
         // 删除缓存中的任务
-        ScheduledTask scheduledTask = scheduledTasks.remove(taskKey);
-        if (null != scheduledTask) {
-            scheduledTask.cancel();
-        }
-
+        cancelTask(taskKey);
         // 更新任务状态为暂停
         taskStore.updateExecState(taskKey, ExecDetail.ExecState.PAUSED);
     }
 
     /**
-     * 停止任务
+     * 删除任务
      *
      * @param taskKey 任务ID
      */
-    public void cancelTask(String taskKey) {
+    public void deleteTask(String taskKey) {
         // 删除缓存中的任务
+        cancelTask(taskKey);
+        // 删除存储区中的任务
+        taskStore.deleteExecDetail(taskKey);
+    }
+
+    /**
+     * 取消任务
+     */
+    void cancelTask(String taskKey) {
         ScheduledTask scheduledTask = scheduledTasks.remove(taskKey);
         if (null != scheduledTask) {
             scheduledTask.cancel();
         }
-        // 删除存储区中的任务
-        taskStore.deleteExecDetail(taskKey);
     }
 
     private void clearInvalidTasks() {
@@ -176,13 +183,13 @@ public class Scheduler implements DisposableBean {
         Object bean = getBean(taskHandler.getBeanName(), taskHandler.getBeanClassName());
         if (null == bean) {
             logger.error("[EasyCronScheduler] Task: [key-{}] failed to start, unable to get bean", taskKey);
-            // TODO: 任务状态切换为ERROR
+            taskStore.updateExecState2Error(taskKey, "Unable to get bean");
             return;
         }
         Method method = ReflectionUtils.findMethod(bean.getClass(), taskHandler.getMethodName());
         if (null == method) {
             logger.error("[EasyCronScheduler] Task: [key-{}] failed to start, unable to get method", taskKey);
-            // TODO: 任务状态切换为ERROR
+            taskStore.updateExecState2Error(taskKey, "Unable to get method");
             return;
         }
         Runnable runnable = () -> {
@@ -190,6 +197,7 @@ public class Scheduler implements DisposableBean {
             try {
                 method.invoke(bean);
             } catch (IllegalAccessException | InvocationTargetException e) {
+                // ScheduledRunnable 会捕获并处理异常，这里不需要再处理，只需要抛出异常即可
                 throw new RuntimeException(e);
             }
         };
