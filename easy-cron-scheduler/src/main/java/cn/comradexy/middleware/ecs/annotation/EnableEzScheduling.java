@@ -2,7 +2,7 @@ package cn.comradexy.middleware.ecs.annotation;
 
 import cn.comradexy.middleware.ecs.support.admin.config.AdminConfiguration;
 import cn.comradexy.middleware.ecs.config.EasyCronSchedulerConfiguration;
-import cn.comradexy.middleware.ecs.config.EasyCronSchedulerInitProcessor;
+import cn.comradexy.middleware.ecs.task.InitProcessor;
 import cn.comradexy.middleware.ecs.support.storage.config.StorageConfiguration;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.Import;
@@ -20,7 +20,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import({EasyCronSchedulerInitProcessor.class})
+@Import({InitProcessor.class})
 @ImportAutoConfiguration({
         EasyCronSchedulerConfiguration.class,
         AdminConfiguration.class,

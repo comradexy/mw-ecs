@@ -5,9 +5,6 @@ import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.domain.TaskHandler;
 import cn.comradexy.middleware.ecs.support.storage.IStorageService;
 import org.apache.commons.lang.SerializationUtils;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 
@@ -27,8 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TaskStore {
     private final Map<String, TaskHandler> taskHandlerCache = new ConcurrentHashMap<>(64);
     private final Map<String, ExecDetail> execDetailCache = new ConcurrentHashMap<>(64);
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private IStorageService storageService;
 
@@ -73,7 +68,7 @@ public class TaskStore {
     /**
      * 添加任务处理器
      */
-    public void addTaskHandler(TaskHandler taskHandler) {
+    void addTaskHandler(TaskHandler taskHandler) {
         taskHandlerCache.put(taskHandler.getKey(), taskHandler);
         if (!ScheduleContext.properties.getEnableStorage()) return;
         if (storageService == null) {
@@ -85,7 +80,7 @@ public class TaskStore {
     /**
      * 添加任务处理器
      */
-    public void addExecDetail(ExecDetail execDetail) {
+    void addExecDetail(ExecDetail execDetail) {
         execDetailCache.put(execDetail.getKey(), execDetail);
         if (!ScheduleContext.properties.getEnableStorage()) return;
         if (storageService == null) {
@@ -97,7 +92,7 @@ public class TaskStore {
     /**
      * 删除任务
      */
-    public void deleteExecDetail(String execDetailKey) {
+    void deleteExecDetail(String execDetailKey) {
         execDetailCache.remove(execDetailKey);
         if (!ScheduleContext.properties.getEnableStorage()) return;
         if (storageService == null) {
@@ -109,7 +104,7 @@ public class TaskStore {
     /**
      * 更新任务状态
      */
-    public void updateExecState(String execDetailKey, ExecDetail.ExecState execState) {
+    void updateExecState(String execDetailKey, ExecDetail.ExecState execState) {
         ExecDetail execDetail = execDetailCache.get(execDetailKey);
         execDetail.setState(execState);
         if (!ScheduleContext.properties.getEnableStorage()) return;
@@ -122,7 +117,7 @@ public class TaskStore {
     /**
      * 更新任务的cron表达式
      */
-    public void updateCron(String execDetailKey, String cron) {
+    void updateCron(String execDetailKey, String cron) {
         ExecDetail execDetail = execDetailCache.get(execDetailKey);
         execDetail.setCronExpr(cron);
         if (!ScheduleContext.properties.getEnableStorage()) return;
@@ -135,7 +130,7 @@ public class TaskStore {
     /**
      * 更新任务的终止时间
      */
-    public void updateEndTime(String execDetailKey, LocalDateTime endTime) {
+    void updateEndTime(String execDetailKey, LocalDateTime endTime) {
         ExecDetail execDetail = execDetailCache.get(execDetailKey);
         execDetail.setEndTime(endTime);
         if (!ScheduleContext.properties.getEnableStorage()) return;
@@ -148,7 +143,7 @@ public class TaskStore {
     /**
      * 更新任务的最大执行次数
      */
-    public void updateMaxExecCount(String execDetailKey, Long maxExecCount) {
+    void updateMaxExecCount(String execDetailKey, Long maxExecCount) {
         ExecDetail execDetail = execDetailCache.get(execDetailKey);
         execDetail.setMaxExecCount(maxExecCount);
         if (!ScheduleContext.properties.getEnableStorage()) return;
@@ -159,7 +154,7 @@ public class TaskStore {
     }
 
     /**
-     * 更新任务的最近执行时间和执行次数 (仅包内可见)
+     * 更新任务的最近执行时间和执行次数
      */
     void updateExecDetail(String execDetailKey, LocalDateTime lastExecTime, Long execCount) {
         ExecDetail execDetail = execDetailCache.get(execDetailKey);

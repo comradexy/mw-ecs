@@ -1,14 +1,14 @@
-package cn.comradexy.middleware.ecs.config;
+package cn.comradexy.middleware.ecs.task;
 
 import cn.comradexy.middleware.ecs.annotation.EzScheduled;
 import cn.comradexy.middleware.ecs.annotation.EzSchedules;
 import cn.comradexy.middleware.ecs.common.ScheduleContext;
+import cn.comradexy.middleware.ecs.config.EasyCronSchedulerConfiguration;
+import cn.comradexy.middleware.ecs.config.EasyCronSchedulerProperties;
 import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.domain.TaskHandler;
 import cn.comradexy.middleware.ecs.domain.TaskKeyGenerator;
 import cn.comradexy.middleware.ecs.support.storage.IStorageService;
-import cn.comradexy.middleware.ecs.task.Scheduler;
-import cn.comradexy.middleware.ecs.task.TaskStore;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @CreateTime: 2024-07-25
  * @Description: Bean处理器
  */
-public class EasyCronSchedulerInitProcessor implements BeanPostProcessor, ApplicationContextAware,
+public class InitProcessor implements BeanPostProcessor, ApplicationContextAware,
         ApplicationListener<ContextRefreshedEvent>, Ordered {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
