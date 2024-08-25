@@ -2,7 +2,7 @@ package cn.comradexy.middleware.ecs.support.admin.config;
 
 import cn.comradexy.middleware.ecs.support.admin.controller.AdminController;
 import cn.comradexy.middleware.ecs.support.admin.service.IScheduleService;
-import cn.comradexy.middleware.ecs.support.admin.service.impl.ScheduleService;
+import cn.comradexy.middleware.ecs.support.admin.service.ScheduleService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

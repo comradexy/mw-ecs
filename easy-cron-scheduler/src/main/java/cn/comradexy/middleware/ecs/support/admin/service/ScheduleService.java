@@ -1,4 +1,4 @@
-package cn.comradexy.middleware.ecs.support.admin.service.impl;
+package cn.comradexy.middleware.ecs.support.admin.service;
 
 import cn.comradexy.middleware.ecs.support.admin.domain.ExecDetailDTO;
 import cn.comradexy.middleware.ecs.support.admin.domain.TaskHandlerDTO;

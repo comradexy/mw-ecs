@@ -2,6 +2,7 @@ package cn.comradexy.middleware.ecs.task;
 
 import cn.comradexy.middleware.ecs.annotation.EzScheduled;
 import cn.comradexy.middleware.ecs.annotation.EzSchedules;
+import cn.comradexy.middleware.ecs.common.TaskKeyUtils;
 import cn.comradexy.middleware.ecs.common.ScheduleContext;
 import cn.comradexy.middleware.ecs.config.EasyCronSchedulerConfiguration;
 import cn.comradexy.middleware.ecs.config.EasyCronSchedulerProperties;
@@ -210,10 +211,10 @@ public class InitProcessor implements BeanPostProcessor, ApplicationContextAware
     private void init_tasks() {
         pendingTasks.forEach(pendingTask -> {
             String execDetailKey =
-                    TaskKeyGenerator.getExecDetailKey(ScheduleContext.properties.getSchedulerServerId(),
+                    TaskKeyUtils.getExecDetailKey(ScheduleContext.properties.getSchedulerServerId(),
                             pendingTask.getTaskHandler(), pendingTask.getExecDetail());
             String taskHandlerKey =
-                    TaskKeyGenerator.getTaskHandlerKey(ScheduleContext.properties.getSchedulerServerId(),
+                    TaskKeyUtils.getTaskHandlerKey(ScheduleContext.properties.getSchedulerServerId(),
                             pendingTask.getTaskHandler());
 
             // 组装ExecDetail

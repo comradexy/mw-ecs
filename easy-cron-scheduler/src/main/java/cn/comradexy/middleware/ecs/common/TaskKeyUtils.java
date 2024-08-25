@@ -1,4 +1,4 @@
-package cn.comradexy.middleware.ecs.task;
+package cn.comradexy.middleware.ecs.common;
 
 import cn.comradexy.middleware.ecs.common.ScheduleContext;
 import cn.comradexy.middleware.ecs.domain.ExecDetail;
@@ -12,7 +12,7 @@ import org.springframework.util.DigestUtils;
  * @CreateTime: 2024-08-16
  * @Description: TaskHandler和ExecDetail的key生成器
  */
-public class TaskKeyGenerator {
+public class TaskKeyUtils {
     /**
      * 生成TaskHandler的key
      *
