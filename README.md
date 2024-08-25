@@ -1,5 +1,7 @@
 # Easy Cron Scheduler
 
+## 一、需求背景
+
 > [@Scheduled，Quartz，XXL-JOB三种定时任务总结](https://blog.csdn.net/m0_72075879/article/details/134794515)
 
 Schedule是计划执行任务的通用术语。Quartz是Java任务调度框架，支持灵活任务管理。XXL-JOB是分布式任务调度平台，注重大规模系统，提供分布式任务调度和管理，包括动态调度、监控、日志记录等功能。选择取决于应用需求，Quartz适用于Java应用，XXL-JOB适用于分布式环境。
@@ -9,6 +11,120 @@ Schedule是计划执行任务的通用术语。Quartz是Java任务调度框架�
 - `xxl-job` 功能丰富，适用于分布式场景，但是对于简单场景来说，又显得过于庞大冗余。
 
 本项目基于`org.springframework.scheduling` 包实现一个简单易用的定时任务管理中心，便于动态创建、停止定时任务。作为扩展功能，支持任务持久化，实现任务的暂定和恢复功能，添加新任务时计算其与已有任务的相似度，提供相似任务提醒。
+
+
+
+## 二、方案设计
+
+
+
+
+
+
+
+## 三、技术实现
+
+工程结构如下：
+
+```
+easy-cron-scheduler
+└─src
+    └─main
+        ├─java
+        │  └─cn
+        │      └─comradexy
+        │          └─middleware
+        │              └─ecs
+        │                  ├─annotation
+        │                  │      EnableEzScheduling.java
+        │                  │      EzScheduled.java
+        │                  │      EzSchedules.java
+        │                  │
+        │                  ├─aspect
+        │                  │      TaskHandlerAspect.java
+        │                  │
+        │                  ├─common
+        │                  │      ScheduleContext.java
+        │                  │      TaskKeyUtils.java
+        │                  │
+        │                  ├─config
+        │                  │      EasyCronSchedulerConfiguration.java
+        │                  │      EasyCronSchedulerProperties.java
+        │                  │
+        │                  ├─domain
+        │                  │      ErrorMsg.java
+        │                  │      ExecDetail.java
+        │                  │      TaskHandler.java
+        │                  │
+        │                  ├─support
+        │                  │  ├─admin
+        │                  │  │  ├─config
+        │                  │  │  │      AdminConfiguration.java
+        │                  │  │  │      WebConfig.java
+        │                  │  │  │
+        │                  │  │  ├─controller
+        │                  │  │  │      AdminController.java
+        │                  │  │  │
+        │                  │  │  ├─domain
+        │                  │  │  │      ExecDetailDTO.java
+        │                  │  │  │      Request.java
+        │                  │  │  │      Result.java
+        │                  │  │  │      TaskHandlerDTO.java
+        │                  │  │  │
+        │                  │  │  └─service
+        │                  │  │          IScheduleService.java
+        │                  │  │          ScheduleService.java
+        │                  │  │
+        │                  │  └─storage
+        │                  │      │  IStorageService.java
+        │                  │      │
+        │                  │      ├─config
+        │                  │      │      StorageConfiguration.java
+        │                  │      │
+        │                  │      ├─jdbc
+        │                  │      │  │  JdbcStorageService.java
+        │                  │      │  │
+        │                  │      │  └─mapper
+        │                  │      │          ErrorMsgMapper.java
+        │                  │      │          ExecDetailMapper.java
+        │                  │      │          TaskHandlerMapper.java
+        │                  │      │
+        │                  │      └─redis
+        │                  │              RedisClientUtils.java
+        │                  │              RedisStorageService.java
+        │                  │
+        │                  └─task
+        │                          InitProcessor.java
+        │                          ScheduledTask.java
+        │                          Scheduler.java
+        │                          SchedulingRunnable.java
+        │                          TaskStore.java
+        │
+        └─resources
+            ├─data
+            │      schema.sql
+            │
+            ├─mapper
+            │      ErrorMsgMapper.xml
+            │      ExecDetailMapper.xml
+            │      TaskHandlerMapper.xml
+            │
+            └─static
+                    index.css
+                    index.html
+                    index.js
+           
+```
+
+
+
+
+
+## 四、测试验证
+
+
+
+
 
 
 
