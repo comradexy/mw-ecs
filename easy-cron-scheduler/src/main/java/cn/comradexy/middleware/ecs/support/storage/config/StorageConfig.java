@@ -29,13 +29,13 @@ import javax.sql.DataSource;
 @Configuration
 @ConditionalOnProperty(prefix = "comradexy.middleware.scheudle", name = "enableStorage", havingValue = "true")
 @MapperScan("cn.comradexy.middleware.ecs.support.storage.jdbc.mapper")
-public class StorageConfiguration {
+public class StorageConfig {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final EasyCronSchedulerProperties properties;
 
     @Autowired
-    public StorageConfiguration(EasyCronSchedulerProperties properties) {
+    public StorageConfig(EasyCronSchedulerProperties properties) {
         this.properties = properties;
     }
 

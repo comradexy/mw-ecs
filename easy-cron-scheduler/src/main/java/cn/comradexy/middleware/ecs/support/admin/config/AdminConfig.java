@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @ConditionalOnProperty(prefix = "comradexy.middleware.scheudle", name = "enableAdmin", havingValue = "true")
-public class AdminConfiguration {
+public class AdminConfig {
     @Bean("comradexy-middleware-admin-controller")
     public AdminController adminController() {
         return new AdminController();
