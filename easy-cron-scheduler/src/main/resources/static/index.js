@@ -67,13 +67,13 @@ document.addEventListener('DOMContentLoaded', function () {
         var buttonHTML = '';
         switch (state) {
             case 'Paused':
-                buttonHTML = '<button onclick="handleOperation(\'Put\', \'/schedule/api/resume\', \'' + taskKey + '\')">Resume</button>';
+                buttonHTML = '<button onclick="resumeTask(\'' + taskKey + '\')">Resume</button>';
                 break;
             case 'Running':
-                buttonHTML = '<button onclick="handleOperation(\'Put\', \'/schedule/api/pause\', \'' + taskKey + '\')">Pause</button>';
+                buttonHTML = '<button onclick="pasueTask(\'' + taskKey + '\')">Pause</button>';
                 break;
             case 'Error':
-                buttonHTML = '<button onclick="showErrorMsg(\'' + taskKey + '\')">Error</button>';
+                buttonHTML = '<button onclick="openErrorMsg(\'' + taskKey + '\')">Error</button>';
                 break;
             default:
                 buttonHTML = '';
@@ -85,8 +85,29 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchTaskList();
 });
 
+function pasueTask(taskKey) {
+    var method = 'PUT';
+    var url = '/schedule/api/pause';
+    var xhr = new XMLHttpRequest();
+    xhr.open(method, url, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            console.log('Operation successful for task:', taskKey);
+            fetchTaskList(); // 更新列表
+        } else {
+            console.error('Operation failed for task:', taskKey);
+        }
+    };
+    xhr.onerror = function () {
+        console.error('The operation request failed for task:', taskKey);
+    };
+    xhr.send(JSON.stringify({taskKey: taskKey}));
+}
 
-function handleOperation(method, url, taskKey) {
+function resumeTask(taskKey) {
+    var method = 'PUT';
+    var url = '/schedule/api/resume';
     var xhr = new XMLHttpRequest();
     xhr.open(method, url, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
@@ -150,6 +171,41 @@ function openHandlerInfo(handlerKey) {
                 document.getElementById('beanName').value = response.data.beanName;
                 document.getElementById('methodName').value = response.data.methodName;
                 modal.style.display = "block";
+            } else {
+                console.error('The request was successful but the data format is incorrect!');
+            }
+        } else {
+            console.error('The request failed!');
+        }
+    };
+    xhr.onerror = function () {
+        console.error('The request failed!');
+    };
+    xhr.send();
+}
+
+var errorMsgModal = document.getElementById("errorMsgModal");
+var errorMsgSpan = document.getElementsByClassName("closeErrorMsg")[0];
+
+errorMsgSpan.onclick = function () {
+    errorMsgModal.style.display = "none";
+}
+
+window.onclick = function (event) {
+    if (event.target == errorMsgModal) {
+        errorMsgModal.style.display = "none";
+    }
+}
+
+function openErrorMsg(taskKey) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/schedule/api/query_error_msg?taskKey=' + taskKey, true);
+    xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            var response = JSON.parse(xhr.responseText);
+            if (response.code === 200 && response.data) {
+                document.getElementById('errorMsg').value = response.data;
+                errorMsgModal.style.display = "block";
             } else {
                 console.error('The request was successful but the data format is incorrect!');
             }

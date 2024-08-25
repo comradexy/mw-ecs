@@ -65,7 +65,7 @@ tr:nth-child(even) {
     border: 1px solid #888;
     width: 80%;
     max-width: 500px;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    /*box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);*/
     /* 添加阴影效果 */
     border-radius: 10px;
     /* 圆角边框 */
@@ -100,6 +100,29 @@ tr:nth-child(even) {
     border: 1px solid #ccc;
     border-radius: 4px;
     /* 圆角输入框 */
+}
+
+.modal textarea {
+    width: 100%; /* 宽度占满模态框内容 */
+    height: 200px; /* 你可以根据需求调整高度 */
+    padding: 10px;
+    font-size: 16px; /* 设置合适的字体大小 */
+    box-sizing: border-box; /* 确保 padding 不影响整体宽度 */
+    resize: none; /* 禁用手动调整大小 */
+}
+
+.closeErrorMsg {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.closeErrorMsg:hover,
+.closeErrorMsg:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 /* 为按钮添加样式 */
