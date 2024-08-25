@@ -122,9 +122,52 @@ easy-cron-scheduler
 
 ## 四、测试验证
 
+工程结构如下：
+
+```
+easy-cron-scheduler-test
+└─src
+    ├─main
+    │  ├─java
+    │  │  └─cn
+    │  │      └─comradexy
+    │  │          └─middleware
+    │  │              │  Application.java
+    │  │              │
+    │  │              ├─config
+    │  │              │      SchedulerConfig.java
+    │  │              │
+    │  │              └─job
+    │  │                      ScheduledTask.java
+    │  │
+    │  └─resources
+    │          application.yml
+    │
+    └─test
+        └─java
+            └─cn
+                └─comradexy
+                    └─middleware
+                            AppTest.java
+                            UnitTest.java
+
+```
 
 
 
+![ui](./assets/ui.png)
+
+ecs_exec_detail：
+
+![ecs_exec_detail](./assets/ecs_exec_detail.png)
+
+ecs_task_handler：
+
+![ecs_task_handler](./assets/ecs_task_handler.png)
+
+ecs_error_msg：
+
+![ecs_error_msg](./assets/ecs_error_msg.png)
 
 
 
@@ -145,11 +188,7 @@ easy-cron-scheduler
 
 
 
-## Note
 
-- `@Scheduled` 默认以**单线程模式**执行（如果没有配置 `TaskScheduler` ，Spring会给 `ScheduledTaskRegister#TaskScheduler` 配置一个底层实现为 `SingleThreadScheduledExecutor` 的 `ConcurrentTaskScheduler` ），若需要并发执行定时任务，可以通过 `@Async` 和 `@EnableAsync` 注解实现（方法上加 `@Async` ，启动类上添加 `@EnableAsync` 注解）。
-- `@PostConstrut` 在Bean实例化后就会立即执行，参考[spring探秘:通过BeanPostProcessor、@PostConstruct、InitializingBean在启动前执行方法](https://www.cnblogs.com/feng-gamer/p/12001205.html)
-- [单元测试、集成测试、冒烟测试、系统测试、回归测试、验收测试](https://blog.csdn.net/tyw15/article/details/108123562)
 
  
 
