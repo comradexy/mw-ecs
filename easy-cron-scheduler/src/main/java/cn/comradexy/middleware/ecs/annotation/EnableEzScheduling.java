@@ -1,7 +1,7 @@
 package cn.comradexy.middleware.ecs.annotation;
 
 import cn.comradexy.middleware.ecs.support.admin.config.AdminConfiguration;
-import cn.comradexy.middleware.ecs.config.EasyCronSchedulerConfiguration;
+import cn.comradexy.middleware.ecs.config.EasyCronSchedulerConfig;
 import cn.comradexy.middleware.ecs.task.InitProcessor;
 import cn.comradexy.middleware.ecs.support.storage.config.StorageConfiguration;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -22,7 +22,7 @@ import java.lang.annotation.*;
 @Documented
 @Import({InitProcessor.class})
 @ImportAutoConfiguration({
-        EasyCronSchedulerConfiguration.class,
+        EasyCronSchedulerConfig.class,
         AdminConfiguration.class,
         StorageConfiguration.class
 })

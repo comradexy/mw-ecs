@@ -27,13 +27,13 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class})
 @EnableRetry
 @Getter
-public class EasyCronSchedulerConfiguration {
+public class EasyCronSchedulerConfig {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final EasyCronSchedulerProperties properties;
 
     @Autowired
-    public EasyCronSchedulerConfiguration(EasyCronSchedulerProperties properties) {
+    public EasyCronSchedulerConfig(EasyCronSchedulerProperties properties) {
         this.properties = properties;
     }
 

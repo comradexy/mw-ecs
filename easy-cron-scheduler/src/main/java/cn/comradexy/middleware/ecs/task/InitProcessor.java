@@ -4,7 +4,7 @@ import cn.comradexy.middleware.ecs.annotation.EzScheduled;
 import cn.comradexy.middleware.ecs.annotation.EzSchedules;
 import cn.comradexy.middleware.ecs.common.TaskKeyUtils;
 import cn.comradexy.middleware.ecs.common.ScheduleContext;
-import cn.comradexy.middleware.ecs.config.EasyCronSchedulerConfiguration;
+import cn.comradexy.middleware.ecs.config.EasyCronSchedulerConfig;
 import cn.comradexy.middleware.ecs.config.EasyCronSchedulerProperties;
 import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.domain.TaskHandler;
@@ -144,7 +144,7 @@ public class InitProcessor implements BeanPostProcessor, ApplicationContextAware
         try {
             ScheduleContext.properties = ScheduleContext.applicationContext
                     .getBean("comradexy-middleware-easy-cron-scheduler-configuration",
-                            EasyCronSchedulerConfiguration.class)
+                            EasyCronSchedulerConfig.class)
                     .getProperties();
             ScheduleContext.scheduler = ScheduleContext.applicationContext
                     .getBean("comradexy-middleware-easy-cron-scheduler", Scheduler.class);
