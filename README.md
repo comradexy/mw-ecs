@@ -18,6 +18,14 @@ Schedule是计划执行任务的通用术语。Quartz是Java任务调度框架�
 
 
 
+<center><p>图1. 系统架构</p></center>
+
+
+
+<img src="./assets/ExecState-Transition.svg" alt="ExecState-Transition" style="zoom:150%;" />
+
+<center><p>图2. 任务状态流转图</p></center>
+
 
 
 
