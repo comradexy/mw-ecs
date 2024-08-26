@@ -16,7 +16,7 @@ import java.lang.annotation.*;
 @Documented
 @Repeatable(EzSchedules.class)
 public @interface EzScheduled {
-    String cron() default "";
+    String cron();
 
     String desc() default "缺省";
 
