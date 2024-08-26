@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- 由 Microsoft Visio, SVG Export 生成 ExecState-Transition.svg 页-1 -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
+		width="4.24694in" height="2.41199in" viewBox="0 0 305.779 173.663" xml:space="preserve" color-interpolation-filters="sRGB"
+		class="st14">
+	<style type="text/css">
+	<![CDATA[
+		.st1 {fill:#595959;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.5}
+		.st2 {fill:#ffffff;font-family:Calibri;font-size:0.833336em}
+		.st3 {fill:#4070c0;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.5}
+		.st4 {fill:#136f63;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.5}
+		.st5 {fill:#c00000;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.5}
+		.st6 {fill:#f59040;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.5}
+		.st7 {fill:#032b43;fill-opacity:0.8;stroke:#032b43;stroke-dasharray:7,5;stroke-linecap:round;stroke-linejoin:round;stroke-width:1}
+		.st8 {marker-end:url(#mrkr4-25);stroke:#262626;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.5}
+		.st9 {fill:#262626;fill-opacity:1;stroke:#262626;stroke-opacity:1;stroke-width:0.21739130434783}
+		.st10 {fill:none;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.5}
+		.st11 {fill:#000000;font-family:Calibri;font-size:0.499992em}
+		.st12 {font-size:1em}
+		.st13 {font-size:1em;font-style:italic}
+		.st14 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
+	]]>
+	</style>
+
+	<defs id="Markers">
+		<g id="lend4">
+			<path d="M 2 1 L 0 0 L 2 -1 L 2 1 " style="stroke:none"/>
+		</g>
+		<marker id="mrkr4-25" class="st9" refX="-9.2" orient="auto" markerUnits="strokeWidth" overflow="visible">
+			<use xlink:href="#lend4" transform="scale(-4.6,-4.6) "/>
+		</marker>
+	</defs>
+	<g>
+		<title>页-1</title>
+		<g id="group26-1" transform="translate(0.25,-0.5)">
+			<title>工作表.26</title>
+			<g id="shape27-2" transform="translate(136.884,-144.567)">
+				<title>圆角矩形.236</title>
+				<desc>INIT</desc>
+				<path d="M3.19 173.66 L51.02 173.66 A3.1889 3.1889 -180 0 0 54.21 170.47 L54.21 148.51 A3.1889 3.1889 -180 0 0 51.02
+							 145.32 L3.19 145.32 A3.1889 3.1889 -180 0 0 0 148.51 L0 170.47 A3.1889 3.1889 -180 0 0 3.19 173.66 Z"
+						class="st1"/>
+				<text x="18.92" y="162.49" class="st2">INIT</text>			</g>
+			<g id="shape28-5" transform="translate(22.7008,-72.2835)">
+				<title>圆角矩形.237</title>
+				<desc>BLOCKED</desc>
+				<path d="M2.83 173.66 L51.38 173.66 A2.8346 2.8346 -180 0 0 54.21 170.83 L54.21 148.15 A2.8346 2.8346 -180 0 0 51.38
+							 145.32 L2.83 145.32 A2.8346 2.8346 -180 0 0 0 148.15 L0 170.83 A2.8346 2.8346 -180 0 0 2.83 173.66 Z"
+						class="st3"/>
+				<text x="8.19" y="162.49" class="st2">BLOCKED</text>			</g>
+			<g id="shape29-8" transform="translate(136.884,-72.2835)">
+				<title>圆角矩形.238</title>
+				<desc>RUNNING</desc>
+				<path d="M3.19 173.66 L51.02 173.66 A3.1889 3.1889 -180 0 0 54.21 170.47 L54.21 148.51 A3.1889 3.1889 -180 0 0 51.02
+							 145.32 L3.19 145.32 A3.1889 3.1889 -180 0 0 0 148.51 L0 170.47 A3.1889 3.1889 -180 0 0 3.19 173.66 Z"
+						class="st4"/>
+				<text x="7.09" y="162.49" class="st2">RUNNING</text>			</g>
+			<g id="shape30-11" transform="translate(22.7008,0)">
+				<title>圆角矩形.239</title>
+				<desc>ERROR</desc>
+				<path d="M2.83 173.66 L51.38 173.66 A2.8346 2.8346 -180 0 0 54.21 170.83 L54.21 148.15 A2.8346 2.8346 -180 0 0 51.38
+							 145.32 L2.83 145.32 A2.8346 2.8346 -180 0 0 0 148.15 L0 170.83 A2.8346 2.8346 -180 0 0 2.83 173.66 Z"
+						class="st5"/>
+				<text x="13.21" y="162.49" class="st2">ERROR</text>			</g>
+			<g id="shape31-14" transform="translate(251.067,-72.2835)">
+				<title>圆角矩形.240</title>
+				<desc>PAUSED</desc>
+				<path d="M3.19 173.66 L51.02 173.66 A3.18891 3.18891 -180 0 0 54.21 170.47 L54.21 148.51 A3.18891 3.18891 -180 0
+							 0 51.02 145.32 L3.19 145.32 A3.18891 3.18891 -180 0 0 0 148.51 L0 170.47 A3.18891 3.18891 -180 0 0 3.19
+							 173.66 Z" class="st6"/>
+				<text x="10.61" y="162.49" class="st2">PAUSED</text>			</g>
+			<g id="shape32-17" transform="translate(136.884,0)">
+				<title>圆角矩形.241</title>
+				<desc>COMPLETE</desc>
+				<path d="M3.19 173.66 L51.02 173.66 A3.1889 3.1889 -180 0 0 54.21 170.47 L54.21 148.51 A3.1889 3.1889 -180 0 0 51.02
+							 145.32 L3.19 145.32 A3.1889 3.1889 -180 0 0 0 148.51 L0 170.47 A3.1889 3.1889 -180 0 0 3.19 173.66 Z"
+						class="st7"/>
+				<text x="4.85" y="162.49" class="st2">COMPLETE</text>			</g>
+			<g id="shape33-20" transform="translate(156.904,-144.567)">
+				<title>动态连接线</title>
+				<path d="M7.09 173.66 L7.09 213" class="st8"/>
+			</g>
+			<g id="shape34-26" transform="translate(156.904,-72.2835)">
+				<title>动态连接线.246</title>
+				<path d="M7.09 173.66 L7.09 213" class="st8"/>
+			</g>
+			<g id="shape35-31" transform="translate(251.067,-75.1181)">
+				<title>动态连接线.247</title>
+				<path d="M0 166.58 L-55.37 166.58" class="st8"/>
+			</g>
+			<g id="shape36-36" transform="translate(42.7205,-72.2835)">
+				<title>动态连接线.248</title>
+				<path d="M7.09 173.66 L7.09 213" class="st8"/>
+			</g>
+			<g id="shape37-41" transform="translate(163.99,-144.567)">
+				<title>动态连接线.249</title>
+				<path d="M0 173.66 L0 191.71 L-114.18 191.71 L-114.18 213" class="st8"/>
+			</g>
+			<g id="shape38-46" transform="translate(147.78,-72.2835)">
+				<title>动态连接线.250</title>
+				<path d="M0 173.66 L0 183.58 L-82.2 183.58 L-82.2 213" class="st8"/>
+			</g>
+			<g id="shape39-51" transform="translate(76.9133,-89.2913)">
+				<title>动态连接线.251</title>
+				<path d="M0 180.75 L55.37 180.75" class="st8"/>
+			</g>
+			<g id="shape40-56" transform="translate(191.096,-97.7953)">
+				<title>动态连接线.254</title>
+				<path d="M0 180.75 L55.37 180.75" class="st8"/>
+			</g>
+			<g id="shape41-61" transform="translate(135.245,-88.5827)">
+				<title>动态连接线.268</title>
+				<path d="M1.64 171.54 L-11.56 171.54 L-11.56 148.86 L12.53 148.86 L12.53 157.02" class="st8"/>
+			</g>
+			<g id="shape42-66" transform="translate(163.85,-41.1024)">
+				<title>工作表.42</title>
+				<desc>execCount &#62;= maxExecCount || LocalDateTime.now().isAfter(endT...</desc>
+				<rect x="0" y="153.821" width="103.921" height="19.8425" class="st10"/>
+				<text x="4" y="161.94" class="st11">execCount &#62;= maxExecCount || <tspan x="4" dy="1.2em" class="st12">L</tspan>ocalDateTime.<tspan
+							class="st13">now</tspan>().isAfter(endTime)</text>			</g>
+			<g id="shape43-71" transform="translate(199.359,-92.9764)">
+				<title>工作表.43</title>
+				<desc>pauseTask()</desc>
+				<rect x="0" y="166.01" width="43.4449" height="7.65355" class="st10"/>
+				<text x="7.21" y="171.64" class="st11">pauseTask()</text>			</g>
+			<g id="shape44-74" transform="translate(199.359,-72.7087)">
+				<title>工作表.44</title>
+				<desc>resumeTask()</desc>
+				<rect x="0" y="166.01" width="43.4449" height="7.65355" class="st10"/>
+				<text x="5.29" y="171.64" class="st11">resumeTask()</text>			</g>
+			<g id="shape45-77" transform="translate(81.6279,-52.9724)">
+				<title>工作表.45</title>
+				<desc>throw Execption</desc>
+				<rect x="0" y="165.159" width="50.5413" height="8.50394" class="st10"/>
+				<text x="5.29" y="171.21" class="st11">throw Execption</text>			</g>
+			<g id="shape46-80" transform="translate(79.7923,-72.5669)">
+				<title>工作表.46</title>
+				<desc>auto-reschedule</desc>
+				<rect x="0" y="165.159" width="54.2126" height="8.50394" class="st10"/>
+				<text x="7.21" y="171.21" class="st11">auto-reschedule</text>			</g>
+			<g id="shape47-83" transform="translate(84.9599,-100.346)">
+				<title>工作表.47</title>
+				<desc>auto-resume after reboot</desc>
+				<rect x="0" y="158.073" width="40.1424" height="15.5905" class="st10"/>
+				<text x="4.38" y="164.07" class="st11">auto-resume  <tspan x="4.54" dy="1.2em" class="st12">after  reboot</tspan></text>			</g>
+			<g id="shape48-87" transform="translate(163.732,-130.394)">
+				<title>工作表.48</title>
+				<desc>scheduleTask()</desc>
+				<rect x="0" y="165.159" width="44.9921" height="8.50394" class="st10"/>
+				<text x="4.4" y="171.21" class="st11">scheduleTask()</text>			</g>
+			<g id="shape49-90" transform="translate(6.79456E-14,-41.1024)">
+				<title>工作表.49</title>
+				<desc>rescheduleCount &#62;= maxAttempts</desc>
+				<rect x="0" y="153.821" width="49.6063" height="19.8425" class="st10"/>
+				<text x="4.08" y="161.94" class="st11">rescheduleCount <tspan x="4.62" dy="1.2em" class="st12">&#62;= maxAttempts</tspan></text>			</g>
+			<g id="shape50-94" transform="translate(63.215,-127.843)">
+				<title>工作表.50</title>
+				<desc>throw TaskRejectExecption</desc>
+				<rect x="0" y="165.159" width="75.0187" height="8.50394" class="st10"/>
+				<text x="4.48" y="171.21" class="st11">throw TaskRejectExecption</text>			</g>
+		</g>
+	</g>
+</svg>
