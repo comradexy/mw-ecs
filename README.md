@@ -1,4 +1,12 @@
-# Easy Cron Scheduler
+
+
+<h1 align="center" style="margin: 30px 0 30px; font-weight: bold;">Easy Cron Scheduler</h1>
+<h4 align="center">基于Spring的自研定时任务组件</h4>
+<p align="center">
+	<a href="https://github.com/comradexy/mw-ecs"><img src="https://img.shields.io/github/v/release/comradexy/mw-ecs"></a>
+	<a href="https://github.com/comradexy/mw-ecs/LICENSE"><img src="https://img.shields.io/github/license/ComradeXY/mw-ecs"></a></p>
+
+
 
 ## 一、需求背景
 
@@ -23,30 +31,13 @@ Schedule是计划执行任务的通用术语。Quartz是Java任务调度框架�
 	<p>图1. 系统架构</p>
 </div>
 
+使用者通过在启动类上注明 `@EnableEzScheduling` ，来开启组件服务；在方法上注明 `@EzScheduled` （本项目支持重复注解，如果需要为同一个方法设置不同的定时周期/最大执行次数/终止时间，可以用 `@EzSchedules` 包裹多个 `@EzScheduled` 注解），并将该方法的宿主类声明为Spring Bean，以此完成定时任务的定义；
 
+系统启动时，加载配置文件，并根据配置参数初始化系统环境，选择性开启外围服务（ `enableStorage=true`  时，开启持久化服务； `enableAdmin=true` 时，开启管理端服务）；
 
+系统环境以及外围服务初始化完成后，通过实现 `BeanPostProcessor` 接口，扫描所有 `@EzScheduled` （包括被`@EzScheduled` 包裹的）修饰的方法，将其解析并存储在任务存储中心中；
 
-
-
-
-<div align=center>
-    <img src="./assets/ExecState-Transition.svg" alt="任务状态流转图" style="width:100%; height:100%;"/> 
-	<p>图2. 任务状态流转图</p>
-</div>
-
-`ExecDetail` 共有6种状态，即 `INIT` 、 `RUNNING` 、 `PAUSED` 、 `BLOCKED` 、 `ERROR` 和 `COMPLETED` ，各个任务状态的迁移过程如图2所示。
-
-被 `@EzScheduled` 修饰的方法会被注册为 `TaskHandler` ，根据注解中的参数（包括 `cron` 、 `desc (optional)` 、`endTime (optional)` 、 `maxExecCount (optional)` ）注册相应的 `ExecDetail` ，其初始状态为 `INIT` ，两者注册完成后被存入 `TaskStore` ；
-
-随后由 `Scheduler` 调用 `scheduleTask()` 方法对状态为 `INIT` 的任务进行调度，若调度成功，任务状态转为 `RUNNING` ；若 `Scheduler` 中没有空闲的线程可以用于任务调度，则会触发 `TaskRejectedException` 错误，任务会被暂时标记为 `BLOCKED` 状态，随后系统会自动进行多次延迟重试，如果重新调度成功，任务状态转为 `RUNNING` ；如果超过最大重试次数，任务将被标记为 `ERROR` ，等待人工处理；
-
-如果任务运行过程中发生异常报错，任务将会被自动终止，并被标记为 `ERROR` ；
-
-控制台可以通过调用 `pauseTask()` 和 `resumeTask()` 对任务分别进行暂停和恢复操作；
-
-如果开启了持久化存储服务 `enableStorage=true` ，系统关机或运行过程中发生故障（如断电等）后，重启时，系统会自动扫描已被调度任务（即状态被存储为 `RUNNING` 的任务），并将其恢复；
-
-如果任务执行次数达到上限或超过了终止时间，则任务终止 -> `COMPLETED` ；事实上， `COMPLETED` 是虚拟状态，任务进入该状态就会被删除；此外，控制台可以通过调用 `deleteTask()` 删除其他任何状态的任务。
+最后，任务调度器从任务存储中心中读取所有初始化完成的任务，对其进行调度，开启定时任务。
 
 
 
@@ -145,6 +136,57 @@ easy-cron-scheduler
 ```
 
 
+
+
+
+
+
+### 2. 初始化服务
+
+
+
+
+
+
+
+
+
+
+
+### 3. 任务状态迁移
+
+
+
+<div align=center>
+    <img src="./assets/ExecState-Transition.svg" alt="任务状态流转图" style="width:100%; height:100%;"/> 
+	<p>图2. 任务状态流转图</p>
+</div>
+
+`ExecDetail` 共有6种状态，即 `INIT` 、 `RUNNING` 、 `PAUSED` 、 `BLOCKED` 、 `ERROR` 和 `COMPLETED` ，各个任务状态的迁移过程如图2所示。
+
+被 `@EzScheduled` 修饰的方法会被注册为 `TaskHandler` ，根据注解中的参数（包括 `cron` 、 `desc (optional)` 、`endTime (optional)` 、 `maxExecCount (optional)` ）注册相应的 `ExecDetail` ，其初始状态为 `INIT` ，两者注册完成后被存入 `TaskStore` ；
+
+随后由 `Scheduler` 调用 `scheduleTask()` 方法对状态为 `INIT` 的任务进行调度，若调度成功，任务状态转为 `RUNNING` ；若 `Scheduler` 中没有空闲的线程可以用于任务调度，则会触发 `TaskRejectedException` 错误，任务会被暂时标记为 `BLOCKED` 状态，随后系统会自动进行多次延迟重试，如果重新调度成功，任务状态转为 `RUNNING` ；如果超过最大重试次数，任务将被标记为 `ERROR` ，等待人工处理；
+
+如果任务运行过程中发生异常报错，任务将会被自动终止，并被标记为 `ERROR` ；
+
+控制台可以通过调用 `pauseTask()` 和 `resumeTask()` 对任务分别进行暂停和恢复操作；
+
+如果开启了持久化存储服务 `enableStorage=true` ，系统关机或运行过程中发生故障（如断电等）后，重启时，系统会自动扫描已被调度任务（即状态被存储为 `RUNNING` 的任务），并将其恢复；
+
+如果任务执行次数达到上限或超过了终止时间，则任务终止 -> `COMPLETED` ；事实上， `COMPLETED` 是虚拟状态，任务进入该状态就会被删除；此外，控制台可以通过调用 `deleteTask()` 删除其他任何状态的任务。
+
+
+
+
+
+### 4. 并行任务注册
+
+
+
+
+
+### 5. 可扩展AOP
 
 
 
