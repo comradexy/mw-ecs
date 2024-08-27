@@ -39,18 +39,10 @@ public class StorageConfig {
         this.properties = properties;
     }
 
-    @Bean("comradexy-middleware-storage-service")
+    @Bean("comradexy-middleware-storage-service-jdbc")
+    @ConditionalOnProperty(prefix = "comradexy.middleware.scheudle", name = "storageType", havingValue = "jdbc")
     public IStorageService storageService() {
-        if (properties.getStorageType().equals(EasyCronSchedulerProperties.StorageType.JDBC.getValue())) {
-            return new JdbcStorageService();
-        } else if (properties.getStorageType().equals(EasyCronSchedulerProperties.StorageType.REDIS.getValue())) {
-            // TODO: Redis存储服务
-            logger.warn("[EasyCronScheduler] Storage type: [{}] is not supported yet.", properties.getStorageType());
-            return null;
-        } else {
-            logger.warn("[EasyCronScheduler] Storage type: [{}] is not supported.", properties.getStorageType());
-            return null;
-        }
+        return new JdbcStorageService();
     }
 
     @Bean("comradexy-middleware-data-source")

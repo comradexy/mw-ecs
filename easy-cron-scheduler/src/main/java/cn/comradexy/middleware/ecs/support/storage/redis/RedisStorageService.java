@@ -15,7 +15,10 @@ import java.util.Set;
  * @Description: Redis存储服务
  */
 public class RedisStorageService implements IStorageService {
+    @Override
+    public void init() {
 
+    }
 
     @Override
     public void insertErrorMsg(String execDetailKey, String errorMsg) {

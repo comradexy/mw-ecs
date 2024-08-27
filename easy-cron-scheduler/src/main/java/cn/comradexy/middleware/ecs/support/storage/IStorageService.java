@@ -14,6 +14,13 @@ import java.util.Set;
  * @Description: 存储服务接口
  */
 public interface IStorageService {
+    String BEAN_NAME_PREFIX = "comradexy-middleware-storage-service-";
+
+    /**
+     * 初始化
+     */
+    void init();
+
     /**
      * 插入错误信息
      */

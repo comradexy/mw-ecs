@@ -131,7 +131,6 @@ public class InitProcessor implements BeanPostProcessor, ApplicationContextAware
     public void onApplicationEvent(ContextRefreshedEvent event) {
         if (event.getApplicationContext() == ScheduleContext.applicationContext) {
             init_config();
-            init_dcs();
             init_storage();
             init_tasks();
         }
@@ -157,51 +156,24 @@ public class InitProcessor implements BeanPostProcessor, ApplicationContextAware
     }
 
     /**
-     * 初始化分布式服务
-     */
-    private void init_dcs() {
-
-    }
-
-    /**
      * 初始化存储服务
      */
     private void init_storage() {
         if (!ScheduleContext.properties.getEnableStorage()) return;
 
-        ScheduleContext.storageService = ScheduleContext.applicationContext
-                .getBean("comradexy-middleware-storage-service", IStorageService.class);
+        ScheduleContext.storageService = ScheduleContext.applicationContext.getBean(
+                IStorageService.BEAN_NAME_PREFIX + ScheduleContext.properties.getStorageType(),
+                IStorageService.class);
 
-        if (ScheduleContext.properties.getStorageType().equals(EasyCronSchedulerProperties.StorageType.JDBC.getValue())) {
-            logger.info("[EasyCronScheduler] init storage service: JDBC");
+        // 初始化存储服务
+        ScheduleContext.storageService.init();
 
-            // 初始化数据库，创建表（如果不存在）
-            try (Statement statement = ScheduleContext.applicationContext
-                    .getBean("comradexy-middleware-data-source", DataSource.class)
-                    .getConnection()
-                    .createStatement()) {
-                // 获取 resources 目录下的 schema.sql 文件，并执行
-                ClassPathResource resource = new ClassPathResource("data/schema.sql");
-                String schemaSql = new String(resource.getInputStream().readAllBytes());
-                // 按分号分割每条SQL语句
-                String[] sqlStatements = schemaSql.split(";");
-                for (String sql : sqlStatements) {
-                    if (!sql.trim().isEmpty()) statement.addBatch(sql);
-                }
-                statement.executeBatch();
-            } catch (Exception e) {
-                throw new RuntimeException("[EasyCronScheduler] Init storage service failed", e);
-            }
-
-            // 数据恢复：从数据库中加载任务到缓存中
-            if (ScheduleContext.storageService == null) {
-                throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
-            }
-            ScheduleContext.storageService.queryAllExecDetails().forEach(ScheduleContext.taskStore::addExecDetail);
-            ScheduleContext.storageService.queryAllTaskHandlers().forEach(ScheduleContext.taskStore::addTaskHandler);
+        // 数据恢复：从数据库中加载任务到缓存中
+        if (ScheduleContext.storageService == null) {
+            throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
         }
-
-        // TODO: REDIS存储服务
+        ScheduleContext.storageService.queryAllExecDetails().forEach(ScheduleContext.taskStore::addExecDetail);
+        ScheduleContext.storageService.queryAllTaskHandlers().forEach(ScheduleContext.taskStore::addTaskHandler);
 
     }
 

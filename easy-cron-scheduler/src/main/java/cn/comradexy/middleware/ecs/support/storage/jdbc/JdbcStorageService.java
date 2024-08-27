@@ -1,5 +1,6 @@
 package cn.comradexy.middleware.ecs.support.storage.jdbc;
 
+import cn.comradexy.middleware.ecs.common.ScheduleContext;
 import cn.comradexy.middleware.ecs.domain.ErrorMsg;
 import cn.comradexy.middleware.ecs.domain.ExecDetail;
 import cn.comradexy.middleware.ecs.domain.TaskHandler;
@@ -7,8 +8,13 @@ import cn.comradexy.middleware.ecs.support.storage.IStorageService;
 import cn.comradexy.middleware.ecs.support.storage.jdbc.mapper.ErrorMsgMapper;
 import cn.comradexy.middleware.ecs.support.storage.jdbc.mapper.ExecDetailMapper;
 import cn.comradexy.middleware.ecs.support.storage.jdbc.mapper.TaskHandlerMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 
+import javax.sql.DataSource;
+import java.sql.Statement;
 import java.util.Set;
 
 /**
@@ -19,6 +25,7 @@ import java.util.Set;
  * @Description: JDBC存储服务
  */
 public class JdbcStorageService implements IStorageService {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private TaskHandlerMapper taskHandlerMapper;
     private ExecDetailMapper execDetailMapper;
@@ -37,6 +44,29 @@ public class JdbcStorageService implements IStorageService {
     @Autowired
     public void setErrorMsgMapper(ErrorMsgMapper errorMsgMapper) {
         this.errorMsgMapper = errorMsgMapper;
+    }
+
+    @Override
+    public void init() {
+        logger.info("[EasyCronScheduler] init storage service: JDBC");
+
+        // 初始化数据库，创建表（如果不存在）
+        try (Statement statement = ScheduleContext.applicationContext
+                .getBean("comradexy-middleware-data-source", DataSource.class)
+                .getConnection()
+                .createStatement()) {
+            // 获取 resources 目录下的 schema.sql 文件，并执行
+            ClassPathResource resource = new ClassPathResource("data/schema.sql");
+            String schemaSql = new String(resource.getInputStream().readAllBytes());
+            // 按分号分割每条SQL语句
+            String[] sqlStatements = schemaSql.split(";");
+            for (String sql : sqlStatements) {
+                if (!sql.trim().isEmpty()) statement.addBatch(sql);
+            }
+            statement.executeBatch();
+        } catch (Exception e) {
+            throw new RuntimeException("[EasyCronScheduler] Init storage service failed", e);
+        }
     }
 
     @Override
