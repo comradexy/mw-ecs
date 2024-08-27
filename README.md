@@ -139,17 +139,156 @@ easy-cron-scheduler
 
 
 
-
-
 ### 2. 初始化服务
 
+`InitProcessor`
 
 
 
+#### 2.1. Bean初始化
 
 
 
+#### 2.2. 系统配置初始化
 
+
+
+#### 2.3. 持久化服务初始化
+
+如果选择开启持久化服务，那么：
+
+1. 在 `InitProcessor#init_storage()` 中就会尝试获取名为 `` 且类型为 `IStorageService.class` 的 Bean ，将其装配到 `ScheduleContext` 中。
+2. 然后会调用持久化服务类的初始化方法。组件中默认采用 JDBC 实现，故默认调用 `JdbcStorageService#init()` ，主要完成数据库的初始化，读取 `schema.sql` 中的建表语句，创建 `ecs_exec_detail` 、 `ecs_task_handler` 、 `ecs_error_msg` 三张表。
+3. 最后进行数据恢复，读取被存储的任务信息，用于后续的任务调度。
+
+
+
+`InitProcessor#init_storage()` :
+
+```java
+private void init_storage() {
+    if (!ScheduleContext.properties.getEnableStorage()) return;
+
+    ScheduleContext.storageService = ScheduleContext.applicationContext.getBean(
+            IStorageService.BEAN_NAME_PREFIX + ScheduleContext.properties.getStorageType(),
+            IStorageService.class);
+
+    // 初始化存储服务
+    ScheduleContext.storageService.init();
+
+    // 数据恢复
+    if (ScheduleContext.storageService == null) {
+        throw new RuntimeException("存储服务已启用，但 StorageService 未初始化");
+    }
+    ScheduleContext.storageService.queryAllExecDetails().forEach(ScheduleContext.taskStore::addExecDetail);
+    ScheduleContext.storageService.queryAllTaskHandlers().forEach(ScheduleContext.taskStore::addTaskHandler);
+
+}
+```
+
+
+
+`JdbcStorageService#init()` :
+
+```java
+public void init() {
+    logger.info("[EasyCronScheduler] init storage service: JDBC");
+
+    // 初始化数据库，创建表（如果不存在）
+    try (Statement statement = ScheduleContext.applicationContext
+            .getBean("comradexy-middleware-data-source", DataSource.class)
+            .getConnection()
+            .createStatement()) {
+        // 获取 resources 目录下的 schema.sql 文件，并执行
+        ClassPathResource resource = new ClassPathResource("data/schema.sql");
+        String schemaSql = new String(resource.getInputStream().readAllBytes());
+        // 按分号分割每条SQL语句
+        String[] sqlStatements = schemaSql.split(";");
+        for (String sql : sqlStatements) {
+            if (!sql.trim().isEmpty()) statement.addBatch(sql);
+        }
+        statement.executeBatch();
+    } catch (Exception e) {
+        throw new RuntimeException("[EasyCronScheduler] Init storage service failed", e);
+    }
+}
+```
+
+
+
+**任务存储提供相应的 SPI 接口可供扩展，例如：**
+
+1. 将配置 `storageType` 改为 `custom` ；
+
+2. 实现 `IStorageService` 接口，相关的初始化工作在其 `init()` 方法中实现； 
+
+3. 在配置类中注册 `IStorageService` 类型的 Bean ，如：
+
+   ```java
+   @Bean("comradexy-middleware-storage-service-custom") // Bean的命名规则：IStorageService.BEAN_NAME_PREFIX + ScheduleContext.properties.getStorageType()
+   @ConditionalOnProperty(prefix = "comradexy.middleware.scheudle", name = "storageType", havingValue = "custom")
+   public IStorageService storageService() {
+       return new CustomStorageService();
+   }
+   ```
+
+4. 完成以上步骤就可以使用自定义的存储形式，例如 Redis 。
+
+
+
+#### 2.4. 任务调度
+
+`InitProcessor#init_tasks()` :
+
+```java
+private void init_tasks() {
+    pendingTasks.forEach(pendingTask -> {
+        // 生成ExecDetail和TaskHandler的key
+        String execDetailKey =
+                TaskKeyUtils.getExecDetailKey(ScheduleContext.properties.getSchedulerServerId(),
+                        pendingTask.getTaskHandler(), pendingTask.getExecDetail());
+        String taskHandlerKey =
+                TaskKeyUtils.getTaskHandlerKey(ScheduleContext.properties.getSchedulerServerId(),
+                        pendingTask.getTaskHandler());
+
+        // 组装ExecDetail
+        if (null != ScheduleContext.taskStore.getExecDetail(execDetailKey)) return;
+        ExecDetail execDetail = ExecDetail.builder()
+                .key(execDetailKey)
+                .desc(pendingTask.getExecDetail().getDesc())
+                .cronExpr(pendingTask.getExecDetail().getCronExpr())
+                .taskHandlerKey(taskHandlerKey)
+                .endTime(pendingTask.getExecDetail().getEndTime())
+                .maxExecCount(pendingTask.getExecDetail().getMaxExecCount())
+                .build();
+        ScheduleContext.taskStore.addExecDetail(execDetail);
+
+        // 组装TaskHandler
+        if (null != ScheduleContext.taskStore.getTaskHandler(taskHandlerKey)) return;
+        String handlerDesc = "beanClass: " + pendingTask.getTaskHandler().getBeanClassName() +
+                ", beanName: " + pendingTask.getTaskHandler().getBeanName() +
+                ", methodName: " + pendingTask.getTaskHandler().getMethodName();
+        TaskHandler job = TaskHandler.builder()
+                .key(taskHandlerKey)
+                .desc(handlerDesc)
+                .beanClassName(pendingTask.getTaskHandler().getBeanClassName())
+                .beanName(pendingTask.getTaskHandler().getBeanName())
+                .methodName(pendingTask.getTaskHandler().getMethodName())
+                .build();
+        ScheduleContext.taskStore.addTaskHandler(job);
+    });
+
+    // 调度任务
+    ScheduleContext.taskStore.getAllExecDetails().forEach(execDetail -> {
+        if (execDetail.getState().equals(ExecDetail.ExecState.INIT)) {
+            ScheduleContext.scheduler.scheduleTask(execDetail.getKey());
+        } else if (execDetail.getState().equals(ExecDetail.ExecState.BLOCKED)
+                || execDetail.getState().equals(ExecDetail.ExecState.RUNNING)) {
+            ScheduleContext.scheduler.resumeTask(execDetail.getKey());
+        }
+    });
+}
+```
 
 
 
