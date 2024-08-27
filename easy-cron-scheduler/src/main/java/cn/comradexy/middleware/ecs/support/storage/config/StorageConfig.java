@@ -8,8 +8,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -30,7 +28,6 @@ import javax.sql.DataSource;
 @ConditionalOnProperty(prefix = "comradexy.middleware.scheudle", name = "enableStorage", havingValue = "true")
 @MapperScan("cn.comradexy.middleware.ecs.support.storage.jdbc.mapper")
 public class StorageConfig {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final EasyCronSchedulerProperties properties;
 
