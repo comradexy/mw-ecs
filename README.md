@@ -149,7 +149,24 @@ easy-cron-scheduler
 
 
 
+
+
 #### 2.2. 系统配置初始化
+
+读取配置文件，加载到 `EasyCronSchedulerProperties` 中
+
+`ScheduleContext` 中存放一些上下文信息，其中就包括配置参数
+
+```Java
+public class ScheduleContext {
+    public static final String DEFAULT_END_TIME = "NEVER_EXPIRE";
+    public static ApplicationContext applicationContext;
+    public static EasyCronSchedulerProperties properties;
+    public static Scheduler scheduler;
+    public static TaskStore taskStore;
+    public static IStorageService storageService;
+}
+```
 
 
 
