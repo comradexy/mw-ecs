@@ -141,13 +141,13 @@ easy-cron-scheduler
 
 ### 2. 初始化服务
 
-`InitProcessor`
+初始化服务主要通过 `InitProcessor` 实现，它继承了 `BeanPostProcessor` 、 `ApplicationContextAware` 和 `ApplicationListener<ContextRefreshedEvent>` 等接口，用于在 Bean 的不同阶段进行相应的初始化工作。
 
 
 
 #### 2.1. Bean初始化
 
-
+ `InitProcessor` 通过实现 `BeanPostProcessor` 接口并调用 `postProcessAfterInitialization` 方法，实现对应用中所有 Bean 的扫描。即，在 Bean 完成属性填充之后，判断其内部是否有方法被 `@EzScheduled` 或 `@EzScheduled` 注解修饰，从而将其注册为定时任务。
 
 
 
