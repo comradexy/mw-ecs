@@ -1,24 +1,26 @@
 spring:
   application:
-    name: ecs-test
+    name: ${spring.application.name}
+  profiles:
+    active: dev
 
 server:
-  port: 8091
+  port: ${server.port}
 
 logging:
   level:
-    root: info
+    root: ${logging.level.root}
 
 comradexy:
   middleware:
     scheudle:
-      schedulerServerId: easy-cron-scheduler-server
-      schedulerServerName: 简易定时任务调度服务
-      schedulerPoolSize: 8
-      enableStorage: true
-      enableAdmin: true
-      storageType: jdbc
+      schedulerServerId: ${comradexy.middleware.scheudle.schedulerServerId}
+      schedulerServerName: ${comradexy.middleware.scheudle.schedulerServerName}
+      schedulerPoolSize: ${comradexy.middleware.scheudle.schedulerPoolSize}
+      enableStorage: ${comradexy.middleware.scheudle.enableStorage}
+      enableAdmin: ${comradexy.middleware.scheudle.enableAdmin}
+      storageType: ${comradexy.middleware.scheudle.storageType}
       dataSource:
-        url: jdbc:mysql://localhost:3306/easy_cron_scheduler?useUnicode=true&characterEncoding=utf-8&useSSL=false
-        username: root
-        password: 1234
+        url: ${comradexy.middleware.scheudle.dataSource.url}
+        username: ${comradexy.middleware.scheudle.dataSource.username}
+        password: ${comradexy.middleware.scheudle.dataSource.password}
